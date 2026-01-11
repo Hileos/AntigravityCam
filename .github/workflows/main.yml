@@ -1,0 +1,58 @@
+name: Build iOS App
+
+on:
+  push:
+    branches: [ "main" ]
+  workflow_dispatch:
+
+jobs:
+  build:
+    name: Build and Archive
+    runs-on: macos-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Homebrew
+        id: set-up-homebrew
+        uses: Homebrew/actions/setup-homebrew@master
+
+      - name: Install XcodeGen
+        run: brew install xcodegen
+
+      - name: Generate Xcode Project
+        run: |
+          cd ios
+          xcodegen generate
+          cd ..
+
+      - name: Build App
+        run: |
+          xcodebuild clean build \
+            -project "ios/AntigravityCam.xcodeproj" \
+            -scheme "AntigravityCam" \
+            -sdk iphoneos \
+            -configuration Release \
+            -derivedDataPath build/ \
+            CODE_SIGN_IDENTITY="" \
+            CODE_SIGNING_REQUIRED=NO \
+            CODE_SIGNING_ALLOWED=NO
+
+      - name: Package IPA
+        run: |
+          mkdir -p Payload
+          # Verify build success
+          if [ -d "build/Build/Products/Release-iphoneos/AntigravityCam.app" ]; then
+            mv build/Build/Products/Release-iphoneos/AntigravityCam.app Payload/
+            zip -r AntigravityCam.ipa Payload
+          else
+            echo "::error::App build not found. Ensure .xcodeproj exists and scheme matches."
+            exit 1
+          fi
+
+      - name: Upload IPA
+        uses: actions/upload-artifact@v4
+        with:
+          name: AntigravityCam-IPA
+          path: AntigravityCam.ipa

@@ -1,0 +1,26 @@
+name: AntigravityCam
+options:
+  bundleIdPrefix: com.antigravity
+targets:
+  AntigravityCam:
+    type: application
+    platform: iOS
+    deploymentTarget: "14.0"
+    sources:
+      - path: CameraViewController.swift
+      - path: Info.plist
+        optional: true
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.antigravity.AntigravityCam
+        INFOPLIST_FILE: Info.plist
+        CURRENT_PROJECT_VERSION: 1
+        MARKETING_VERSION: 1.0
+        DEVELOPMENT_TEAM: "" # Leave empty for manual signing or CI overrides
+        CODE_SIGN_STYLE: Manual
+        CODE_SIGN_IDENTITY: ""
+        PROVISIONING_PROFILE_SPECIFIER: ""
+    frameworks:
+      - UIKit
+      - AVFoundation
+      - VideoToolbox

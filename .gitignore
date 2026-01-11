@@ -1,0 +1,11 @@
+build/
+ffmpeg/
+*.user
+*.suo
+*.sdf
+*.opensdf
+*.ipch
+.vs/
+.DS_Store
+ios/*.xcodeproj
+ios/DerivedData/
