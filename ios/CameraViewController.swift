@@ -1,4 +1,5 @@
 import UIKit
+import Foundation
 import AVFoundation
 import VideoToolbox
 
@@ -12,6 +13,17 @@ class CameraViewController: UIViewController {
     // Config
     private var serverIP = "192.168.1.100" 
     private let serverPort: UInt32 = 5000
+    
+    // UI Elements
+    private let ipTextField: UITextField = {
+        let tf = UITextField()
+        tf.placeholder = "Enter PC IP (e.g. 192.168.1.100)"
+        tf.borderStyle = .roundedRect
+        tf.backgroundColor = .white
+        tf.textColor = .black
+        tf.text = "192.168.1.100" // Default
+        return tf
+    }()
     
     // Debug Console
     private let debugTextView: UITextView = {
