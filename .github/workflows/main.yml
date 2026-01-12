@@ -8,11 +8,14 @@ on:
 jobs:
   build:
     name: Build and Archive
-    runs-on: macos-latest
+    runs-on: macos-14
 
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+
+      - name: Select Xcode 15.4
+        run: sudo xcode-select -s /Applications/Xcode_15.4.app/Contents/Developer
 
       - name: Set up Homebrew
         id: set-up-homebrew
@@ -35,9 +38,9 @@ jobs:
             -sdk iphoneos \
             -configuration Release \
             -archivePath build/AntigravityCam.xcarchive \
-            CODE_SIGN_IDENTITY="-" \
-            CODE_SIGNING_REQUIRED=YES \
-            CODE_SIGNING_ALLOWED=YES \
+            CODE_SIGN_IDENTITY="" \
+            CODE_SIGNING_REQUIRED=NO \
+            CODE_SIGNING_ALLOWED=NO \
             DEVELOPMENT_TEAM=""
 
       - name: Package IPA
