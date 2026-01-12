@@ -9,6 +9,7 @@ class CameraViewController: UIViewController {
     private let videoOutput = AVCaptureVideoDataOutput()
     private var tcpClient: TCPClient?
     private var videoEncoder: VideoEncoder?
+    private var needsKeyFrame = false
     
     // Config
     private var serverIP = "192.168.1.100" 
@@ -142,17 +143,17 @@ class CameraViewController: UIViewController {
         tcpClient?.logger = self.log
         tcpClient?.connect()
         
-        // Force a KeyFrame properly after connection to ensure receiver gets SPS/PPS
-        DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
-            self.log("Requesting KeyFrame...")
-            self.videoEncoder?.forceKeyFrame()
-        }
+        // Request KeyFrame on next frame
+        self.needsKeyFrame = true
+        self.log("KeyFrame requested for next frame")
     }
 }
 
 extension CameraViewController: AVCaptureVideoDataOutputSampleBufferDelegate {
     func captureOutput(_ output: AVCaptureOutput, didOutput sampleBuffer: CMSampleBuffer, from connection: AVCaptureConnection) {
-        videoEncoder?.encode(sampleBuffer)
+        let force = needsKeyFrame
+        if force { needsKeyFrame = false }
+        videoEncoder?.encode(sampleBuffer, forceKeyframe: force)
     }
 }
 
@@ -200,17 +201,18 @@ class VideoEncoder {
         VTCompressionSessionPrepareToEncodeFrames(session)
     }
     
-    func encode(_ sampleBuffer: CMSampleBuffer) {
+    func encode(_ sampleBuffer: CMSampleBuffer, forceKeyframe: Bool = false) {
         guard let session = session,
               let imageBuffer = CMSampleBufferGetImageBuffer(sampleBuffer) else { return }
         
         let pts = CMSampleBufferGetPresentationTimeStamp(sampleBuffer)
-        VTCompressionSessionEncodeFrame(session, imageBuffer: imageBuffer, presentationTimeStamp: pts, duration: .invalid, frameProperties: nil, sourceFrameRefcon: nil, infoFlagsOut: nil)
-    }
-    
-    func forceKeyFrame() {
-        guard let session = session else { return }
-        VTSessionSetProperty(session, key: kVTCompressionPropertyKey_ForceKeyFrame, value: kCFBooleanTrue)
+        
+        var properties: [String: Any]?
+        if forceKeyframe {
+            properties = [kVTEncodeFrameOptionKey_ForceKeyFrame as String: kCFBooleanTrue]
+        }
+        
+        VTCompressionSessionEncodeFrame(session, imageBuffer: imageBuffer, presentationTimeStamp: pts, duration: .invalid, frameProperties: properties as CFDictionary?, sourceFrameRefcon: nil, infoFlagsOut: nil)
     }
 }
 
