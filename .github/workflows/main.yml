@@ -46,21 +46,28 @@ jobs:
           # Verify archive success
           if [ -d "build/AntigravityCam.xcarchive/Products/Applications/AntigravityCam.app" ]; then
             cp -r build/AntigravityCam.xcarchive/Products/Applications/AntigravityCam.app Payload/
-            # Create IPA
-            cd Payload
-            zip -r ../AntigravityCam.ipa .
-            cd ..
+            # Create IPA with proper structure
+            zip -r AntigravityCam.ipa Payload
             # Verify IPA was created
             if [ -f "AntigravityCam.ipa" ]; then
               echo "✅ IPA created successfully"
-              unzip -l AntigravityCam.ipa | head -20
+              echo "IPA contents:"
+              unzip -l AntigravityCam.ipa | head -30
+              echo "IPA size:"
+              ls -lh AntigravityCam.ipa
             else
               echo "::error::Failed to create IPA"
               exit 1
             fi
           else
             echo "::error::App archive not found. Build may have failed."
+            echo "Build directory contents:"
             ls -la build/
+            if [ -d "build/AntigravityCam.xcarchive" ]; then
+              echo "Archive contents:"
+              ls -la build/AntigravityCam.xcarchive/
+              ls -la build/AntigravityCam.xcarchive/Products/ || true
+            fi
             exit 1
           fi
 
