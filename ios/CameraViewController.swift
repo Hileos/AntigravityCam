@@ -141,21 +141,23 @@ class CameraViewController: UIViewController {
         tcpClient = TCPClient(address: serverIP, port: serverPort)
         tcpClient?.logger = self.log
         tcpClient?.connect()
+        
+        // Force a KeyFrame properly after connection to ensure receiver gets SPS/PPS
+        DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
+            self.log("Requesting KeyFrame...")
+            self.videoEncoder?.forceKeyFrame()
+        }
     }
 }
 
 extension CameraViewController: AVCaptureVideoDataOutputSampleBufferDelegate {
     func captureOutput(_ output: AVCaptureOutput, didOutput sampleBuffer: CMSampleBuffer, from connection: AVCaptureConnection) {
-        // Log only occasionally to avoid spam
-        // log("Frame captured") 
         videoEncoder?.encode(sampleBuffer)
     }
 }
 
 extension CameraViewController: VideoEncoderDelegate {
     func didEncode(nalData: Data) {
-        // Log occasional encoding
-        // log("Encoded \(nalData.count) bytes")
         tcpClient?.send(data: nalData)
     }
 }
@@ -191,7 +193,7 @@ class VideoEncoder {
         // Set Properties for Low Latency
         VTSessionSetProperty(session, key: kVTCompressionPropertyKey_RealTime, value: kCFBooleanTrue)
         VTSessionSetProperty(session, key: kVTCompressionPropertyKey_ProfileLevel, value: kVTProfileLevel_H264_Main_AutoLevel)
-        VTSessionSetProperty(session, key: kVTCompressionPropertyKey_MaxKeyFrameInterval, value: 30 as CFNumber) 
+        VTSessionSetProperty(session, key: kVTCompressionPropertyKey_MaxKeyFrameInterval, value: 60 as CFNumber) // 2 seconds
         // Bitrate: 3 Mbps
         VTSessionSetProperty(session, key: kVTCompressionPropertyKey_AverageBitRate, value: 3_000_000 as CFNumber) 
         
@@ -204,6 +206,11 @@ class VideoEncoder {
         
         let pts = CMSampleBufferGetPresentationTimeStamp(sampleBuffer)
         VTCompressionSessionEncodeFrame(session, imageBuffer: imageBuffer, presentationTimeStamp: pts, duration: .invalid, frameProperties: nil, sourceFrameRefcon: nil, infoFlagsOut: nil)
+    }
+    
+    func forceKeyFrame() {
+        guard let session = session else { return }
+        VTSessionSetProperty(session, key: kVTCompressionPropertyKey_ForceKeyFrame, value: kCFBooleanTrue)
     }
 }
 
@@ -219,6 +226,7 @@ private func compressionCallback(outputCallbackRefCon: UnsafeMutableRawPointer?,
         let isKeyFrame = CFDictionaryContainsKey(dict, unsafeBitCast(kCMSampleAttachmentKey_NotSync, to: UnsafeRawPointer.self)) == false
         
         if isKeyFrame {
+            print("Sending SPS/PPS (KeyFrame)")
             encoder.sendSPSandPPS(from: sampleBuffer)
         }
     }
