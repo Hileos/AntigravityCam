@@ -6,10 +6,10 @@ import VideoToolbox
 class CameraViewController: UIViewController {
     
     private let captureSession = AVCaptureSession()
-    private let videoOutput = AVCaptureVideoDataOutput()
     private var tcpClient: TCPClient?
     private var videoEncoder: VideoEncoder?
     private var needsKeyFrame = false
+    private var sentHeaders = false
     
     // Config
     private var serverIP = "192.168.1.100" 
@@ -143,17 +143,46 @@ class CameraViewController: UIViewController {
         tcpClient?.logger = self.log
         tcpClient?.connect()
         
-        // Request KeyFrame on next frame
+    // Request KeyFrame on next frame
         self.needsKeyFrame = true
-        self.log("KeyFrame requested for next frame")
+        self.sentHeaders = false
+        self.log("Connecting... Will send headers + KeyFrame")
     }
 }
 
 extension CameraViewController: AVCaptureVideoDataOutputSampleBufferDelegate {
     func captureOutput(_ output: AVCaptureOutput, didOutput sampleBuffer: CMSampleBuffer, from connection: AVCaptureConnection) {
+        
+        // 1. Force Send Headers (SPS/PPS) immediately if needed
+        if !sentHeaders {
+            self.sendSPSandPPS(from: sampleBuffer)
+            sentHeaders = true
+            self.log("Headers Sent Manually")
+        }
+        
+        // 2. Encode Frame
         let force = needsKeyFrame
         if force { needsKeyFrame = false }
         videoEncoder?.encode(sampleBuffer, forceKeyframe: force)
+    }
+    
+    // Manual Header Extraction
+    private func sendSPSandPPS(from sampleBuffer: CMSampleBuffer) {
+        guard let description = CMSampleBufferGetFormatDescription(sampleBuffer) else { return }
+        
+        var parameterSetCount = 0
+        CMVideoFormatDescriptionGetH264ParameterSetAtIndex(description, parameterSetIndex: 0, parameterSetPointerOut: nil, parameterSetSizeOut: nil, parameterSetCountOut: &parameterSetCount, nalUnitHeaderLengthOut: nil)
+        
+        for i in 0..<parameterSetCount {
+            var pointer: UnsafePointer<UInt8>?
+            var size: Int = 0
+            CMVideoFormatDescriptionGetH264ParameterSetAtIndex(description, parameterSetIndex: i, parameterSetPointerOut: &pointer, parameterSetSizeOut: &size, parameterSetCountOut: nil, nalUnitHeaderLengthOut: nil)
+            
+            if let pointer = pointer {
+                let data = Data(bytes: pointer, count: size)
+                self.tcpClient?.send(data: data)
+            }
+        }
     }
 }
 
