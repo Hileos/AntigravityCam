@@ -8,14 +8,11 @@ on:
 jobs:
   build:
     name: Build and Archive
-    runs-on: macos-14
+    runs-on: macos-latest
 
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-
-      - name: Select Xcode 15.4
-        run: sudo xcode-select -s /Applications/Xcode_15.4.app/Contents/Developer
 
       - name: Set up Homebrew
         id: set-up-homebrew
@@ -32,45 +29,56 @@ jobs:
 
       - name: Build App
         run: |
-          xcodebuild clean archive \
+          xcodebuild clean build \
             -project "ios/AntigravityCam.xcodeproj" \
             -scheme "AntigravityCam" \
             -sdk iphoneos \
             -configuration Release \
-            -archivePath build/AntigravityCam.xcarchive \
+            -derivedDataPath build/ \
             CODE_SIGN_IDENTITY="" \
             CODE_SIGNING_REQUIRED=NO \
             CODE_SIGNING_ALLOWED=NO \
-            DEVELOPMENT_TEAM=""
+            DEVELOPMENT_TEAM="" \
+            ENABLE_BITCODE=NO
 
       - name: Package IPA
         run: |
           mkdir -p Payload
-          # Verify archive success
-          if [ -d "build/AntigravityCam.xcarchive/Products/Applications/AntigravityCam.app" ]; then
-            cp -r build/AntigravityCam.xcarchive/Products/Applications/AntigravityCam.app Payload/
-            # Create IPA with proper structure
+          APP_PATH="build/Build/Products/Release-iphoneos/AntigravityCam.app"
+          
+          echo "Looking for app at: $APP_PATH"
+          
+          if [ -d "$APP_PATH" ]; then
+            echo "Found app bundle!"
+            ls -la "$APP_PATH"
+            
+            # Check for executable
+            if [ -f "$APP_PATH/AntigravityCam" ]; then
+              echo "✅ Executable found!"
+            else
+              echo "⚠️ No executable found in app bundle"
+              ls -la "$APP_PATH/"
+            fi
+            
+            cp -r "$APP_PATH" Payload/
             zip -r AntigravityCam.ipa Payload
-            # Verify IPA was created
+            
             if [ -f "AntigravityCam.ipa" ]; then
               echo "✅ IPA created successfully"
-              echo "IPA contents:"
-              unzip -l AntigravityCam.ipa | head -30
               echo "IPA size:"
               ls -lh AntigravityCam.ipa
+              echo "IPA contents:"
+              unzip -l AntigravityCam.ipa | head -30
             else
               echo "::error::Failed to create IPA"
               exit 1
             fi
           else
-            echo "::error::App archive not found. Build may have failed."
+            echo "::error::App not found at $APP_PATH"
             echo "Build directory contents:"
-            ls -la build/
-            if [ -d "build/AntigravityCam.xcarchive" ]; then
-              echo "Archive contents:"
-              ls -la build/AntigravityCam.xcarchive/
-              ls -la build/AntigravityCam.xcarchive/Products/ || true
-            fi
+            find build/ -name "*.app" -type d 2>/dev/null || echo "No .app found"
+            ls -la build/ || true
+            ls -la build/Build/Products/ || true
             exit 1
           fi
 
