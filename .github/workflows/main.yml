@@ -18,8 +18,10 @@ jobs:
         id: set-up-homebrew
         uses: Homebrew/actions/setup-homebrew@master
 
-      - name: Install XcodeGen
-        run: brew install xcodegen
+      - name: Install Tools
+        run: |
+          brew install xcodegen
+          brew install ldid
 
       - name: Generate Xcode Project
         run: |
@@ -41,6 +43,19 @@ jobs:
             DEVELOPMENT_TEAM="" \
             ENABLE_BITCODE=NO
 
+      - name: Create Entitlements
+        run: |
+          echo '<?xml version="1.0" encoding="UTF-8"?>' > entitlements.plist
+          echo '<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">' >> entitlements.plist
+          echo '<plist version="1.0">' >> entitlements.plist
+          echo '<dict>' >> entitlements.plist
+          echo '    <key>platform-application</key>' >> entitlements.plist
+          echo '    <true/>' >> entitlements.plist
+          echo '    <key>get-task-allow</key>' >> entitlements.plist
+          echo '    <true/>' >> entitlements.plist
+          echo '</dict>' >> entitlements.plist
+          echo '</plist>' >> entitlements.plist
+
       - name: Package IPA
         run: |
           mkdir -p Payload
@@ -52,9 +67,21 @@ jobs:
             echo "Found app bundle!"
             ls -la "$APP_PATH"
             
-            # Check for executable
             if [ -f "$APP_PATH/AntigravityCam" ]; then
               echo "✅ Executable found!"
+              
+              # Fake-sign with ldid (creates signature Sideloadly can replace)
+              echo "Signing with ldid..."
+              ldid -Sentitlements.plist "$APP_PATH/AntigravityCam" || echo "ldid signing failed, continuing anyway"
+              
+              # Also sign any frameworks
+              if [ -d "$APP_PATH/Frameworks" ]; then
+                for framework in "$APP_PATH/Frameworks"/*.framework; do
+                  if [ -d "$framework" ]; then
+                    ldid -Sentitlements.plist "$framework"/$(basename "$framework" .framework) || true
+                  fi
+                done
+              fi
             else
               echo "⚠️ No executable found in app bundle"
               ls -la "$APP_PATH/"
