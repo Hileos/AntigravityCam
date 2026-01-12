@@ -29,25 +29,38 @@ jobs:
 
       - name: Build App
         run: |
-          xcodebuild clean build \
+          xcodebuild clean archive \
             -project "ios/AntigravityCam.xcodeproj" \
             -scheme "AntigravityCam" \
             -sdk iphoneos \
             -configuration Release \
-            -derivedDataPath build/ \
+            -archivePath build/AntigravityCam.xcarchive \
             CODE_SIGN_IDENTITY="" \
             CODE_SIGNING_REQUIRED=NO \
-            CODE_SIGNING_ALLOWED=NO
+            CODE_SIGNING_ALLOWED=NO \
+            DEVELOPMENT_TEAM=""
 
       - name: Package IPA
         run: |
           mkdir -p Payload
-          # Verify build success
-          if [ -d "build/Build/Products/Release-iphoneos/AntigravityCam.app" ]; then
-            mv build/Build/Products/Release-iphoneos/AntigravityCam.app Payload/
-            zip -r AntigravityCam.ipa Payload
+          # Verify archive success
+          if [ -d "build/AntigravityCam.xcarchive/Products/Applications/AntigravityCam.app" ]; then
+            cp -r build/AntigravityCam.xcarchive/Products/Applications/AntigravityCam.app Payload/
+            # Create IPA
+            cd Payload
+            zip -r ../AntigravityCam.ipa .
+            cd ..
+            # Verify IPA was created
+            if [ -f "AntigravityCam.ipa" ]; then
+              echo "✅ IPA created successfully"
+              unzip -l AntigravityCam.ipa | head -20
+            else
+              echo "::error::Failed to create IPA"
+              exit 1
+            fi
           else
-            echo "::error::App build not found. Ensure .xcodeproj exists and scheme matches."
+            echo "::error::App archive not found. Build may have failed."
+            ls -la build/
             exit 1
           fi
 
