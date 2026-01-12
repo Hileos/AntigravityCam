@@ -6,6 +6,7 @@ import VideoToolbox
 class CameraViewController: UIViewController {
     
     private let captureSession = AVCaptureSession()
+    private let videoOutput = AVCaptureVideoDataOutput()
     private var tcpClient: TCPClient?
     private var videoEncoder: VideoEncoder?
     private var needsKeyFrame = false
