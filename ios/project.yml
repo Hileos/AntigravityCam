@@ -1,6 +1,8 @@
 name: AntigravityCam
 options:
   bundleIdPrefix: com.antigravity
+  xcodeVersion: "15.0"
+  minimumXcodeGenVersion: "2.35.0"
 targets:
   AntigravityCam:
     type: application
