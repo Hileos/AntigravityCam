@@ -13,23 +13,35 @@ class CameraViewController: UIViewController {
     private var serverIP = "192.168.1.100" 
     private let serverPort: UInt32 = 5000
     
-    // UI Elements
-    private let ipTextField: UITextField = {
-        let tf = UITextField()
-        tf.placeholder = "Enter PC IP (e.g. 192.168.1.100)"
-        tf.borderStyle = .roundedRect
-        tf.backgroundColor = .white
-        tf.textColor = .black
-        tf.text = "192.168.1.100" // Default
-        return tf
+    // Debug Console
+    private let debugTextView: UITextView = {
+        let tv = UITextView()
+        tv.backgroundColor = UIColor.black.withAlphaComponent(0.5)
+        tv.textColor = .green
+        tv.font = .monospacedSystemFont(ofSize: 10, weight: .regular)
+        tv.isEditable = false
+        tv.isSelectable = false
+        return tv
     }()
     
     override func viewDidLoad() {
         super.viewDidLoad()
         setupUI()
+        log("App Started. Setting up camera...")
         setupCamera()
         setupEncoder()
         startCapture()
+    }
+    
+    // Custom Logger
+    func log(_ msg: String) {
+        DispatchQueue.main.async {
+            let timestamp = DateFormatter.localizedString(from: Date(), dateStyle: .none, timeStyle: .medium)
+            self.debugTextView.text = "[\(timestamp)] \(msg)\n" + self.debugTextView.text
+            // Keep only last 20 lines
+            // if self.debugTextView.text.components(separatedBy: "\n").count > 20 { ... } 
+        }
+        print(msg)
     }
     
     private func setupUI() {
@@ -54,36 +66,43 @@ class CameraViewController: UIViewController {
         btn.layer.cornerRadius = 5
         btn.addTarget(self, action: #selector(connectTapped), for: .touchUpInside)
         view.addSubview(btn)
+        
+        // Debug TextView
+        debugTextView.frame = CGRect(x: 20, y: 150, width: view.bounds.width - 40, height: 200)
+        view.addSubview(debugTextView)
     }
     
     @objc private func connectTapped() {
         guard let ip = ipTextField.text, !ip.isEmpty else {
-            print("IP is empty")
+            log("IP is empty")
             return
         }
         serverIP = ip
-        print("Connecting to \(serverIP)...")
+        log("Connecting to \(serverIP)...")
         view.endEditing(true) // Dismiss keyboard
         connectToServer()
     }
     
     private func setupCamera() {
+        log("Configuring Camera...")
         captureSession.sessionPreset = .iFrame1280x720
         
         guard let device = AVCaptureDevice.default(.builtInWideAngleCamera, for: .video, position: .back),
               let input = try? AVCaptureDeviceInput(device: device) else {
-            print("Failed to get camera")
+            log("ERROR: Failed to get camera input")
             return
         }
         
         if captureSession.canAddInput(input) {
             captureSession.addInput(input)
+            log("Camera Input Added")
         }
         
         videoOutput.setSampleBufferDelegate(self, queue: DispatchQueue(label: "videoQueue"))
         videoOutput.alwaysDiscardsLateVideoFrames = true
         if captureSession.canAddOutput(videoOutput) {
             captureSession.addOutput(videoOutput)
+            log("Camera Output Added")
         }
         
         // Add Preview Layer
@@ -96,28 +115,35 @@ class CameraViewController: UIViewController {
     private func setupEncoder() {
         videoEncoder = VideoEncoder()
         videoEncoder?.delegate = self
+        log("Video Encoder Setup")
     }
     
     private func startCapture() {
         DispatchQueue.global().async {
             self.captureSession.startRunning()
+            DispatchQueue.main.async { self.log("Camera Session Running") }
         }
     }
     
     private func connectToServer() {
         tcpClient = TCPClient(address: serverIP, port: serverPort)
+        tcpClient?.logger = self.log
         tcpClient?.connect()
     }
 }
 
 extension CameraViewController: AVCaptureVideoDataOutputSampleBufferDelegate {
     func captureOutput(_ output: AVCaptureOutput, didOutput sampleBuffer: CMSampleBuffer, from connection: AVCaptureConnection) {
+        // Log only occasionally to avoid spam
+        // log("Frame captured") 
         videoEncoder?.encode(sampleBuffer)
     }
 }
 
 extension CameraViewController: VideoEncoderDelegate {
     func didEncode(nalData: Data) {
+        // Log occasional encoding
+        // log("Encoded \(nalData.count) bytes")
         tcpClient?.send(data: nalData)
     }
 }
@@ -132,7 +158,7 @@ class VideoEncoder {
     private var session: VTCompressionSession?
     
     init() {
-        VTCompressionSessionCreate(
+        let status = VTCompressionSessionCreate(
             allocator: nil,
             width: 1280,
             height: 720,
@@ -145,7 +171,10 @@ class VideoEncoder {
             compressionSessionOut: &session
         )
         
-        guard let session = session else { return }
+        guard status == noErr, let session = session else {
+            print("Failed to create encoder: \(status)")
+            return
+        }
         
         // Set Properties for Low Latency
         VTSessionSetProperty(session, key: kVTCompressionPropertyKey_RealTime, value: kCFBooleanTrue)
@@ -233,6 +262,7 @@ class TCPClient {
     let port: UInt32
     private var inputStream: InputStream?
     private var outputStream: OutputStream?
+    var logger: ((String) -> Void)?
     
     init(address: String, port: UInt32) {
         self.address = address
@@ -254,23 +284,29 @@ class TCPClient {
         inputStream?.open()
         outputStream?.open()
         
-        print("TCP Client started connecting...")
+        logger?("TCP connecting to \(address):\(port)")
     }
     
     func send(data: Data) {
-        guard let outputStream = outputStream, outputStream.hasSpaceAvailable else { 
-            // print("Frame dropped: Socket not ready")
-            return 
+        guard let outputStream = outputStream else { return }
+        
+        if !outputStream.hasSpaceAvailable {
+             // logger?("Socket busy/full") // Too spammy
+             return 
         }
+        
+        // logger?("Sending \(data.count) bytes...") // Very spammy
         
         // Send Length (4 bytes Big Endian)
         var length = UInt32(data.count).bigEndian
         let lengthData = Data(bytes: &length, count: 4)
         
         // Write Length
-        _ = lengthData.withUnsafeBytes { outputStream.write($0.bindMemory(to: UInt8.self).baseAddress!, maxLength: 4) }
+        let lBytes = lengthData.withUnsafeBytes { outputStream.write($0.bindMemory(to: UInt8.self).baseAddress!, maxLength: 4) }
+        if lBytes < 0 { logger?("Error writing length") }
         
         // Write Data
-        _ = data.withUnsafeBytes { outputStream.write($0.bindMemory(to: UInt8.self).baseAddress!, maxLength: data.count) }
+        let dBytes = data.withUnsafeBytes { outputStream.write($0.bindMemory(to: UInt8.self).baseAddress!, maxLength: data.count) }
+         if dBytes < 0 { logger?("Error writing data") }
     }
 }
