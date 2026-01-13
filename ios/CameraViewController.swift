@@ -10,11 +10,6 @@ class CameraViewController: UIViewController {
     private var tcpClient: TCPClient?
     private var videoEncoder: VideoEncoder?
     private var needsKeyFrame = false
-    private var sentHeaders = false
-    
-    // Debug counters
-    private var droppedFrameCount = 0
-    private var sentFrameCount = 0
     
     // Config
     private var serverIP = "192.168.1.2" 
@@ -150,11 +145,11 @@ class CameraViewController: UIViewController {
         
         self.log("Connecting...")
         
-        // Delay header/keyframe request to ensure TCP socket is ready
+        // Delay keyframe request to ensure TCP socket is ready
+        // The encoder callback will send SPS/PPS when the keyframe is encoded
         DispatchQueue.main.asyncAfter(deadline: .now() + 1.5) {
              self.needsKeyFrame = true
-             self.sentHeaders = false
-             self.log("Socket should be ready. Requesting Headers & KeyFrame.")
+             self.log("Socket ready. Requesting KeyFrame (SPS/PPS will be sent with it).")
         }
     }
 }
@@ -164,10 +159,9 @@ extension CameraViewController: AVCaptureVideoDataOutputSampleBufferDelegate {
         
         // 1. Force Send Headers (SPS/PPS) immediately if needed
         if !sentHeaders {
-            log("DEBUG: Sending SPS/PPS headers...")
             self.sendSPSandPPS(from: sampleBuffer)
             sentHeaders = true
-            log("DEBUG: Headers sent successfully")
+            self.log("Headers Sent Manually")
         }
         
         // 2. Encode Frame
@@ -189,9 +183,8 @@ extension CameraViewController: AVCaptureVideoDataOutputSampleBufferDelegate {
             CMVideoFormatDescriptionGetH264ParameterSetAtIndex(description, parameterSetIndex: i, parameterSetPointerOut: &pointer, parameterSetSizeOut: &size, parameterSetCountOut: nil, nalUnitHeaderLengthOut: nil)
             
             if let pointer = pointer {
-                let startCode = Data([0x00, 0x00, 0x00, 0x01])
                 let data = Data(bytes: pointer, count: size)
-                self.tcpClient?.send(data: startCode + data)
+                self.tcpClient?.send(data: data)
             }
         }
     }
@@ -204,13 +197,10 @@ extension CameraViewController: VideoEncoderDelegate {
             // If the socket buffer was full, we dropped a frame.
             // If it was a P-frame, the next one will be garbage.
             // Force a new KeyFrame immediately to recover.
-            droppedFrameCount += 1
-            print("⚠️ DROPPED FRAME #\(droppedFrameCount) / \(sentFrameCount) total")
             if !needsKeyFrame { 
+                print("⚠️ Packet Dropped! Requesting KeyFrame recovery.")
                 self.needsKeyFrame = true 
             }
-        } else {
-            sentFrameCount += 1
         }
     }
 }
@@ -243,15 +233,12 @@ class VideoEncoder {
             return
         }
         
-        // Set Properties for Low Latency + Quality
+        // Set Properties for Low Latency
         VTSessionSetProperty(session, key: kVTCompressionPropertyKey_RealTime, value: kCFBooleanTrue)
-        VTSessionSetProperty(session, key: kVTCompressionPropertyKey_ProfileLevel, value: kVTProfileLevel_H264_High_AutoLevel)
+        VTSessionSetProperty(session, key: kVTCompressionPropertyKey_ProfileLevel, value: kVTProfileLevel_H264_Baseline_AutoLevel)
         VTSessionSetProperty(session, key: kVTCompressionPropertyKey_MaxKeyFrameInterval, value: 30 as CFNumber) // 1 second
-        // Bitrate: 4 Mbps for better quality
-        VTSessionSetProperty(session, key: kVTCompressionPropertyKey_AverageBitRate, value: 4_000_000 as CFNumber)
-        // Data rate limit for CBR-like behavior: 4 Mbps, 1 second window
-        let dataRateLimits = [4_000_000 / 8, 1] as CFArray
-        VTSessionSetProperty(session, key: kVTCompressionPropertyKey_DataRateLimits, value: dataRateLimits) 
+        // Bitrate: 1.5 Mbps
+        VTSessionSetProperty(session, key: kVTCompressionPropertyKey_AverageBitRate, value: 1_500_000 as CFNumber) 
         
         VTCompressionSessionPrepareToEncodeFrames(session)
     }
@@ -304,9 +291,8 @@ extension VideoEncoder {
             CMVideoFormatDescriptionGetH264ParameterSetAtIndex(description, parameterSetIndex: i, parameterSetPointerOut: &pointer, parameterSetSizeOut: &size, parameterSetCountOut: nil, nalUnitHeaderLengthOut: nil)
             
             if let pointer = pointer {
-                let startCode = Data([0x00, 0x00, 0x00, 0x01])
                 let data = Data(bytes: pointer, count: size)
-                delegate?.didEncode(nalData: startCode + data)
+                delegate?.didEncode(nalData: data)
             }
         }
     }
