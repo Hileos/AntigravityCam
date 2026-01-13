@@ -1,15 +1,17 @@
-cmake_minimum_required(VERSION 3.10)
+cmake_minimum_required(VERSION 3.15)
 project(ReceiverApp)
 
 set(CMAKE_CXX_STANDARD 17)
 
-# Point this to your FFmpeg install
-set(FFMPEG_ROOT "${CMAKE_SOURCE_DIR}/ffmpeg") 
+# Relative path to avoid space issues in absolute paths
+set(FFMPEG_ROOT "../../ffmpeg")
 
-include_directories(${FFMPEG_ROOT}/include)
-include_directories(../common)
+message(STATUS "ReceiverApp FFMPEG_ROOT: ${FFMPEG_ROOT}")
 
-link_directories(${FFMPEG_ROOT}/lib)
+include_directories("${FFMPEG_ROOT}/include")
+include_directories("../common")
+
+link_directories("${FFMPEG_ROOT}/lib")
 
 add_executable(ReceiverApp main.cpp)
 
@@ -21,7 +23,7 @@ target_link_libraries(ReceiverApp
     swscale
 )
 
-# Auto-copy DLLs to the build directory so it runs out-of-the-box
+# Auto-copy DLLs
 add_custom_command(TARGET ReceiverApp POST_BUILD
     COMMAND ${CMAKE_COMMAND} -E copy_directory
     ${FFMPEG_ROOT}/bin

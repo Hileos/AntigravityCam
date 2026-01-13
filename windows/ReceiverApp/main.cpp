@@ -1,18 +1,25 @@
 // CRITICAL: winsock2.h must be included BEFORE windows.h
-#include <winsock2.h>
-#include <windows.h>
+#define WIN32_LEAN_AND_MEAN
 #include "../common/SharedMemory.h"
 #include <iostream>
 #include <vector>
+#include <windows.h>
+#include <winsock2.h>
+
 
 // Link against Ws2_32.lib
 #pragma comment(lib, "Ws2_32.lib")
 
 extern "C" {
 #include <libavcodec/avcodec.h>
+#include <libavcodec/codec.h>
+#include <libavcodec/packet.h>
 #include <libavformat/avformat.h>
+#include <libavutil/avutil.h>
+#include <libavutil/frame.h>
 #include <libavutil/imgutils.h>
 #include <libswscale/swscale.h>
+
 }
 
 // Global AV variables
@@ -107,26 +114,38 @@ void decode_frame(uint8_t *data, int size) {
   memcpy(nalWithStartCode.data(), NAL_START_CODE, 4);
   memcpy(nalWithStartCode.data() + 4, data, size);
 
-  AVPacket *pkt = av_packet_alloc();
-  pkt->data = nalWithStartCode.data();
-  pkt->size = static_cast<int>(nalWithStartCode.size());
+  uint8_t *outData = nullptr;
+  int outSize = 0;
 
-  if (avcodec_send_packet(codecCtx, pkt) == 0) {
-    while (avcodec_receive_frame(codecCtx, pFrame) == 0) {
-      // Convert to RGB
-      sws_scale(sws_ctx, (uint8_t const *const *)pFrame->data, pFrame->linesize,
-                0, codecCtx->height, pFrameRGB->data, pFrameRGB->linesize);
+  // Use Parser to assemble frames from NALUs
+  av_parser_parse2(parser, codecCtx, &outData, &outSize,
+                   nalWithStartCode.data(), nalWithStartCode.size(),
+                   AV_NOPTS_VALUE, AV_NOPTS_VALUE, 0);
 
-      // Write to Shared Memory
-      if (pSharedMem) {
-        memcpy(pSharedMem->data, pFrameRGB->data[0], FRAME_BUFFER_SIZE);
-        pSharedMem->write_sequence++;
-        std::cout << "Frame Decoded: " << pSharedMem->write_sequence << "\r"
-                  << std::flush;
+  if (outSize > 0) {
+    AVPacket *pkt = av_packet_alloc();
+    pkt->data = outData;
+    pkt->size = outSize;
+
+    if (avcodec_send_packet(codecCtx, pkt) == 0) {
+      while (avcodec_receive_frame(codecCtx, pFrame) == 0) {
+        // Convert to RGB
+        sws_scale(sws_ctx, (uint8_t const *const *)pFrame->data,
+                  pFrame->linesize, 0, codecCtx->height, pFrameRGB->data,
+                  pFrameRGB->linesize);
+
+        // Write to Shared Memory
+        if (pSharedMem) {
+          memcpy(pSharedMem->data, pFrameRGB->data[0], FRAME_BUFFER_SIZE);
+          pSharedMem->write_sequence++;
+          // Use \r to overwrite line
+          std::cout << "Frame Decoded: " << pSharedMem->write_sequence << "\r"
+                    << std::flush;
+        }
       }
     }
+    av_packet_free(&pkt);
   }
-  av_packet_free(&pkt);
 }
 
 int main() {
@@ -179,7 +198,7 @@ int main() {
     uint32_t len = ntohl(netLen);
 
     // DEBUG: Print received size to confirm data flow
-    std::cout << "Received " << len << " bytes" << "\r" << std::flush;
+    // std::cout << "Received " << len << " bytes" << "\r" << std::flush;
 
     // Read Data
     std::vector<uint8_t> buf(len);
