@@ -144,10 +144,14 @@ class CameraViewController: UIViewController {
         tcpClient?.logger = self.log
         tcpClient?.connect()
         
-    // Request KeyFrame on next frame
-        self.needsKeyFrame = true
-        self.sentHeaders = false
-        self.log("Connecting... Will send headers + KeyFrame")
+        self.log("Connecting...")
+        
+        // Delay header/keyframe request to ensure TCP socket is ready
+        DispatchQueue.main.asyncAfter(deadline: .now() + 1.5) {
+             self.needsKeyFrame = true
+             self.sentHeaders = false
+             self.log("Socket should be ready. Requesting Headers & KeyFrame.")
+        }
     }
 }
 
@@ -343,7 +347,7 @@ class TCPClient {
         guard let outputStream = outputStream else { return }
         
         if !outputStream.hasSpaceAvailable {
-             // logger?("Socket busy/full") // Too spammy
+             logger?("Socket not ready - Dropping Frame")
              return 
         }
         
