@@ -156,37 +156,10 @@ class CameraViewController: UIViewController {
 
 extension CameraViewController: AVCaptureVideoDataOutputSampleBufferDelegate {
     func captureOutput(_ output: AVCaptureOutput, didOutput sampleBuffer: CMSampleBuffer, from connection: AVCaptureConnection) {
-        
-        // 1. Force Send Headers (SPS/PPS) immediately if needed
-        if !sentHeaders {
-            self.sendSPSandPPS(from: sampleBuffer)
-            sentHeaders = true
-            self.log("Headers Sent Manually")
-        }
-        
-        // 2. Encode Frame
+        // Encode Frame - SPS/PPS is sent by the encoder callback on keyframes
         let force = needsKeyFrame
         if force { needsKeyFrame = false }
         videoEncoder?.encode(sampleBuffer, forceKeyframe: force)
-    }
-    
-    // Manual Header Extraction
-    private func sendSPSandPPS(from sampleBuffer: CMSampleBuffer) {
-        guard let description = CMSampleBufferGetFormatDescription(sampleBuffer) else { return }
-        
-        var parameterSetCount = 0
-        CMVideoFormatDescriptionGetH264ParameterSetAtIndex(description, parameterSetIndex: 0, parameterSetPointerOut: nil, parameterSetSizeOut: nil, parameterSetCountOut: &parameterSetCount, nalUnitHeaderLengthOut: nil)
-        
-        for i in 0..<parameterSetCount {
-            var pointer: UnsafePointer<UInt8>?
-            var size: Int = 0
-            CMVideoFormatDescriptionGetH264ParameterSetAtIndex(description, parameterSetIndex: i, parameterSetPointerOut: &pointer, parameterSetSizeOut: &size, parameterSetCountOut: nil, nalUnitHeaderLengthOut: nil)
-            
-            if let pointer = pointer {
-                let data = Data(bytes: pointer, count: size)
-                self.tcpClient?.send(data: data)
-            }
-        }
     }
 }
 
