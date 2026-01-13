@@ -193,7 +193,16 @@ extension CameraViewController: AVCaptureVideoDataOutputSampleBufferDelegate {
 
 extension CameraViewController: VideoEncoderDelegate {
     func didEncode(nalData: Data) {
-        tcpClient?.send(data: nalData)
+        let sent = tcpClient?.send(data: nalData) ?? false
+        if !sent {
+            // If the socket buffer was full, we dropped a frame.
+            // If it was a P-frame, the next one will be garbage.
+            // Force a new KeyFrame immediately to recover.
+            if !needsKeyFrame { 
+                print("⚠️ Packet Dropped! Requesting KeyFrame recovery.")
+                self.needsKeyFrame = true 
+            }
+        }
     }
 }
 
@@ -228,9 +237,9 @@ class VideoEncoder {
         // Set Properties for Low Latency
         VTSessionSetProperty(session, key: kVTCompressionPropertyKey_RealTime, value: kCFBooleanTrue)
         VTSessionSetProperty(session, key: kVTCompressionPropertyKey_ProfileLevel, value: kVTProfileLevel_H264_Baseline_AutoLevel)
-        VTSessionSetProperty(session, key: kVTCompressionPropertyKey_MaxKeyFrameInterval, value: 60 as CFNumber) // 2 seconds
-        // Bitrate: 3 Mbps
-        VTSessionSetProperty(session, key: kVTCompressionPropertyKey_AverageBitRate, value: 3_000_000 as CFNumber) 
+        VTSessionSetProperty(session, key: kVTCompressionPropertyKey_MaxKeyFrameInterval, value: 30 as CFNumber) // 1 second
+        // Bitrate: 1.5 Mbps
+        VTSessionSetProperty(session, key: kVTCompressionPropertyKey_AverageBitRate, value: 1_500_000 as CFNumber) 
         
         VTCompressionSessionPrepareToEncodeFrames(session)
     }
@@ -343,12 +352,12 @@ class TCPClient {
         logger?("TCP connecting to \(address):\(port)")
     }
     
-    func send(data: Data) {
-        guard let outputStream = outputStream else { return }
+    func send(data: Data) -> Bool {
+        guard let outputStream = outputStream else { return false }
         
         if !outputStream.hasSpaceAvailable {
-             logger?("Socket not ready - Dropping Frame")
-             return 
+             // logger?("Socket not ready - Dropping Frame") // Quiet log to avoid spam
+             return false
         }
         
         // logger?("Sending \(data.count) bytes...") // Very spammy
@@ -359,10 +368,17 @@ class TCPClient {
         
         // Write Length
         let lBytes = lengthData.withUnsafeBytes { outputStream.write($0.bindMemory(to: UInt8.self).baseAddress!, maxLength: 4) }
-        if lBytes < 0 { logger?("Error writing length") }
+        if lBytes < 0 { 
+            logger?("Error writing length") 
+            return false
+        }
         
         // Write Data
         let dBytes = data.withUnsafeBytes { outputStream.write($0.bindMemory(to: UInt8.self).baseAddress!, maxLength: data.count) }
-         if dBytes < 0 { logger?("Error writing data") }
+         if dBytes < 0 { 
+             logger?("Error writing data")
+             return false
+         }
+         return true
     }
 }
