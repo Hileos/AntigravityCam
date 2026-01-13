@@ -4,7 +4,7 @@ project(ReceiverApp)
 set(CMAKE_CXX_STANDARD 17)
 
 # Relative path to avoid space issues in absolute paths
-set(FFMPEG_ROOT "../../ffmpeg")
+set(FFMPEG_ROOT "${CMAKE_SOURCE_DIR}/ffmpeg")
 
 message(STATUS "ReceiverApp FFMPEG_ROOT: ${FFMPEG_ROOT}")
 

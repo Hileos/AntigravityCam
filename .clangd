@@ -1,0 +1,14 @@
+CompileFlags:
+  Add:
+    - -IC:/Users/Hamza/Documents/Antigravity/IOS Camrea Potato Stream/windows/VirtualCameraFilter/baseclasses
+    - -IC:/Users/Hamza/Documents/Antigravity/IOS Camrea Potato Stream/windows/common
+    - -IC:/Users/Hamza/Documents/Antigravity/IOS Camrea Potato Stream/ffmpeg/include
+    - -DWIN32
+    - -D_WINDOWS
+    - -DUNICODE
+    - -D_UNICODE
+  Compiler: cl.exe
+
+Diagnostics:
+  Suppress:
+    - pp_file_not_found
