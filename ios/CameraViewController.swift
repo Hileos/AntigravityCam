@@ -227,7 +227,7 @@ class VideoEncoder {
         
         // Set Properties for Low Latency
         VTSessionSetProperty(session, key: kVTCompressionPropertyKey_RealTime, value: kCFBooleanTrue)
-        VTSessionSetProperty(session, key: kVTCompressionPropertyKey_ProfileLevel, value: kVTProfileLevel_H264_Main_AutoLevel)
+        VTSessionSetProperty(session, key: kVTCompressionPropertyKey_ProfileLevel, value: kVTProfileLevel_H264_Baseline_AutoLevel)
         VTSessionSetProperty(session, key: kVTCompressionPropertyKey_MaxKeyFrameInterval, value: 60 as CFNumber) // 2 seconds
         // Bitrate: 3 Mbps
         VTSessionSetProperty(session, key: kVTCompressionPropertyKey_AverageBitRate, value: 3_000_000 as CFNumber) 
