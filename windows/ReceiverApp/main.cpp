@@ -23,6 +23,34 @@ extern "C" {
 #include <libswscale/swscale.h>
 }
 
+#include <ctime>
+#include <fstream>
+#include <iomanip>
+#include <sstream>
+
+
+std::ofstream debugFile;
+
+void init_debug_log() {
+  CreateDirectoryA("C:\\Users\\Hamza\\Documents\\Antigravity\\IOS Camrea "
+                   "Potato Stream\\debug",
+                   NULL);
+
+  // Generate unique filename
+  auto t = std::time(nullptr);
+  auto tm = *std::localtime(&t);
+  std::ostringstream oss;
+  oss << "C:\\Users\\Hamza\\Documents\\Antigravity\\IOS Camrea Potato "
+         "Stream\\debug\\log_"
+      << std::put_time(&tm, "%Y%m%d_%H%M%S") << ".txt";
+
+  debugFile.open(oss.str(), std::ios::out | std::ios::trunc);
+  if (debugFile.is_open()) {
+    debugFile << "Frame,Time,R,G,B\n";
+    std::cout << "Debug Log: " << oss.str() << "\n";
+  }
+}
+
 // Global AV variables
 AVCodecContext *codecCtx = nullptr;
 AVCodecParserContext *parser = nullptr;
@@ -39,6 +67,8 @@ std::atomic<bool> isRunning(true);
 std::atomic<bool> isConnected(false);
 
 void cleanup() {
+  if (debugFile.is_open())
+    debugFile.close();
   if (pFrame)
     av_frame_free(&pFrame);
   if (pFrameRGB)
@@ -79,10 +109,9 @@ void init_ffmpeg() {
   av_image_fill_arrays(pFrameRGB->data, pFrameRGB->linesize, buffer,
                        AV_PIX_FMT_BGRA, VIDEO_WIDTH, VIDEO_HEIGHT, 1);
 
-  sws_ctx =
-      sws_getContext(VIDEO_WIDTH, VIDEO_HEIGHT, AV_PIX_FMT_YUV420P, VIDEO_WIDTH,
-                     VIDEO_HEIGHT, AV_PIX_FMT_BGRA, SWS_BICUBIC, NULL, NULL,
-                     NULL); // BICUBIC for better quality
+  sws_ctx = sws_getContext(VIDEO_WIDTH, VIDEO_HEIGHT, AV_PIX_FMT_YUV420P,
+                           VIDEO_WIDTH, VIDEO_HEIGHT, AV_PIX_FMT_BGRA,
+                           SWS_BILINEAR, NULL, NULL, NULL);
 }
 
 void init_shared_memory() {
@@ -160,27 +189,51 @@ void decode_frame(uint8_t *data, int size) {
     pkt->data = outData;
     pkt->size = outSize;
 
-    int sendResult = avcodec_send_packet(codecCtx, pkt);
-    if (sendResult < 0) {
-      char errBuf[256];
-      av_strerror(sendResult, errBuf, sizeof(errBuf));
-      std::cerr << "Decode Error: " << errBuf << "\n";
-    } else {
+    if (avcodec_send_packet(codecCtx, pkt) == 0) {
       while (avcodec_receive_frame(codecCtx, pFrame) == 0) {
-        // DEBUG: Print actual format from decoder (once)
-        static bool formatPrinted = false;
-        if (!formatPrinted) {
-          std::cout << "Decoded frame format: "
-                    << av_get_pix_fmt_name((AVPixelFormat)pFrame->format)
-                    << " (" << pFrame->width << "x" << pFrame->height << ")\n";
-          formatPrinted = true;
-        }
         // Convert to RGB
         {
           std::lock_guard<std::mutex> lock(frameMutex);
           sws_scale(sws_ctx, (uint8_t const *const *)pFrame->data,
                     pFrame->linesize, 0, codecCtx->height, pFrameRGB->data,
                     pFrameRGB->linesize);
+
+          // DEBUG: Sample Pixel (32, 32)
+          static int debugFrameCount = 0;
+          static uint8_t lastR = 0, lastG = 0, lastB = 0;
+          debugFrameCount++;
+
+          if (pFrameRGB->data[0]) {
+            int x = 32;
+            int y = 32;
+            int linesize = pFrameRGB->linesize[0];
+            // BGRA format: B, G, R, A
+            uint8_t *ptr = pFrameRGB->data[0] + (y * linesize) + (x * 4);
+            uint8_t b = ptr[0];
+            uint8_t g = ptr[1];
+            uint8_t r = ptr[2];
+
+            bool changed = (abs(r - lastR) > 10 || abs(g - lastG) > 10 ||
+                            abs(b - lastB) > 10);
+
+            if (changed || (debugFrameCount % 30 == 0)) {
+              if (changed)
+                std::cout << "[Pattern Change] ";
+              std::cout << "Pixel(32,32): RGB(" << (int)r << "," << (int)g
+                        << "," << (int)b << ")\n";
+
+              // Log to file
+              if (debugFile.is_open()) {
+                debugFile << debugFrameCount << "," << (int)r << "," << (int)g
+                          << "," << (int)b << "\n";
+                debugFile.flush();
+              }
+
+              lastR = r;
+              lastG = g;
+              lastB = b;
+            }
+          }
 
           // Write to Shared Memory inside the lock as well to be safe
           if (pSharedMem) {
@@ -197,6 +250,20 @@ void decode_frame(uint8_t *data, int size) {
     }
     av_packet_free(&pkt);
   }
+}
+
+// Helper to receive exact amount of data
+bool recv_all(SOCKET s, void *buf, int len) {
+  char *ptr = (char *)buf;
+  int total = 0;
+  while (total < len) {
+    int r = recv(s, ptr + total, len - total, 0);
+    if (r <= 0) {
+      return false;
+    }
+    total += r;
+  }
+  return true;
 }
 
 void receiver_thread_func() {
@@ -248,29 +315,28 @@ void receiver_thread_func() {
     if (hWindow)
       SetWindowTextA(hWindow, "AntigravityCam Receiver - Connected");
 
-    char lenBuf[4];
     while (isRunning) {
-      int bytesReceived = recv(ClientSocket, lenBuf, 4, 0);
-      if (bytesReceived <= 0)
-        break;
+      // 1. Read Length Header (4 bytes)
+      uint32_t netLen = 0;
+      if (!recv_all(ClientSocket, &netLen, 4)) {
+        break; // Connection closed or error
+      }
 
-      uint32_t netLen = *(uint32_t *)lenBuf;
       uint32_t len = ntohl(netLen);
 
-      std::vector<uint8_t> buf(len);
-      uint32_t totalRead = 0;
-      bool connError = false;
-      while (totalRead < len) {
-        int r = recv(ClientSocket, (char *)buf.data() + totalRead,
-                     len - totalRead, 0);
-        if (r <= 0) {
-          connError = true;
-          break;
-        }
-        totalRead += r;
-      }
-      if (connError)
+      // Sanity check: If len is huge, we are probably desynced or reading
+      // garbage
+      if (len > 1000000) {
+        std::cerr << "Oversized packet (" << len
+                  << " bytes). Dropping connection.\n";
         break;
+      }
+
+      // 2. Read Payload
+      std::vector<uint8_t> buf(len);
+      if (!recv_all(ClientSocket, buf.data(), len)) {
+        break; // Connection closed or error mid-packet
+      }
 
       decode_frame(buf.data(), len);
     }
@@ -325,6 +391,7 @@ int main() {
   WSADATA wsaData;
   WSAStartup(MAKEWORD(2, 2), &wsaData);
 
+  init_debug_log();
   init_shared_memory();
   init_ffmpeg();
 
