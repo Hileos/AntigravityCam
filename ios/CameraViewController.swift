@@ -355,30 +355,45 @@ class TCPClient {
     func send(data: Data) -> Bool {
         guard let outputStream = outputStream else { return false }
         
+        // 1. Pre-check space (optimization)
         if !outputStream.hasSpaceAvailable {
-             // logger?("Socket not ready - Dropping Frame") // Quiet log to avoid spam
              return false
         }
         
-        // logger?("Sending \(data.count) bytes...") // Very spammy
+        // 2. Coalesce Header + Body into one buffer to minimize syscalls and lower fragmentation risk
+        let packetSize = data.count
+        let totalSize = 4 + packetSize
+        var packetData = Data(count: totalSize)
         
-        // Send Length (4 bytes Big Endian)
-        var length = UInt32(data.count).bigEndian
-        let lengthData = Data(bytes: &length, count: 4)
+        // Write Length Header (Big Endian)
+        var lengthBE = UInt32(packetSize).bigEndian
+        withUnsafeBytes(of: &lengthBE) { packetData.replaceSubrange(0..<4, with: $0) }
         
-        // Write Length
-        let lBytes = lengthData.withUnsafeBytes { outputStream.write($0.bindMemory(to: UInt8.self).baseAddress!, maxLength: 4) }
-        if lBytes < 0 { 
-            logger?("Error writing length") 
-            return false
+        // Write Body
+        packetData.replaceSubrange(4..<totalSize, with: data)
+        
+        // 3. Write Loop - Ensure EVERY byte is sent
+        var bytesWritten = 0
+        while bytesWritten < totalSize {
+            let result = packetData.withUnsafeBytes { ptr -> Int in
+                let remaining = totalSize - bytesWritten
+                // Advanced pointer arithmetic
+                let startAddress = ptr.baseAddress!.advanced(by: bytesWritten).assumingMemoryBound(to: UInt8.self)
+                return outputStream.write(startAddress, maxLength: remaining)
+            }
+            
+            if result < 0 {
+                logger?("TCP Write Error")
+                return false
+            }
+            if result == 0 {
+                // Stream full? If we are in middle of packet, we MUST block/retry or else stream corrupts.
+                // But typically 0 means closed.
+                return false
+            }
+            bytesWritten += result
         }
         
-        // Write Data
-        let dBytes = data.withUnsafeBytes { outputStream.write($0.bindMemory(to: UInt8.self).baseAddress!, maxLength: data.count) }
-         if dBytes < 0 { 
-             logger?("Error writing data")
-             return false
-         }
-         return true
+        return true
     }
 }
