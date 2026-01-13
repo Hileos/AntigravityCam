@@ -17,11 +17,201 @@ class CameraViewController: UIViewController {
     private var serverIP = "192.168.1.2" 
     private let serverPort: UInt32 = 5000
     
-    // ... [UI Elements omitted for brevity in replace tool, but will be preserved] ...
+    // UI Elements
+    private let ipTextField: UITextField = {
+        let tf = UITextField()
+        tf.placeholder = "Enter PC IP (e.g. 192.168.1.2)"
+        tf.borderStyle = .roundedRect
+        tf.backgroundColor = .white
+        tf.textColor = .black
+        tf.text = "192.168.1.2" // Default
+        return tf
+    }()
+    
+    // Debug Console
+    private let debugTextView: UITextView = {
+        let tv = UITextView()
+        tv.backgroundColor = UIColor.black.withAlphaComponent(0.5)
+        tv.textColor = .green
+        tv.font = .monospacedSystemFont(ofSize: 10, weight: .regular)
+        tv.isEditable = false
+        tv.isSelectable = false
+        return tv
+    }()
+    
+    override func viewDidLoad() {
+        super.viewDidLoad()
+        setupUI()
+        log("App Started. Setting up camera...")
+        setupCamera()
+        setupEncoder()
+        startCapture()
+    }
+    
+    // Custom Logger
+    func log(_ msg: String) {
+        DispatchQueue.main.async {
+            let timestamp = DateFormatter.localizedString(from: Date(), dateStyle: .none, timeStyle: .medium)
+            self.debugTextView.text = "[\(timestamp)] \(msg)\n" + self.debugTextView.text
+            // Keep only last 20 lines
+            // if self.debugTextView.text.components(separatedBy: "\n").count > 20 { ... } 
+        }
+        print(msg)
+    }
+    
+    private func setupUI() {
+        view.backgroundColor = .black
+        
+        // Simple Label
+        let label = UILabel()
+        label.text = "Antigravity Cam"
+        label.textColor = .white
+        label.frame = CGRect(x: 20, y: 50, width: 300, height: 40)
+        view.addSubview(label)
+        
+        // IP Text Field
+        ipTextField.frame = CGRect(x: 20, y: 100, width: 200, height: 40)
+        view.addSubview(ipTextField)
+        
+        // Connect Button
+        let btn = UIButton(type: .system)
+        btn.setTitle("Connect", for: .normal)
+        btn.frame = CGRect(x: 230, y: 100, width: 100, height: 40)
+        btn.backgroundColor = .white
+        btn.layer.cornerRadius = 5
+        btn.addTarget(self, action: #selector(connectTapped), for: .touchUpInside)
+        view.addSubview(btn)
+        
+        // Debug TextView
+        debugTextView.frame = CGRect(x: 20, y: 150, width: view.bounds.width - 40, height: 200)
+        view.addSubview(debugTextView)
+    }
+    
+    @objc private func connectTapped() {
+        guard let ip = ipTextField.text, !ip.isEmpty else {
+            log("IP is empty")
+            return
+        }
+        serverIP = ip
+        log("Connecting to \(serverIP)...")
+        view.endEditing(true) // Dismiss keyboard
+        connectToServer()
+    }
+    
+    private func setupCamera() {
+        log("Configuring Camera...")
+        captureSession.sessionPreset = .iFrame1280x720
+        
+        guard let device = AVCaptureDevice.default(.builtInWideAngleCamera, for: .video, position: .back),
+              let input = try? AVCaptureDeviceInput(device: device) else {
+            log("ERROR: Failed to get camera input")
+            return
+        }
+        
+        if captureSession.canAddInput(input) {
+            captureSession.addInput(input)
+            log("Camera Input Added")
+        }
+        
+        videoOutput.setSampleBufferDelegate(self, queue: DispatchQueue(label: "videoQueue"))
+        videoOutput.alwaysDiscardsLateVideoFrames = true
+        if captureSession.canAddOutput(videoOutput) {
+            captureSession.addOutput(videoOutput)
+            log("Camera Output Added")
+        }
+        
+        // Add Preview Layer
+        let previewLayer = AVCaptureVideoPreviewLayer(session: captureSession)
+        previewLayer.frame = view.bounds
+        previewLayer.videoGravity = .resizeAspectFill
+        view.layer.insertSublayer(previewLayer, at: 0)
+    }
+    
+    private func setupEncoder() {
+        videoEncoder = VideoEncoder()
+        videoEncoder?.delegate = self
+        log("Video Encoder Setup")
+    }
+    
+    private func startCapture() {
+        DispatchQueue.global().async {
+            self.captureSession.startRunning()
+            DispatchQueue.main.async { self.log("Camera Session Running") }
+        }
+    }
+    
+    private func connectToServer() {
+        tcpClient = TCPClient(address: serverIP, port: serverPort)
+        tcpClient?.logger = self.log
+        tcpClient?.connect()
+        
+        self.log("Connecting...")
+        
+        // Delay keyframe request to ensure TCP socket is ready
+        // The encoder callback will send SPS/PPS when the keyframe is encoded
+        DispatchQueue.main.asyncAfter(deadline: .now() + 1.5) {
+             self.needsKeyFrame = true
+             self.log("Socket ready. Requesting KeyFrame (SPS/PPS will be sent with it).")
+        }
+    }
 
-    // ... [viewDidLoad, log, setupUI, connectTapped, setupCamera, setupEncoder, startCapture, connectToServer omitted] ...
-
-// ... [extension CVPixelBuffer helper omitted] ...
+    private func drawDebugPattern(on pixelBuffer: CVPixelBuffer) {
+        CVPixelBufferLockBaseAddress(pixelBuffer, [])
+        defer { CVPixelBufferUnlockBaseAddress(pixelBuffer, []) }
+        
+        guard CVPixelBufferGetPlaneCount(pixelBuffer) >= 2 else { return }
+        
+        // Cycle colors: Red, Green, Blue every 30 frames
+        let cycle = (frameCount / 30) % 3
+        frameCount += 1
+        
+        // Approximate YUV values (BT.601)
+        // Red:   Y=82,  U=90,  V=240
+        // Green: Y=145, U=54,  V=34
+        // Blue:  Y=41,  U=240, V=110
+        
+        var yVal: UInt8 = 0
+        var uVal: UInt8 = 0
+        var vVal: UInt8 = 0
+        
+        switch cycle {
+        case 0: // Red
+            yVal = 82; uVal = 90; vVal = 240
+        case 1: // Green
+            yVal = 145; uVal = 54; vVal = 34
+        case 2: // Blue
+            yVal = 41; uVal = 240; vVal = 110
+        default: break
+        }
+        
+        let width = 64
+        let height = 64
+        
+        // Plane 0: Y
+        if let yBase = CVPixelBufferGetBaseAddressOfPlane(pixelBuffer, 0) {
+            let yStride = CVPixelBufferGetBytesPerRowOfPlane(pixelBuffer, 0)
+            for r in 0..<height {
+                let rowPtr = yBase.advanced(by: r * yStride).assumingMemoryBound(to: UInt8.self)
+                // Fill row
+                memset(rowPtr, Int32(yVal), width)
+            }
+        }
+        
+        // Plane 1: UV (interleaved)
+        if let uvBase = CVPixelBufferGetBaseAddressOfPlane(pixelBuffer, 1) {
+            let uvStride = CVPixelBufferGetBytesPerRowOfPlane(pixelBuffer, 1)
+            // UV is subsampled vertically by 2
+            for r in 0..<(height/2) {
+                let rowPtr = uvBase.advanced(by: r * uvStride).assumingMemoryBound(to: UInt8.self)
+                // Write U, V, U, V...
+                for c in 0..<(width/2) {
+                    rowPtr[c*2] = uVal
+                    rowPtr[c*2+1] = vVal
+                }
+            }
+        }
+    }
+}
 
 extension CameraViewController: AVCaptureVideoDataOutputSampleBufferDelegate {
     func captureOutput(_ output: AVCaptureOutput, didOutput sampleBuffer: CMSampleBuffer, from connection: AVCaptureConnection) {
