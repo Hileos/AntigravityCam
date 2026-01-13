@@ -28,7 +28,6 @@ extern "C" {
 #include <iomanip>
 #include <sstream>
 
-
 std::ofstream debugFile;
 
 void init_debug_log() {
@@ -176,80 +175,88 @@ void decode_frame(uint8_t *data, int size) {
   // Zero out padding
   memset(nalWithStartCode.data() + 4 + size, 0, AV_INPUT_BUFFER_PADDING_SIZE);
 
-  uint8_t *outData = nullptr;
-  int outSize = 0;
+  // std::cout << "Debug: Decoding frame size " << size << "\n";
 
-  // Use Parser to assemble frames from NALUs
-  av_parser_parse2(parser, codecCtx, &outData, &outSize,
-                   nalWithStartCode.data(), 4 + size, AV_NOPTS_VALUE,
-                   AV_NOPTS_VALUE, 0);
+  // Direct Send to Decoder (Bypassing Parser)
+  AVPacket *pkt = av_packet_alloc();
+  if (!pkt) {
+    std::cerr << "OOM: Could not allocate packet struct\n";
+    return;
+  }
 
-  if (outSize > 0) {
-    AVPacket *pkt = av_packet_alloc();
-    pkt->data = outData;
-    pkt->size = outSize;
+  if (av_new_packet(pkt, 4 + size) < 0) {
+    std::cerr << "OOM: Could not allocate packet buffer\n";
+    av_packet_free(&pkt);
+    return;
+  }
 
-    if (avcodec_send_packet(codecCtx, pkt) == 0) {
-      while (avcodec_receive_frame(codecCtx, pFrame) == 0) {
-        // Convert to RGB
-        {
-          std::lock_guard<std::mutex> lock(frameMutex);
-          sws_scale(sws_ctx, (uint8_t const *const *)pFrame->data,
-                    pFrame->linesize, 0, codecCtx->height, pFrameRGB->data,
-                    pFrameRGB->linesize);
+  memcpy(pkt->data, nalWithStartCode.data(), 4 + size);
 
-          // DEBUG: Sample Pixel (32, 32)
-          static int debugFrameCount = 0;
-          static uint8_t lastR = 0, lastG = 0, lastB = 0;
-          debugFrameCount++;
+  int sendRes = avcodec_send_packet(codecCtx, pkt);
+  if (sendRes < 0) {
+    // char err[AV_ERROR_MAX_STRING_SIZE];
+    // av_strerror(sendRes, err, sizeof(err));
+    // std::cerr << "Error sending packet: " << err << "\n";
+  } else {
+    while (avcodec_receive_frame(codecCtx, pFrame) == 0) {
+      // Convert to RGB
+      {
+        std::lock_guard<std::mutex> lock(frameMutex);
+        sws_scale(sws_ctx, (uint8_t const *const *)pFrame->data,
+                  pFrame->linesize, 0, codecCtx->height, pFrameRGB->data,
+                  pFrameRGB->linesize);
 
-          if (pFrameRGB->data[0]) {
-            int x = 32;
-            int y = 32;
-            int linesize = pFrameRGB->linesize[0];
-            // BGRA format: B, G, R, A
-            uint8_t *ptr = pFrameRGB->data[0] + (y * linesize) + (x * 4);
-            uint8_t b = ptr[0];
-            uint8_t g = ptr[1];
-            uint8_t r = ptr[2];
+        // DEBUG: Sample Pixel (32, 32)
+        static int debugFrameCount = 0;
+        static uint8_t lastR = 0, lastG = 0, lastB = 0;
+        debugFrameCount++;
 
-            bool changed = (abs(r - lastR) > 10 || abs(g - lastG) > 10 ||
-                            abs(b - lastB) > 10);
+        if (pFrameRGB->data[0]) {
+          int x = 32;
+          int y = 32;
+          int linesize = pFrameRGB->linesize[0];
+          // BGRA format: B, G, R, A
+          uint8_t *ptr = pFrameRGB->data[0] + (y * linesize) + (x * 4);
+          uint8_t b = ptr[0];
+          uint8_t g = ptr[1];
+          uint8_t r = ptr[2];
 
-            if (changed || (debugFrameCount % 30 == 0)) {
-              if (changed)
-                std::cout << "[Pattern Change] ";
-              std::cout << "Pixel(32,32): RGB(" << (int)r << "," << (int)g
-                        << "," << (int)b << ")\n";
+          bool changed = (abs(r - lastR) > 10 || abs(g - lastG) > 10 ||
+                          abs(b - lastB) > 10);
 
-              // Log to file
-              if (debugFile.is_open()) {
-                debugFile << debugFrameCount << "," << (int)r << "," << (int)g
-                          << "," << (int)b << "\n";
-                debugFile.flush();
-              }
+          if (changed || (debugFrameCount % 30 == 0)) {
+            if (changed)
+              std::cout << "[Pattern Change] ";
+            std::cout << "Pixel(32,32): RGB(" << (int)r << "," << (int)g << ","
+                      << (int)b << ")\n";
 
-              lastR = r;
-              lastG = g;
-              lastB = b;
+            // Log to file
+            if (debugFile.is_open()) {
+              debugFile << debugFrameCount << "," << (int)r << "," << (int)g
+                        << "," << (int)b << "\n";
+              debugFile.flush();
             }
-          }
 
-          // Write to Shared Memory inside the lock as well to be safe
-          if (pSharedMem) {
-            memcpy(pSharedMem->data, pFrameRGB->data[0], FRAME_BUFFER_SIZE);
-            pSharedMem->write_sequence++;
+            lastR = r;
+            lastG = g;
+            lastB = b;
           }
-        } // mutex unlocks here
-
-        // Request UI Repaint
-        if (hWindow) {
-          InvalidateRect(hWindow, NULL, FALSE);
         }
+
+        // Write to Shared Memory inside the lock as well to be safe
+        if (pSharedMem) {
+          memcpy(pSharedMem->data, pFrameRGB->data[0], FRAME_BUFFER_SIZE);
+          pSharedMem->write_sequence++;
+        }
+      } // mutex unlocks here
+
+      // Request UI Repaint
+      if (hWindow) {
+        InvalidateRect(hWindow, NULL, FALSE);
       }
     }
-    av_packet_free(&pkt);
   }
+  av_packet_free(&pkt);
 }
 
 // Helper to receive exact amount of data
