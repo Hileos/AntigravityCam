@@ -79,9 +79,10 @@ void init_ffmpeg() {
   av_image_fill_arrays(pFrameRGB->data, pFrameRGB->linesize, buffer,
                        AV_PIX_FMT_BGRA, VIDEO_WIDTH, VIDEO_HEIGHT, 1);
 
-  sws_ctx = sws_getContext(VIDEO_WIDTH, VIDEO_HEIGHT, AV_PIX_FMT_YUV420P,
-                           VIDEO_WIDTH, VIDEO_HEIGHT, AV_PIX_FMT_BGRA,
-                           SWS_BILINEAR, NULL, NULL, NULL);
+  sws_ctx =
+      sws_getContext(VIDEO_WIDTH, VIDEO_HEIGHT, AV_PIX_FMT_YUV420P, VIDEO_WIDTH,
+                     VIDEO_HEIGHT, AV_PIX_FMT_BGRA, SWS_BICUBIC, NULL, NULL,
+                     NULL); // BICUBIC for better quality
 }
 
 void init_shared_memory() {
@@ -159,8 +160,21 @@ void decode_frame(uint8_t *data, int size) {
     pkt->data = outData;
     pkt->size = outSize;
 
-    if (avcodec_send_packet(codecCtx, pkt) == 0) {
+    int sendResult = avcodec_send_packet(codecCtx, pkt);
+    if (sendResult < 0) {
+      char errBuf[256];
+      av_strerror(sendResult, errBuf, sizeof(errBuf));
+      std::cerr << "Decode Error: " << errBuf << "\n";
+    } else {
       while (avcodec_receive_frame(codecCtx, pFrame) == 0) {
+        // DEBUG: Print actual format from decoder (once)
+        static bool formatPrinted = false;
+        if (!formatPrinted) {
+          std::cout << "Decoded frame format: "
+                    << av_get_pix_fmt_name((AVPixelFormat)pFrame->format)
+                    << " (" << pFrame->width << "x" << pFrame->height << ")\n";
+          formatPrinted = true;
+        }
         // Convert to RGB
         {
           std::lock_guard<std::mutex> lock(frameMutex);

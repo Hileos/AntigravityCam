@@ -1,6 +1,7 @@
 #include "CaptureSource.h"
 #include <initguid.h>
 #include <olectl.h>
+#include <stdio.h>
 
 // Self-definition of GUIDs to avoid link errors if not in libs
 DEFINE_GUID(CLSID_AntigravityCam, 0x8e14549a, 0xdb61, 0x4309, 0xaf, 0xa1, 0x35,
@@ -110,13 +111,26 @@ HRESULT CVCamStream::FillBuffer(IMediaSample *pms) {
   pms->GetPointer(&pData);
   long size = pms->GetSize();
 
+  // DEBUG: Verify buffer sizes match
+  if (size != FRAME_BUFFER_SIZE) {
+    OutputDebugStringA("WARNING: Buffer size mismatch!\n");
+  }
+
   // Check Shared Memory
   if (!m_pSharedMem) {
     InitSharedMemory();
   }
 
-  // Safety clear to green so we know it's alive but not connected
-  memset(pData, 0, size); // Black
+  // Safety clear to black
+  memset(pData, 0, size);
+
+  // DEBUG: Frame counter
+  static int frameCount = 0;
+  if (++frameCount % 300 == 0) { // Every 10 seconds at 30fps
+    char debugMsg[64];
+    sprintf_s(debugMsg, "VirtualCam: Delivered %d frames\n", frameCount);
+    OutputDebugStringA(debugMsg);
+  }
 
   if (m_pSharedMem && m_pSharedMem->magic == 0x43424557) {
     // Simple polling approach (blocking here would block the graph, but
