@@ -328,6 +328,14 @@ void decode_frame(uint8_t *data, int size) {
     pkt->flags |= AV_PKT_FLAG_KEY;
   }
 
+  // Performance Metrics
+  static long long totalDecodeTime = 0;
+  static long long totalRenderTime = 0;
+  static int frameMetricCount = 0;
+  static auto lastMetricTime = std::chrono::steady_clock::now();
+
+  auto t0 = std::chrono::high_resolution_clock::now();
+
   int sendRes = avcodec_send_packet(codecCtx, pkt);
   if (sendRes < 0) {
     send_packet_err_count++;
@@ -355,6 +363,8 @@ void decode_frame(uint8_t *data, int size) {
         }
         break;
       }
+
+      auto t1 = std::chrono::high_resolution_clock::now(); // Decode Done
 
       // Convert to RGB
       {
@@ -384,42 +394,6 @@ void decode_frame(uint8_t *data, int size) {
                     pFrameRGB->linesize);
         }
 
-        // DEBUG: Sample Pixel (32, 32)
-        static int debugFrameCount = 0;
-        static uint8_t lastR = 0, lastG = 0, lastB = 0;
-        debugFrameCount++;
-
-        if (pFrameRGB->data[0]) {
-          int x = 32;
-          int y = 32;
-          int linesize = pFrameRGB->linesize[0];
-          // BGRA format: B, G, R, A
-          uint8_t *ptr = pFrameRGB->data[0] + (y * linesize) + (x * 4);
-          uint8_t b = ptr[0];
-          uint8_t g = ptr[1];
-          uint8_t r = ptr[2];
-
-          bool changed = (abs(r - lastR) > 10 || abs(g - lastG) > 10 ||
-                          abs(b - lastB) > 10);
-
-          if (changed || (debugFrameCount % 30 == 0)) {
-            // if (changed) std::cout << "[Pattern Change] ";
-            // std::cout << "Pixel(32,32): RGB(" << (int)r << "," << (int)g <<
-            // "," << (int)b << ")\n";
-
-            // Log to file
-            if (debugFile.is_open()) {
-              debugFile << debugFrameCount << "," << (int)r << "," << (int)g
-                        << "," << (int)b << "\n";
-              debugFile.flush();
-            }
-
-            lastR = r;
-            lastG = g;
-            lastB = b;
-          }
-        }
-
         // Write to Shared Memory (double-buffered)
         if (pSharedMem) {
           // Write to inactive buffer
@@ -434,6 +408,42 @@ void decode_frame(uint8_t *data, int size) {
           pSharedMem->active_buffer = writeBuffer;
           pSharedMem->write_sequence++;
         }
+      }
+
+      auto t2 = std::chrono::high_resolution_clock::now(); // Render Done
+
+      // Accumulate Metrics
+      long long decodeUs =
+          std::chrono::duration_cast<std::chrono::microseconds>(t1 - t0)
+              .count();
+      long long renderUs =
+          std::chrono::duration_cast<std::chrono::microseconds>(t2 - t1)
+              .count();
+
+      totalDecodeTime += decodeUs;
+      totalRenderTime += renderUs;
+      frameMetricCount++;
+
+      // Log Every 60 Frames (~1 sec)
+      if (frameMetricCount >= 60) {
+        auto now = std::chrono::steady_clock::now();
+        long long elapsedMs =
+            std::chrono::duration_cast<std::chrono::milliseconds>(
+                now - lastMetricTime)
+                .count();
+        double fps = (frameMetricCount * 1000.0) / elapsedMs;
+        double avgDecode = (totalDecodeTime / 1000.0) / frameMetricCount;
+        double avgRender = (totalRenderTime / 1000.0) / frameMetricCount;
+
+        std::cout << "[Metrics] FPS: " << fps << " | Decode: " << avgDecode
+                  << "ms"
+                  << " | Render: " << avgRender << "ms\n";
+
+        // Reset
+        frameMetricCount = 0;
+        totalDecodeTime = 0;
+        totalRenderTime = 0;
+        lastMetricTime = now;
       }
 
       // Request UI Repaint
