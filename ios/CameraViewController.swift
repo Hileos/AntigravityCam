@@ -2,6 +2,7 @@ import UIKit
 import Foundation
 import AVFoundation
 import VideoToolbox
+import Network
 
 // MARK: - Connection State Enum
 enum ConnectionState {
@@ -57,7 +58,7 @@ class CameraViewController: UIViewController {
     private let beaconPort: UInt16 = 5001
     
     // UDP Beacon for device discovery
-    private var beaconSender: BeaconSender?
+    private var beaconListener: BeaconListener?
     
     // UI Elements
     private let ipTextField: UITextField = {
@@ -110,9 +111,9 @@ class CameraViewController: UIViewController {
     }
     
     private func startBeacon() {
-        beaconSender = BeaconSender(port: beaconPort, deviceName: UIDevice.current.name)
-        beaconSender?.start()
-        log("UDP Beacon started on port \(beaconPort)")
+        beaconListener = BeaconListener(port: beaconPort, deviceName: UIDevice.current.name)
+        beaconListener?.start()
+        log("UDP Listener started on port \(beaconPort)")
     }
     
     // Custom Logger
@@ -278,7 +279,7 @@ class CameraViewController: UIViewController {
         connectionState = .connected
         hasConnectedOnce = true
         autoReconnectEnabled = true // Enable auto-reconnect after first successful connection
-        beaconSender?.setStreaming(true) // Update beacon state
+        beaconListener?.setStreaming(true) // Update beacon state
         log("✓ Connected! Auto-reconnect enabled.")
         
         // Request keyframe after connection is stable
@@ -332,7 +333,7 @@ class CameraViewController: UIViewController {
         tcpClient?.disconnect()
         tcpClient = nil
         connectionState = .disconnected
-        beaconSender?.setStreaming(false) // Reset beacon state
+        beaconListener?.setStreaming(false) // Reset beacon state
         isDroppingFrames = true
     }
 
@@ -740,9 +741,16 @@ class BeaconSender {
     private var connection: NWConnection?
     private var isStreaming = false
     
-    // Protocol: Magic(4) + Version(1) + State(1) + DeviceName(32) = 38 bytes
-    private let magic: [UInt8] = [0x41, 0x47, 0x43, 0x4D] // "AGCM"
-    private let version: UInt8 = 1
+// MARK: - Active Discovery Listener
+class BeaconListener {
+    var port: UInt16
+    var deviceName: String
+    var isStreaming: Bool = false
+    
+    // Magic: "AGCM"
+    private let magic: [UInt8] = [0x41, 0x47, 0x43, 0x4D]
+    
+    private var listener: NWListener?
     
     init(port: UInt16, deviceName: String) {
         self.port = port
@@ -750,63 +758,69 @@ class BeaconSender {
     }
     
     func start() {
-        // Create UDP connection to broadcast address
-        let host = NWEndpoint.Host("255.255.255.255")
-        let port = NWEndpoint.Port(rawValue: self.port)!
-        
-        let params = NWParameters.udp
-        params.allowLocalEndpointReuse = true
-        
-        // Enable broadcast
-        if let options = params.defaultProtocolStack.internetProtocol as? NWProtocolIP.Options {
-            options.version = .v4
-        }
-        
-        connection = NWConnection(host: host, port: port, using: params)
-        connection?.start(queue: .global())
-        
-        // Start timer on main thread
-        DispatchQueue.main.async {
-            self.timer = Timer.scheduledTimer(withTimeInterval: 3.0, repeats: true) { [weak self] _ in
-                self?.sendBeacon()
+        do {
+            let params = NWParameters.udp
+            params.allowLocalEndpointReuse = true
+            
+            listener = try NWListener(using: params, on: NWEndpoint.Port(rawValue: port)!)
+            
+            listener?.newConnectionHandler = { [weak self] newConnection in
+                self?.handleConnection(newConnection)
             }
-            // Send immediately
-            self.sendBeacon()
+            
+            listener?.start(queue: .global())
+            // print("BeaconListener started")
+        } catch {
+            print("Failed to start listener: \(error)")
         }
     }
     
     func stop() {
-        timer?.invalidate()
-        timer = nil
-        connection?.cancel()
-        connection = nil
+        listener?.cancel()
+        listener = nil
     }
     
     func setStreaming(_ streaming: Bool) {
         isStreaming = streaming
     }
     
-    private func sendBeacon() {
-        guard let connection = connection else { return }
+    private func handleConnection(_ connection: NWConnection) {
+        connection.start(queue: .global())
         
-        var packet = Data()
-        
-        // Magic (4 bytes)
-        packet.append(contentsOf: magic)
-        
-        // Version (1 byte)
-        packet.append(version)
-        
-        // State (1 byte): 0=Available, 1=Streaming
-        packet.append(isStreaming ? 1 : 0)
-        
-        // Device Name (32 bytes, padded with zeros)
-        var nameBytes = Array(deviceName.utf8.prefix(32))
-        while nameBytes.count < 32 {
-            nameBytes.append(0)
+        connection.receiveMessage { [weak self] content, context, isComplete, error in
+            guard let self = self, let data = content, error == nil else { return }
+            self.processPacket(data, connection: connection)
         }
+    }
+    
+    private func processPacket(_ data: Data, connection: NWConnection) {
+        // Validate PING: Magic(4) + Type(1)=0x01 + Ver(1)
+        guard data.count >= 6 else { return }
+        
+        if data[0] == 0x41 && data[1] == 0x47 && data[2] == 0x43 && data[3] == 0x4D &&
+           data[4] == 0x01 { // PING
+            
+            sendPong(connection: connection)
+        }
+    }
+    
+    private func sendPong(connection: NWConnection) {
+        var packet = Data()
+        // Magic
+        packet.append(contentsOf: magic)
+        // Type (2 = PONG)
+        packet.append(0x02)
+        // Version (1)
+        packet.append(1)
+        // State
+        packet.append(isStreaming ? 1 : 0)
+        // Name
+        var nameBytes = Array(deviceName.utf8.prefix(32))
+        while nameBytes.count < 32 { nameBytes.append(0) }
         packet.append(contentsOf: nameBytes)
         
-        connection.send(content: packet, completion: .idempotent)
+        connection.send(content: packet, completion: .contentProcessed({ error in
+             // Sent
+        }))
     }
 }
