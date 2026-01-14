@@ -473,7 +473,7 @@ class CameraViewController: UIViewController {
     
     private func setupEncoder() {
         // Initial setup with default 720p (Landscape)
-        videoEncoder = VideoEncoder(width: 1280, height: 720, logger: self.log)
+        videoEncoder = VideoEncoder(width: Int32(1280), height: Int32(720), logger: self.log)
         videoEncoder?.delegate = self
         videoEncoder?.errorHandler = { [weak self] error in
             self?.log("⚠️ Encoder Error: \(error)")
@@ -487,7 +487,7 @@ class CameraViewController: UIViewController {
         // Recreate encoder on critical error
         log("Recreating encoder after error...")
         // Default to landscape if we can't determine, or use last known (TODO: Better state tracking)
-        videoEncoder = VideoEncoder(width: 1280, height: 720, logger: self.log)
+        videoEncoder = VideoEncoder(width: Int32(1280), height: Int32(720), logger: self.log)
         videoEncoder?.delegate = self
         videoEncoder?.errorHandler = { [weak self] error in
             self?.log("⚠️ Encoder Error: \(error)")
