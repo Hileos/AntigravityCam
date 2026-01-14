@@ -135,8 +135,56 @@ class CameraViewController: UIViewController {
         log("App Started. Setting up camera...")
         setupCamera()
         setupEncoder()
+        setupOrientationObserver() // Start listening for rotation
+        
+        // Initial Orientation
+        DispatchQueue.main.async {
+            self.updateCameraOrientation()
+        }
+        
         startCapture()
         startBeacon()
+    }
+    
+    // MARK: - Orientation Support
+    private func setupOrientationObserver() {
+        NotificationCenter.default.addObserver(self, selector: #selector(orientationChanged), name: UIDevice.orientationDidChangeNotification, object: nil)
+    }
+    
+    @objc private func orientationChanged() {
+        updateCameraOrientation()
+    }
+    
+    private func updateCameraOrientation() {
+        guard let connection = videoOutput.connection(with: .video) else { return }
+        
+        let deviceOrientation = UIDevice.current.orientation
+        var videoOrientation: AVCaptureVideoOrientation = .landscapeRight
+        
+        switch deviceOrientation {
+        case .portrait:
+            videoOrientation = .portrait
+        case .portraitUpsideDown:
+            videoOrientation = .portraitUpsideDown
+        case .landscapeLeft:
+            videoOrientation = .landscapeRight // Camera is opposite to device
+        case .landscapeRight:
+            videoOrientation = .landscapeLeft  // Camera is opposite to device
+        default:
+            // Keep current if face up/down or unknown
+            return 
+        }
+        
+        // Update Video Output (Encoding)
+        if connection.isVideoOrientationSupported {
+            connection.videoOrientation = videoOrientation
+            log("Orientation changed to \(videoOrientation.rawValue)")
+        }
+        
+        // Update Display Layer (Local Preview)
+        if let displayConnection = displayLayer.connection, displayConnection.isVideoOrientationSupported {
+            displayConnection.videoOrientation = videoOrientation
+        }
     }
     
     private func startBeacon() {
@@ -424,30 +472,26 @@ class CameraViewController: UIViewController {
     }
     
     private func setupEncoder() {
-        videoEncoder = VideoEncoder(logger: self.log)
+        // Initial setup with default 720p (Landscape)
+        videoEncoder = VideoEncoder(width: 1280, height: 720, logger: self.log)
         videoEncoder?.delegate = self
         videoEncoder?.errorHandler = { [weak self] error in
             self?.log("⚠️ Encoder Error: \(error)")
-            
-            // CRITICAL FIX: Do NOT recreate encoder for simple latency warnings
             if error.contains("Latency") { return }
-            
             self?.handleEncoderError()
         }
-        log("Video Encoder Setup")
+        log("Video Encoder Setup (1280x720)")
     }
     
     private func handleEncoderError() {
         // Recreate encoder on critical error
         log("Recreating encoder after error...")
-        videoEncoder = VideoEncoder(logger: self.log)
+        // Default to landscape if we can't determine, or use last known (TODO: Better state tracking)
+        videoEncoder = VideoEncoder(width: 1280, height: 720, logger: self.log)
         videoEncoder?.delegate = self
         videoEncoder?.errorHandler = { [weak self] error in
             self?.log("⚠️ Encoder Error: \(error)")
-            
-            // CRITICAL FIX: Do NOT recreate encoder for simple latency warnings
             if error.contains("Latency") { return }
-            
             self?.handleEncoderError()
         }
         needsKeyFrame = true
@@ -609,6 +653,22 @@ extension CameraViewController: AVCaptureVideoDataOutputSampleBufferDelegate {
         // Display Modified Frame on iPhone
         displayLayer.enqueue(sampleBuffer)
 
+        // Check for Resolution Change (Orientation Rotation)
+        let width = Int32(CVPixelBufferGetWidth(pixelBuffer))
+        let height = Int32(CVPixelBufferGetHeight(pixelBuffer))
+        
+        if let encoder = videoEncoder, (encoder.width != width || encoder.height != height) {
+             log("Resolution Changed to \(width)x\(height). Recreating Encoder.")
+             videoEncoder = VideoEncoder(width: width, height: height, logger: self.log)
+             videoEncoder?.delegate = self
+             videoEncoder?.errorHandler = { [weak self] error in
+                 self?.log("⚠️ Encoder Error: \(error)")
+                 if error.contains("Latency") { return }
+                 self?.handleEncoderError()
+             }
+             needsKeyFrame = true
+        }
+
         // Encode Frame
         let force = needsKeyFrame
         if force { needsKeyFrame = false }
@@ -656,7 +716,12 @@ class VideoEncoder {
     var errorHandler: ((String) -> Void)?
     private var session: VTCompressionSession?
     
-    init(logger: ((String) -> Void)? = nil) {
+    var width: Int32
+    var height: Int32
+    
+    init(width: Int32, height: Int32, logger: ((String) -> Void)? = nil) {
+        self.width = width
+        self.height = height
         self.errorHandler = logger
         createSession()
     }
@@ -664,8 +729,8 @@ class VideoEncoder {
     private func createSession() {
         let status = VTCompressionSessionCreate(
             allocator: nil,
-            width: 1280,
-            height: 720,
+            width: width,
+            height: height,
             codecType: kCMVideoCodecType_H264,
             encoderSpecification: nil,
             imageBufferAttributes: nil,
