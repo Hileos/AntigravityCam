@@ -549,6 +549,91 @@ void receiver_thread_func() {
   closesocket(ListenSocket);
 }
 
+// UDP Beacon Listener
+void beacon_listener_thread_func() {
+  SOCKET udpSock = socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP);
+  if (udpSock == INVALID_SOCKET) {
+    std::cerr << "UDP socket creation failed\n";
+    return;
+  }
+
+  // Allow reuse address
+  BOOL opt = TRUE;
+  setsockopt(udpSock, SOL_SOCKET, SO_REUSEADDR, (const char *)&opt,
+             sizeof(opt));
+
+  sockaddr_in local;
+  local.sin_family = AF_INET;
+  local.sin_addr.s_addr = INADDR_ANY;
+  local.sin_port = htons(5001);
+
+  if (bind(udpSock, (SOCKADDR *)&local, sizeof(local)) == SOCKET_ERROR) {
+    std::cerr << "UDP bind failed\n";
+    closesocket(udpSock);
+    return;
+  }
+
+  // Set timeout for select/recv
+  DWORD timeout = 1000;
+  setsockopt(udpSock, SOL_SOCKET, SO_RCVTIMEO, (const char *)&timeout,
+             sizeof(timeout));
+
+  std::cout << "Beacon listener started on port 5001\n";
+
+  auto lastBeaconTime = std::chrono::steady_clock::now();
+  bool deviceAvailable = false;
+
+  while (isRunning) {
+    char buf[1024];
+    sockaddr_in sender;
+    int senderLen = sizeof(sender);
+
+    int len =
+        recvfrom(udpSock, buf, sizeof(buf), 0, (sockaddr *)&sender, &senderLen);
+
+    auto now = std::chrono::steady_clock::now();
+
+    if (len >= 38 && !isConnected) {
+      // Parse Protocol: Magic(4) + Version(1) + State(1) + Name(32)
+      // Magic: AGCM (0x41 0x47 0x43 0x4D)
+      if (buf[0] == 0x41 && buf[1] == 0x47 && buf[2] == 0x43 &&
+          buf[3] == 0x4D) {
+
+        uint8_t version = buf[4];
+        uint8_t state = buf[5]; // 0=Available, 1=Streaming
+        char name[33] = {0};
+        memcpy(name, &buf[6], 32);
+
+        if (state == 0) {
+          lastBeaconTime = now;
+          deviceAvailable = true;
+
+          if (hWindow) {
+            std::string title = "AntigravityCam Receiver - Device Available: " +
+                                std::string(name);
+            SetWindowTextA(hWindow, title.c_str());
+          }
+        }
+      }
+    }
+
+    // Check for timeout if not connected
+    if (!isConnected && deviceAvailable) {
+      auto elapsed =
+          std::chrono::duration_cast<std::chrono::seconds>(now - lastBeaconTime)
+              .count();
+      if (elapsed > 10) {
+        deviceAvailable = false;
+        if (hWindow) {
+          SetWindowTextA(hWindow, "AntigravityCam Receiver - Waiting...");
+        }
+      }
+    }
+  }
+
+  closesocket(udpSock);
+}
+
 LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam,
                             LPARAM lParam) {
   switch (uMsg) {
@@ -624,6 +709,7 @@ int main() {
 
   // Start Receiver Thread
   std::thread receiverThread(receiver_thread_func);
+  std::thread beaconThread(beacon_listener_thread_func);
 
   // Message Loop
   MSG msg = {};
@@ -635,6 +721,8 @@ int main() {
   isRunning = false;
   if (receiverThread.joinable())
     receiverThread.join();
+  if (beaconThread.joinable())
+    beaconThread.join();
 
   cleanup();
   return 0;
