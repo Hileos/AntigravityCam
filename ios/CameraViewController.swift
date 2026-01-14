@@ -642,10 +642,11 @@ extension CameraViewController: AVCaptureVideoDataOutputSampleBufferDelegate {
         // Only process frames if connected
         guard connectionState == .connected else { return }
         
+        // Get Pixel Buffer (Required for drawing and resolution check)
+        guard let pixelBuffer = CMSampleBufferGetImageBuffer(sampleBuffer) else { return }
+        
         // Draw Debug Pattern
-        if let pixelBuffer = CMSampleBufferGetImageBuffer(sampleBuffer) {
-            drawDebugPattern(on: pixelBuffer)
-        }
+        drawDebugPattern(on: pixelBuffer)
         
         // Display Modified Frame on iPhone
         displayLayer.enqueue(sampleBuffer)
