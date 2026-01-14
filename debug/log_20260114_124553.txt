@@ -1,0 +1,118 @@
+Frame,Time,R,G,B
+# Using H.264 software decoder
+# Decoder Configured for SOFTWARE decoding
+# NAL: PPS (8) found
+#  [Keyframe/Header Found! Syncing Stream...] 
+# [FFMPEG] no frame!
+# NAL: IDR (5) found
+# [FFMPEG] sps_id 0 out of range
+# [FFMPEG] non-existing PPS 0 referenced
+# [FFMPEG] no frame!
+# NAL: SPS (7) found
+# NAL: PPS (8) found
+# [FFMPEG] no frame!
+# NAL: IDR (5) found
+# Re-initializing Decoder with SPS/PPS Extradata...
+# Decoder configured with Extradata (SPS+PPS)
+# Decoder Configured for SOFTWARE decoding
+# NAL: SPS (7) found
+# NAL: PPS (8) found
+# [FFMPEG] no frame!
+# NAL: IDR (5) found
+1,0,0,254
+ERROR: Error sending packet: Invalid data found when processing input
+# NAL: SPS (7) found
+# NAL: PPS (8) found
+# [FFMPEG] no frame!
+# NAL: IDR (5) found
+30,0,0,254
+31,255,0,8
+# NAL: SPS (7) found
+# NAL: PPS (8) found
+# [FFMPEG] no frame!
+# NAL: IDR (5) found
+60,253,0,0
+61,0,247,1
+# NAL: SPS (7) found
+# NAL: PPS (8) found
+# [FFMPEG] no frame!
+# NAL: IDR (5) found
+90,0,254,0
+91,6,1,253
+# NAL: SPS (7) found
+# NAL: PPS (8) found
+# [FFMPEG] no frame!
+# NAL: IDR (5) found
+120,3,0,250
+121,255,5,2
+# NAL: SPS (7) found
+# NAL: PPS (8) found
+# [FFMPEG] no frame!
+# NAL: IDR (5) found
+150,255,0,1
+151,3,249,5
+# NAL: SPS (7) found
+# NAL: PPS (8) found
+# [FFMPEG] no frame!
+# NAL: IDR (5) found
+180,0,252,0
+181,6,1,253
+# NAL: SPS (7) found
+# NAL: PPS (8) found
+# [FFMPEG] no frame!
+# NAL: IDR (5) found
+210,0,0,248
+211,253,2,1
+# NAL: SPS (7) found
+# NAL: PPS (8) found
+# [FFMPEG] no frame!
+# NAL: IDR (5) found
+240,253,1,7
+241,5,249,7
+# NAL: SPS (7) found
+# NAL: PPS (8) found
+# [FFMPEG] no frame!
+# NAL: IDR (5) found
+270,4,253,5
+271,1,0,254
+# NAL: SPS (7) found
+# NAL: PPS (8) found
+# [FFMPEG] no frame!
+# NAL: IDR (5) found
+300,3,0,252
+301,254,3,2
+# NAL: SPS (7) found
+# NAL: PPS (8) found
+# [FFMPEG] no frame!
+# NAL: IDR (5) found
+330,255,2,0
+331,0,243,1
+# NAL: SPS (7) found
+# NAL: PPS (8) found
+# [FFMPEG] no frame!
+# NAL: IDR (5) found
+347,0,255,0
+360,0,255,0
+361,1,0,254
+# NAL: SPS (7) found
+# NAL: PPS (8) found
+# [FFMPEG] no frame!
+# NAL: IDR (5) found
+390,0,0,255
+391,255,0,1
+# NAL: SPS (7) found
+# NAL: PPS (8) found
+# [FFMPEG] no frame!
+# NAL: IDR (5) found
+420,255,0,0
+421,0,247,1
+# NAL: SPS (7) found
+# NAL: PPS (8) found
+# [FFMPEG] no frame!
+# NAL: IDR (5) found
+450,1,252,6
+451,8,0,253
+# NAL: SPS (7) found
+# NAL: PPS (8) found
+# [FFMPEG] no frame!
+# NAL: IDR (5) found

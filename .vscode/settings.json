@@ -1,0 +1,10 @@
+{
+    "C_Cpp.intelliSenseEngine": "default",
+    "C_Cpp.default.configurationProvider": "ms-vscode.cmake-tools",
+    "clangd.arguments": [
+        "--header-insertion=never"
+    ],
+    "files.associations": {
+        "*.h": "cpp"
+    }
+}

@@ -1,0 +1,3 @@
+Frame,Time,R,G,B
+# Listing Supported Hardware Configs for H.264:
+# HW Config [0]: Method=11 DeviceType=dxva2 PixFmt=dxva2_vld

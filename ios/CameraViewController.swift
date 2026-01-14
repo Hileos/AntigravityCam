@@ -5,6 +5,7 @@ import VideoToolbox
 import Network
 
 // MARK: - Connection State Enum
+// Build Trigger: Active Discovery Final
 enum ConnectionState {
     case disconnected
     case connecting

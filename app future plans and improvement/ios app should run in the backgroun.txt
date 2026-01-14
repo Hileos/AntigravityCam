@@ -1,0 +1,2 @@
+ios app should run in the background
+add protocol to check if IP adress and ports are available and chose the available ports to use the app

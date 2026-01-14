@@ -1,0 +1,679 @@
+Frame,Time,R,G,B
+# D3D11 Device Created.
+# Decoder Configured for HARDWARE (D3D11)
+ERROR: Error sending packet: Invalid data found when processing input
+ERROR: Error sending packet: Invalid data found when processing input
+ERROR: Error sending packet: Invalid data found when processing input
+# get_hw_format called. Available: 190(vulkan) 117(cuda) 51(dxva2_vld) 116(d3d11va_vld)  -> Match Found by NAME! Selected: 116
+# get_hw_format called. Available: 190(vulkan) 117(cuda) 51(dxva2_vld) 171(d3d11)  -> Match Found by NAME! Selected: 171
+ERROR: get_hw_format called. Available: 190(vulkan) 117(cuda) 51(dxva2_vld) 227(d3d12) 44(vaapi) 0(yuv420p) 0(yuv420p) 0(yuv420p)  -> No Match for D3D11
+ERROR: Error sending packet: Invalid data found when processing input
+# get_hw_format called. Available: 190(vulkan) 117(cuda) 51(dxva2_vld) 116(d3d11va_vld)  -> Match Found by NAME! Selected: 116
+# get_hw_format called. Available: 190(vulkan) 117(cuda) 51(dxva2_vld) 171(d3d11)  -> Match Found by NAME! Selected: 171
+ERROR: get_hw_format called. Available: 190(vulkan) 117(cuda) 51(dxva2_vld) 227(d3d12) 44(vaapi) 0(yuv420p) 0(yuv420p) 0(yuv420p)  -> No Match for D3D11
+ERROR: Error sending packet: Invalid data found when processing input
+# get_hw_format called. Available: 190(vulkan) 117(cuda) 51(dxva2_vld) 116(d3d11va_vld)  -> Match Found by NAME! Selected: 116
+# get_hw_format called. Available: 190(vulkan) 117(cuda) 51(dxva2_vld) 171(d3d11)  -> Match Found by NAME! Selected: 171
+ERROR: get_hw_format called. Available: 190(vulkan) 117(cuda) 51(dxva2_vld) 227(d3d12) 44(vaapi) 0(yuv420p) 0(yuv420p) 0(yuv420p)  -> No Match for D3D11
+ERROR: Error sending packet: Invalid data found when processing input
+# get_hw_format called. Available: 190(vulkan) 117(cuda) 51(dxva2_vld) 116(d3d11va_vld)  -> Match Found by NAME! Selected: 116
+# get_hw_format called. Available: 190(vulkan) 117(cuda) 51(dxva2_vld) 171(d3d11)  -> Match Found by NAME! Selected: 171
+ERROR: get_hw_format called. Available: 190(vulkan) 117(cuda) 51(dxva2_vld) 227(d3d12) 44(vaapi) 0(yuv420p) 0(yuv420p) 0(yuv420p)  -> No Match for D3D11
+ERROR: Error sending packet: Invalid data found when processing input
+# get_hw_format called. Available: 190(vulkan) 117(cuda) 51(dxva2_vld) 116(d3d11va_vld)  -> Match Found by NAME! Selected: 116
+# get_hw_format called. Available: 190(vulkan) 117(cuda) 51(dxva2_vld) 171(d3d11)  -> Match Found by NAME! Selected: 171
+ERROR: get_hw_format called. Available: 190(vulkan) 117(cuda) 51(dxva2_vld) 227(d3d12) 44(vaapi) 0(yuv420p) 0(yuv420p) 0(yuv420p)  -> No Match for D3D11
+ERROR: Error sending packet: Invalid data found when processing input
+# get_hw_format called. Available: 190(vulkan) 117(cuda) 51(dxva2_vld) 116(d3d11va_vld)  -> Match Found by NAME! Selected: 116
+# get_hw_format called. Available: 190(vulkan) 117(cuda) 51(dxva2_vld) 171(d3d11)  -> Match Found by NAME! Selected: 171
+ERROR: get_hw_format called. Available: 190(vulkan) 117(cuda) 51(dxva2_vld) 227(d3d12) 44(vaapi) 0(yuv420p) 0(yuv420p) 0(yuv420p)  -> No Match for D3D11
+ERROR: Error sending packet: Invalid data found when processing input
+# get_hw_format called. Available: 190(vulkan) 117(cuda) 51(dxva2_vld) 116(d3d11va_vld)  -> Match Found by NAME! Selected: 116
+# get_hw_format called. Available: 190(vulkan) 117(cuda) 51(dxva2_vld) 171(d3d11)  -> Match Found by NAME! Selected: 171
+ERROR: get_hw_format called. Available: 190(vulkan) 117(cuda) 51(dxva2_vld) 227(d3d12) 44(vaapi) 0(yuv420p) 0(yuv420p) 0(yuv420p)  -> No Match for D3D11
+ERROR: Error sending packet: Invalid data found when processing input
+# get_hw_format called. Available: 190(vulkan) 117(cuda) 51(dxva2_vld) 116(d3d11va_vld)  -> Match Found by NAME! Selected: 116
+# get_hw_format called. Available: 190(vulkan) 117(cuda) 51(dxva2_vld) 171(d3d11)  -> Match Found by NAME! Selected: 171
+ERROR: get_hw_format called. Available: 190(vulkan) 117(cuda) 51(dxva2_vld) 227(d3d12) 44(vaapi) 0(yuv420p) 0(yuv420p) 0(yuv420p)  -> No Match for D3D11
+ERROR: Error sending packet: Invalid data found when processing input
+# get_hw_format called. Available: 190(vulkan) 117(cuda) 51(dxva2_vld) 116(d3d11va_vld)  -> Match Found by NAME! Selected: 116
+# get_hw_format called. Available: 190(vulkan) 117(cuda) 51(dxva2_vld) 171(d3d11)  -> Match Found by NAME! Selected: 171
+ERROR: get_hw_format called. Available: 190(vulkan) 117(cuda) 51(dxva2_vld) 227(d3d12) 44(vaapi) 0(yuv420p) 0(yuv420p) 0(yuv420p)  -> No Match for D3D11
+ERROR: Error sending packet: Invalid data found when processing input
+# get_hw_format called. Available: 190(vulkan) 117(cuda) 51(dxva2_vld) 116(d3d11va_vld)  -> Match Found by NAME! Selected: 116
+# get_hw_format called. Available: 190(vulkan) 117(cuda) 51(dxva2_vld) 171(d3d11)  -> Match Found by NAME! Selected: 171
+ERROR: get_hw_format called. Available: 190(vulkan) 117(cuda) 51(dxva2_vld) 227(d3d12) 44(vaapi) 0(yuv420p) 0(yuv420p) 0(yuv420p)  -> No Match for D3D11
+ERROR: Error sending packet: Invalid data found when processing input
+# get_hw_format called. Available: 190(vulkan) 117(cuda) 51(dxva2_vld) 116(d3d11va_vld)  -> Match Found by NAME! Selected: 116
+# get_hw_format called. Available: 190(vulkan) 117(cuda) 51(dxva2_vld) 171(d3d11)  -> Match Found by NAME! Selected: 171
+ERROR: get_hw_format called. Available: 190(vulkan) 117(cuda) 51(dxva2_vld) 227(d3d12) 44(vaapi) 0(yuv420p) 0(yuv420p) 0(yuv420p)  -> No Match for D3D11
+ERROR: Error sending packet: Invalid data found when processing input
+# get_hw_format called. Available: 190(vulkan) 117(cuda) 51(dxva2_vld) 116(d3d11va_vld)  -> Match Found by NAME! Selected: 116
+# get_hw_format called. Available: 190(vulkan) 117(cuda) 51(dxva2_vld) 171(d3d11)  -> Match Found by NAME! Selected: 171
+ERROR: get_hw_format called. Available: 190(vulkan) 117(cuda) 51(dxva2_vld) 227(d3d12) 44(vaapi) 0(yuv420p) 0(yuv420p) 0(yuv420p)  -> No Match for D3D11
+ERROR: Error sending packet: Invalid data found when processing input
+# get_hw_format called. Available: 190(vulkan) 117(cuda) 51(dxva2_vld) 116(d3d11va_vld)  -> Match Found by NAME! Selected: 116
+# get_hw_format called. Available: 190(vulkan) 117(cuda) 51(dxva2_vld) 171(d3d11)  -> Match Found by NAME! Selected: 171
+ERROR: get_hw_format called. Available: 190(vulkan) 117(cuda) 51(dxva2_vld) 227(d3d12) 44(vaapi) 0(yuv420p) 0(yuv420p) 0(yuv420p)  -> No Match for D3D11
+ERROR: Error sending packet: Invalid data found when processing input
+# get_hw_format called. Available: 190(vulkan) 117(cuda) 51(dxva2_vld) 116(d3d11va_vld)  -> Match Found by NAME! Selected: 116
+# get_hw_format called. Available: 190(vulkan) 117(cuda) 51(dxva2_vld) 171(d3d11)  -> Match Found by NAME! Selected: 171
+ERROR: get_hw_format called. Available: 190(vulkan) 117(cuda) 51(dxva2_vld) 227(d3d12) 44(vaapi) 0(yuv420p) 0(yuv420p) 0(yuv420p)  -> No Match for D3D11
+ERROR: Error sending packet: Invalid data found when processing input
+# get_hw_format called. Available: 190(vulkan) 117(cuda) 51(dxva2_vld) 116(d3d11va_vld)  -> Match Found by NAME! Selected: 116
+# get_hw_format called. Available: 190(vulkan) 117(cuda) 51(dxva2_vld) 171(d3d11)  -> Match Found by NAME! Selected: 171
+ERROR: get_hw_format called. Available: 190(vulkan) 117(cuda) 51(dxva2_vld) 227(d3d12) 44(vaapi) 0(yuv420p) 0(yuv420p) 0(yuv420p)  -> No Match for D3D11
+ERROR: Error sending packet: Invalid data found when processing input
+# get_hw_format called. Available: 190(vulkan) 117(cuda) 51(dxva2_vld) 116(d3d11va_vld)  -> Match Found by NAME! Selected: 116
+# get_hw_format called. Available: 190(vulkan) 117(cuda) 51(dxva2_vld) 171(d3d11)  -> Match Found by NAME! Selected: 171
+ERROR: get_hw_format called. Available: 190(vulkan) 117(cuda) 51(dxva2_vld) 227(d3d12) 44(vaapi) 0(yuv420p) 0(yuv420p) 0(yuv420p)  -> No Match for D3D11
+ERROR: Error sending packet: Invalid data found when processing input
+# get_hw_format called. Available: 190(vulkan) 117(cuda) 51(dxva2_vld) 116(d3d11va_vld)  -> Match Found by NAME! Selected: 116
+# get_hw_format called. Available: 190(vulkan) 117(cuda) 51(dxva2_vld) 171(d3d11)  -> Match Found by NAME! Selected: 171
+ERROR: get_hw_format called. Available: 190(vulkan) 117(cuda) 51(dxva2_vld) 227(d3d12) 44(vaapi) 0(yuv420p) 0(yuv420p) 0(yuv420p)  -> No Match for D3D11
+ERROR: Error sending packet: Invalid data found when processing input
+# get_hw_format called. Available: 190(vulkan) 117(cuda) 51(dxva2_vld) 116(d3d11va_vld)  -> Match Found by NAME! Selected: 116
+# get_hw_format called. Available: 190(vulkan) 117(cuda) 51(dxva2_vld) 171(d3d11)  -> Match Found by NAME! Selected: 171
+ERROR: get_hw_format called. Available: 190(vulkan) 117(cuda) 51(dxva2_vld) 227(d3d12) 44(vaapi) 0(yuv420p) 0(yuv420p) 0(yuv420p)  -> No Match for D3D11
+ERROR: Error sending packet: Invalid data found when processing input
+# get_hw_format called. Available: 190(vulkan) 117(cuda) 51(dxva2_vld) 116(d3d11va_vld)  -> Match Found by NAME! Selected: 116
+# get_hw_format called. Available: 190(vulkan) 117(cuda) 51(dxva2_vld) 171(d3d11)  -> Match Found by NAME! Selected: 171
+ERROR: get_hw_format called. Available: 190(vulkan) 117(cuda) 51(dxva2_vld) 227(d3d12) 44(vaapi) 0(yuv420p) 0(yuv420p) 0(yuv420p)  -> No Match for D3D11
+ERROR: Error sending packet: Invalid data found when processing input
+# get_hw_format called. Available: 190(vulkan) 117(cuda) 51(dxva2_vld) 116(d3d11va_vld)  -> Match Found by NAME! Selected: 116
+# get_hw_format called. Available: 190(vulkan) 117(cuda) 51(dxva2_vld) 171(d3d11)  -> Match Found by NAME! Selected: 171
+ERROR: get_hw_format called. Available: 190(vulkan) 117(cuda) 51(dxva2_vld) 227(d3d12) 44(vaapi) 0(yuv420p) 0(yuv420p) 0(yuv420p)  -> No Match for D3D11
+ERROR: Error sending packet: Invalid data found when processing input
+# get_hw_format called. Available: 190(vulkan) 117(cuda) 51(dxva2_vld) 116(d3d11va_vld)  -> Match Found by NAME! Selected: 116
+# get_hw_format called. Available: 190(vulkan) 117(cuda) 51(dxva2_vld) 171(d3d11)  -> Match Found by NAME! Selected: 171
+ERROR: get_hw_format called. Available: 190(vulkan) 117(cuda) 51(dxva2_vld) 227(d3d12) 44(vaapi) 0(yuv420p) 0(yuv420p) 0(yuv420p)  -> No Match for D3D11
+ERROR: Error sending packet: Invalid data found when processing input
+# get_hw_format called. Available: 190(vulkan) 117(cuda) 51(dxva2_vld) 116(d3d11va_vld)  -> Match Found by NAME! Selected: 116
+# get_hw_format called. Available: 190(vulkan) 117(cuda) 51(dxva2_vld) 171(d3d11)  -> Match Found by NAME! Selected: 171
+ERROR: get_hw_format called. Available: 190(vulkan) 117(cuda) 51(dxva2_vld) 227(d3d12) 44(vaapi) 0(yuv420p) 0(yuv420p) 0(yuv420p)  -> No Match for D3D11
+ERROR: Error sending packet: Invalid data found when processing input
+# get_hw_format called. Available: 190(vulkan) 117(cuda) 51(dxva2_vld) 116(d3d11va_vld)  -> Match Found by NAME! Selected: 116
+# get_hw_format called. Available: 190(vulkan) 117(cuda) 51(dxva2_vld) 171(d3d11)  -> Match Found by NAME! Selected: 171
+ERROR: get_hw_format called. Available: 190(vulkan) 117(cuda) 51(dxva2_vld) 227(d3d12) 44(vaapi) 0(yuv420p) 0(yuv420p) 0(yuv420p)  -> No Match for D3D11
+ERROR: Error sending packet: Invalid data found when processing input
+# get_hw_format called. Available: 190(vulkan) 117(cuda) 51(dxva2_vld) 116(d3d11va_vld)  -> Match Found by NAME! Selected: 116
+# get_hw_format called. Available: 190(vulkan) 117(cuda) 51(dxva2_vld) 171(d3d11)  -> Match Found by NAME! Selected: 171
+ERROR: get_hw_format called. Available: 190(vulkan) 117(cuda) 51(dxva2_vld) 227(d3d12) 44(vaapi) 0(yuv420p) 0(yuv420p) 0(yuv420p)  -> No Match for D3D11
+ERROR: Error sending packet: Invalid data found when processing input
+# get_hw_format called. Available: 190(vulkan) 117(cuda) 51(dxva2_vld) 116(d3d11va_vld)  -> Match Found by NAME! Selected: 116
+# get_hw_format called. Available: 190(vulkan) 117(cuda) 51(dxva2_vld) 171(d3d11)  -> Match Found by NAME! Selected: 171
+ERROR: get_hw_format called. Available: 190(vulkan) 117(cuda) 51(dxva2_vld) 227(d3d12) 44(vaapi) 0(yuv420p) 0(yuv420p) 0(yuv420p)  -> No Match for D3D11
+ERROR: Error sending packet: Invalid data found when processing input
+# get_hw_format called. Available: 190(vulkan) 117(cuda) 51(dxva2_vld) 116(d3d11va_vld)  -> Match Found by NAME! Selected: 116
+# get_hw_format called. Available: 190(vulkan) 117(cuda) 51(dxva2_vld) 171(d3d11)  -> Match Found by NAME! Selected: 171
+ERROR: get_hw_format called. Available: 190(vulkan) 117(cuda) 51(dxva2_vld) 227(d3d12) 44(vaapi) 0(yuv420p) 0(yuv420p) 0(yuv420p)  -> No Match for D3D11
+ERROR: Error sending packet: Invalid data found when processing input
+# get_hw_format called. Available: 190(vulkan) 117(cuda) 51(dxva2_vld) 116(d3d11va_vld)  -> Match Found by NAME! Selected: 116
+# get_hw_format called. Available: 190(vulkan) 117(cuda) 51(dxva2_vld) 171(d3d11)  -> Match Found by NAME! Selected: 171
+ERROR: get_hw_format called. Available: 190(vulkan) 117(cuda) 51(dxva2_vld) 227(d3d12) 44(vaapi) 0(yuv420p) 0(yuv420p) 0(yuv420p)  -> No Match for D3D11
+ERROR: Error sending packet: Invalid data found when processing input
+# get_hw_format called. Available: 190(vulkan) 117(cuda) 51(dxva2_vld) 116(d3d11va_vld)  -> Match Found by NAME! Selected: 116
+# get_hw_format called. Available: 190(vulkan) 117(cuda) 51(dxva2_vld) 171(d3d11)  -> Match Found by NAME! Selected: 171
+ERROR: get_hw_format called. Available: 190(vulkan) 117(cuda) 51(dxva2_vld) 227(d3d12) 44(vaapi) 0(yuv420p) 0(yuv420p) 0(yuv420p)  -> No Match for D3D11
+ERROR: Error sending packet: Invalid data found when processing input
+# get_hw_format called. Available: 190(vulkan) 117(cuda) 51(dxva2_vld) 116(d3d11va_vld)  -> Match Found by NAME! Selected: 116
+# get_hw_format called. Available: 190(vulkan) 117(cuda) 51(dxva2_vld) 171(d3d11)  -> Match Found by NAME! Selected: 171
+ERROR: get_hw_format called. Available: 190(vulkan) 117(cuda) 51(dxva2_vld) 227(d3d12) 44(vaapi) 0(yuv420p) 0(yuv420p) 0(yuv420p)  -> No Match for D3D11
+ERROR: Error sending packet: Invalid data found when processing input
+# get_hw_format called. Available: 190(vulkan) 117(cuda) 51(dxva2_vld) 116(d3d11va_vld)  -> Match Found by NAME! Selected: 116
+# get_hw_format called. Available: 190(vulkan) 117(cuda) 51(dxva2_vld) 171(d3d11)  -> Match Found by NAME! Selected: 171
+ERROR: get_hw_format called. Available: 190(vulkan) 117(cuda) 51(dxva2_vld) 227(d3d12) 44(vaapi) 0(yuv420p) 0(yuv420p) 0(yuv420p)  -> No Match for D3D11
+ERROR: Error sending packet: Invalid data found when processing input
+ERROR: Error sending packet: Invalid data found when processing input
+ERROR: Error sending packet: Invalid data found when processing input
+ERROR: Error sending packet: Invalid data found when processing input
+# get_hw_format called. Available: 190(vulkan) 117(cuda) 51(dxva2_vld) 116(d3d11va_vld)  -> Match Found by NAME! Selected: 116
+# get_hw_format called. Available: 190(vulkan) 117(cuda) 51(dxva2_vld) 171(d3d11)  -> Match Found by NAME! Selected: 171
+ERROR: get_hw_format called. Available: 190(vulkan) 117(cuda) 51(dxva2_vld) 227(d3d12) 44(vaapi) 0(yuv420p) 0(yuv420p) 0(yuv420p)  -> No Match for D3D11
+ERROR: Error sending packet: Invalid data found when processing input
+# get_hw_format called. Available: 190(vulkan) 117(cuda) 51(dxva2_vld) 116(d3d11va_vld)  -> Match Found by NAME! Selected: 116
+# get_hw_format called. Available: 190(vulkan) 117(cuda) 51(dxva2_vld) 171(d3d11)  -> Match Found by NAME! Selected: 171
+ERROR: get_hw_format called. Available: 190(vulkan) 117(cuda) 51(dxva2_vld) 227(d3d12) 44(vaapi) 0(yuv420p) 0(yuv420p) 0(yuv420p)  -> No Match for D3D11
+ERROR: Error sending packet: Invalid data found when processing input
+# get_hw_format called. Available: 190(vulkan) 117(cuda) 51(dxva2_vld) 116(d3d11va_vld)  -> Match Found by NAME! Selected: 116
+# get_hw_format called. Available: 190(vulkan) 117(cuda) 51(dxva2_vld) 171(d3d11)  -> Match Found by NAME! Selected: 171
+ERROR: get_hw_format called. Available: 190(vulkan) 117(cuda) 51(dxva2_vld) 227(d3d12) 44(vaapi) 0(yuv420p) 0(yuv420p) 0(yuv420p)  -> No Match for D3D11
+ERROR: Error sending packet: Invalid data found when processing input
+# get_hw_format called. Available: 190(vulkan) 117(cuda) 51(dxva2_vld) 116(d3d11va_vld)  -> Match Found by NAME! Selected: 116
+# get_hw_format called. Available: 190(vulkan) 117(cuda) 51(dxva2_vld) 171(d3d11)  -> Match Found by NAME! Selected: 171
+ERROR: get_hw_format called. Available: 190(vulkan) 117(cuda) 51(dxva2_vld) 227(d3d12) 44(vaapi) 0(yuv420p) 0(yuv420p) 0(yuv420p)  -> No Match for D3D11
+ERROR: Error sending packet: Invalid data found when processing input
+# get_hw_format called. Available: 190(vulkan) 117(cuda) 51(dxva2_vld) 116(d3d11va_vld)  -> Match Found by NAME! Selected: 116
+# get_hw_format called. Available: 190(vulkan) 117(cuda) 51(dxva2_vld) 171(d3d11)  -> Match Found by NAME! Selected: 171
+ERROR: get_hw_format called. Available: 190(vulkan) 117(cuda) 51(dxva2_vld) 227(d3d12) 44(vaapi) 0(yuv420p) 0(yuv420p) 0(yuv420p)  -> No Match for D3D11
+ERROR: Error sending packet: Invalid data found when processing input
+# get_hw_format called. Available: 190(vulkan) 117(cuda) 51(dxva2_vld) 116(d3d11va_vld)  -> Match Found by NAME! Selected: 116
+# get_hw_format called. Available: 190(vulkan) 117(cuda) 51(dxva2_vld) 171(d3d11)  -> Match Found by NAME! Selected: 171
+ERROR: get_hw_format called. Available: 190(vulkan) 117(cuda) 51(dxva2_vld) 227(d3d12) 44(vaapi) 0(yuv420p) 0(yuv420p) 0(yuv420p)  -> No Match for D3D11
+ERROR: Error sending packet: Invalid data found when processing input
+# get_hw_format called. Available: 190(vulkan) 117(cuda) 51(dxva2_vld) 116(d3d11va_vld)  -> Match Found by NAME! Selected: 116
+# get_hw_format called. Available: 190(vulkan) 117(cuda) 51(dxva2_vld) 171(d3d11)  -> Match Found by NAME! Selected: 171
+ERROR: get_hw_format called. Available: 190(vulkan) 117(cuda) 51(dxva2_vld) 227(d3d12) 44(vaapi) 0(yuv420p) 0(yuv420p) 0(yuv420p)  -> No Match for D3D11
+ERROR: Error sending packet: Invalid data found when processing input
+# get_hw_format called. Available: 190(vulkan) 117(cuda) 51(dxva2_vld) 116(d3d11va_vld)  -> Match Found by NAME! Selected: 116
+# get_hw_format called. Available: 190(vulkan) 117(cuda) 51(dxva2_vld) 171(d3d11)  -> Match Found by NAME! Selected: 171
+ERROR: get_hw_format called. Available: 190(vulkan) 117(cuda) 51(dxva2_vld) 227(d3d12) 44(vaapi) 0(yuv420p) 0(yuv420p) 0(yuv420p)  -> No Match for D3D11
+ERROR: Error sending packet: Invalid data found when processing input
+# get_hw_format called. Available: 190(vulkan) 117(cuda) 51(dxva2_vld) 116(d3d11va_vld)  -> Match Found by NAME! Selected: 116
+# get_hw_format called. Available: 190(vulkan) 117(cuda) 51(dxva2_vld) 171(d3d11)  -> Match Found by NAME! Selected: 171
+ERROR: get_hw_format called. Available: 190(vulkan) 117(cuda) 51(dxva2_vld) 227(d3d12) 44(vaapi) 0(yuv420p) 0(yuv420p) 0(yuv420p)  -> No Match for D3D11
+ERROR: Error sending packet: Invalid data found when processing input
+# get_hw_format called. Available: 190(vulkan) 117(cuda) 51(dxva2_vld) 116(d3d11va_vld)  -> Match Found by NAME! Selected: 116
+# get_hw_format called. Available: 190(vulkan) 117(cuda) 51(dxva2_vld) 171(d3d11)  -> Match Found by NAME! Selected: 171
+ERROR: get_hw_format called. Available: 190(vulkan) 117(cuda) 51(dxva2_vld) 227(d3d12) 44(vaapi) 0(yuv420p) 0(yuv420p) 0(yuv420p)  -> No Match for D3D11
+ERROR: Error sending packet: Invalid data found when processing input
+# get_hw_format called. Available: 190(vulkan) 117(cuda) 51(dxva2_vld) 116(d3d11va_vld)  -> Match Found by NAME! Selected: 116
+# get_hw_format called. Available: 190(vulkan) 117(cuda) 51(dxva2_vld) 171(d3d11)  -> Match Found by NAME! Selected: 171
+ERROR: get_hw_format called. Available: 190(vulkan) 117(cuda) 51(dxva2_vld) 227(d3d12) 44(vaapi) 0(yuv420p) 0(yuv420p) 0(yuv420p)  -> No Match for D3D11
+ERROR: Error sending packet: Invalid data found when processing input
+# get_hw_format called. Available: 190(vulkan) 117(cuda) 51(dxva2_vld) 116(d3d11va_vld)  -> Match Found by NAME! Selected: 116
+# get_hw_format called. Available: 190(vulkan) 117(cuda) 51(dxva2_vld) 171(d3d11)  -> Match Found by NAME! Selected: 171
+ERROR: get_hw_format called. Available: 190(vulkan) 117(cuda) 51(dxva2_vld) 227(d3d12) 44(vaapi) 0(yuv420p) 0(yuv420p) 0(yuv420p)  -> No Match for D3D11
+ERROR: Error sending packet: Invalid data found when processing input
+# get_hw_format called. Available: 190(vulkan) 117(cuda) 51(dxva2_vld) 116(d3d11va_vld)  -> Match Found by NAME! Selected: 116
+# get_hw_format called. Available: 190(vulkan) 117(cuda) 51(dxva2_vld) 171(d3d11)  -> Match Found by NAME! Selected: 171
+ERROR: get_hw_format called. Available: 190(vulkan) 117(cuda) 51(dxva2_vld) 227(d3d12) 44(vaapi) 0(yuv420p) 0(yuv420p) 0(yuv420p)  -> No Match for D3D11
+ERROR: Error sending packet: Invalid data found when processing input
+# get_hw_format called. Available: 190(vulkan) 117(cuda) 51(dxva2_vld) 116(d3d11va_vld)  -> Match Found by NAME! Selected: 116
+# get_hw_format called. Available: 190(vulkan) 117(cuda) 51(dxva2_vld) 171(d3d11)  -> Match Found by NAME! Selected: 171
+ERROR: get_hw_format called. Available: 190(vulkan) 117(cuda) 51(dxva2_vld) 227(d3d12) 44(vaapi) 0(yuv420p) 0(yuv420p) 0(yuv420p)  -> No Match for D3D11
+ERROR: Error sending packet: Invalid data found when processing input
+# get_hw_format called. Available: 190(vulkan) 117(cuda) 51(dxva2_vld) 116(d3d11va_vld)  -> Match Found by NAME! Selected: 116
+# get_hw_format called. Available: 190(vulkan) 117(cuda) 51(dxva2_vld) 171(d3d11)  -> Match Found by NAME! Selected: 171
+ERROR: get_hw_format called. Available: 190(vulkan) 117(cuda) 51(dxva2_vld) 227(d3d12) 44(vaapi) 0(yuv420p) 0(yuv420p) 0(yuv420p)  -> No Match for D3D11
+ERROR: Error sending packet: Invalid data found when processing input
+# get_hw_format called. Available: 190(vulkan) 117(cuda) 51(dxva2_vld) 116(d3d11va_vld)  -> Match Found by NAME! Selected: 116
+# get_hw_format called. Available: 190(vulkan) 117(cuda) 51(dxva2_vld) 171(d3d11)  -> Match Found by NAME! Selected: 171
+ERROR: get_hw_format called. Available: 190(vulkan) 117(cuda) 51(dxva2_vld) 227(d3d12) 44(vaapi) 0(yuv420p) 0(yuv420p) 0(yuv420p)  -> No Match for D3D11
+ERROR: Error sending packet: Invalid data found when processing input
+# get_hw_format called. Available: 190(vulkan) 117(cuda) 51(dxva2_vld) 116(d3d11va_vld)  -> Match Found by NAME! Selected: 116
+# get_hw_format called. Available: 190(vulkan) 117(cuda) 51(dxva2_vld) 171(d3d11)  -> Match Found by NAME! Selected: 171
+ERROR: get_hw_format called. Available: 190(vulkan) 117(cuda) 51(dxva2_vld) 227(d3d12) 44(vaapi) 0(yuv420p) 0(yuv420p) 0(yuv420p)  -> No Match for D3D11
+ERROR: Error sending packet: Invalid data found when processing input
+ERROR: Error sending packet: Invalid data found when processing input
+ERROR: Error sending packet: Invalid data found when processing input
+ERROR: Error sending packet: Invalid data found when processing input
+# get_hw_format called. Available: 190(vulkan) 117(cuda) 51(dxva2_vld) 116(d3d11va_vld)  -> Match Found by NAME! Selected: 116
+# get_hw_format called. Available: 190(vulkan) 117(cuda) 51(dxva2_vld) 171(d3d11)  -> Match Found by NAME! Selected: 171
+ERROR: get_hw_format called. Available: 190(vulkan) 117(cuda) 51(dxva2_vld) 227(d3d12) 44(vaapi) 0(yuv420p) 0(yuv420p) 0(yuv420p)  -> No Match for D3D11
+ERROR: Error sending packet: Invalid data found when processing input
+# get_hw_format called. Available: 190(vulkan) 117(cuda) 51(dxva2_vld) 116(d3d11va_vld)  -> Match Found by NAME! Selected: 116
+# get_hw_format called. Available: 190(vulkan) 117(cuda) 51(dxva2_vld) 171(d3d11)  -> Match Found by NAME! Selected: 171
+ERROR: get_hw_format called. Available: 190(vulkan) 117(cuda) 51(dxva2_vld) 227(d3d12) 44(vaapi) 0(yuv420p) 0(yuv420p) 0(yuv420p)  -> No Match for D3D11
+ERROR: Error sending packet: Invalid data found when processing input
+# get_hw_format called. Available: 190(vulkan) 117(cuda) 51(dxva2_vld) 116(d3d11va_vld)  -> Match Found by NAME! Selected: 116
+# get_hw_format called. Available: 190(vulkan) 117(cuda) 51(dxva2_vld) 171(d3d11)  -> Match Found by NAME! Selected: 171
+ERROR: get_hw_format called. Available: 190(vulkan) 117(cuda) 51(dxva2_vld) 227(d3d12) 44(vaapi) 0(yuv420p) 0(yuv420p) 0(yuv420p)  -> No Match for D3D11
+ERROR: Error sending packet: Invalid data found when processing input
+# get_hw_format called. Available: 190(vulkan) 117(cuda) 51(dxva2_vld) 116(d3d11va_vld)  -> Match Found by NAME! Selected: 116
+# get_hw_format called. Available: 190(vulkan) 117(cuda) 51(dxva2_vld) 171(d3d11)  -> Match Found by NAME! Selected: 171
+ERROR: get_hw_format called. Available: 190(vulkan) 117(cuda) 51(dxva2_vld) 227(d3d12) 44(vaapi) 0(yuv420p) 0(yuv420p) 0(yuv420p)  -> No Match for D3D11
+ERROR: Error sending packet: Invalid data found when processing input
+# get_hw_format called. Available: 190(vulkan) 117(cuda) 51(dxva2_vld) 116(d3d11va_vld)  -> Match Found by NAME! Selected: 116
+# get_hw_format called. Available: 190(vulkan) 117(cuda) 51(dxva2_vld) 171(d3d11)  -> Match Found by NAME! Selected: 171
+ERROR: get_hw_format called. Available: 190(vulkan) 117(cuda) 51(dxva2_vld) 227(d3d12) 44(vaapi) 0(yuv420p) 0(yuv420p) 0(yuv420p)  -> No Match for D3D11
+ERROR: Error sending packet: Invalid data found when processing input
+# get_hw_format called. Available: 190(vulkan) 117(cuda) 51(dxva2_vld) 116(d3d11va_vld)  -> Match Found by NAME! Selected: 116
+# get_hw_format called. Available: 190(vulkan) 117(cuda) 51(dxva2_vld) 171(d3d11)  -> Match Found by NAME! Selected: 171
+ERROR: get_hw_format called. Available: 190(vulkan) 117(cuda) 51(dxva2_vld) 227(d3d12) 44(vaapi) 0(yuv420p) 0(yuv420p) 0(yuv420p)  -> No Match for D3D11
+ERROR: Error sending packet: Invalid data found when processing input
+# get_hw_format called. Available: 190(vulkan) 117(cuda) 51(dxva2_vld) 116(d3d11va_vld)  -> Match Found by NAME! Selected: 116
+# get_hw_format called. Available: 190(vulkan) 117(cuda) 51(dxva2_vld) 171(d3d11)  -> Match Found by NAME! Selected: 171
+ERROR: get_hw_format called. Available: 190(vulkan) 117(cuda) 51(dxva2_vld) 227(d3d12) 44(vaapi) 0(yuv420p) 0(yuv420p) 0(yuv420p)  -> No Match for D3D11
+ERROR: Error sending packet: Invalid data found when processing input
+# get_hw_format called. Available: 190(vulkan) 117(cuda) 51(dxva2_vld) 116(d3d11va_vld)  -> Match Found by NAME! Selected: 116
+# get_hw_format called. Available: 190(vulkan) 117(cuda) 51(dxva2_vld) 171(d3d11)  -> Match Found by NAME! Selected: 171
+ERROR: get_hw_format called. Available: 190(vulkan) 117(cuda) 51(dxva2_vld) 227(d3d12) 44(vaapi) 0(yuv420p) 0(yuv420p) 0(yuv420p)  -> No Match for D3D11
+ERROR: Error sending packet: Invalid data found when processing input
+# get_hw_format called. Available: 190(vulkan) 117(cuda) 51(dxva2_vld) 116(d3d11va_vld)  -> Match Found by NAME! Selected: 116
+# get_hw_format called. Available: 190(vulkan) 117(cuda) 51(dxva2_vld) 171(d3d11)  -> Match Found by NAME! Selected: 171
+ERROR: get_hw_format called. Available: 190(vulkan) 117(cuda) 51(dxva2_vld) 227(d3d12) 44(vaapi) 0(yuv420p) 0(yuv420p) 0(yuv420p)  -> No Match for D3D11
+ERROR: Error sending packet: Invalid data found when processing input
+# get_hw_format called. Available: 190(vulkan) 117(cuda) 51(dxva2_vld) 116(d3d11va_vld)  -> Match Found by NAME! Selected: 116
+# get_hw_format called. Available: 190(vulkan) 117(cuda) 51(dxva2_vld) 171(d3d11)  -> Match Found by NAME! Selected: 171
+ERROR: get_hw_format called. Available: 190(vulkan) 117(cuda) 51(dxva2_vld) 227(d3d12) 44(vaapi) 0(yuv420p) 0(yuv420p) 0(yuv420p)  -> No Match for D3D11
+ERROR: Error sending packet: Invalid data found when processing input
+# get_hw_format called. Available: 190(vulkan) 117(cuda) 51(dxva2_vld) 116(d3d11va_vld)  -> Match Found by NAME! Selected: 116
+# get_hw_format called. Available: 190(vulkan) 117(cuda) 51(dxva2_vld) 171(d3d11)  -> Match Found by NAME! Selected: 171
+ERROR: get_hw_format called. Available: 190(vulkan) 117(cuda) 51(dxva2_vld) 227(d3d12) 44(vaapi) 0(yuv420p) 0(yuv420p) 0(yuv420p)  -> No Match for D3D11
+ERROR: Error sending packet: Invalid data found when processing input
+# get_hw_format called. Available: 190(vulkan) 117(cuda) 51(dxva2_vld) 116(d3d11va_vld)  -> Match Found by NAME! Selected: 116
+# get_hw_format called. Available: 190(vulkan) 117(cuda) 51(dxva2_vld) 171(d3d11)  -> Match Found by NAME! Selected: 171
+ERROR: get_hw_format called. Available: 190(vulkan) 117(cuda) 51(dxva2_vld) 227(d3d12) 44(vaapi) 0(yuv420p) 0(yuv420p) 0(yuv420p)  -> No Match for D3D11
+ERROR: Error sending packet: Invalid data found when processing input
+# get_hw_format called. Available: 190(vulkan) 117(cuda) 51(dxva2_vld) 116(d3d11va_vld)  -> Match Found by NAME! Selected: 116
+# get_hw_format called. Available: 190(vulkan) 117(cuda) 51(dxva2_vld) 171(d3d11)  -> Match Found by NAME! Selected: 171
+ERROR: get_hw_format called. Available: 190(vulkan) 117(cuda) 51(dxva2_vld) 227(d3d12) 44(vaapi) 0(yuv420p) 0(yuv420p) 0(yuv420p)  -> No Match for D3D11
+ERROR: Error sending packet: Invalid data found when processing input
+# get_hw_format called. Available: 190(vulkan) 117(cuda) 51(dxva2_vld) 116(d3d11va_vld)  -> Match Found by NAME! Selected: 116
+# get_hw_format called. Available: 190(vulkan) 117(cuda) 51(dxva2_vld) 171(d3d11)  -> Match Found by NAME! Selected: 171
+ERROR: get_hw_format called. Available: 190(vulkan) 117(cuda) 51(dxva2_vld) 227(d3d12) 44(vaapi) 0(yuv420p) 0(yuv420p) 0(yuv420p)  -> No Match for D3D11
+ERROR: Error sending packet: Invalid data found when processing input
+# get_hw_format called. Available: 190(vulkan) 117(cuda) 51(dxva2_vld) 116(d3d11va_vld)  -> Match Found by NAME! Selected: 116
+# get_hw_format called. Available: 190(vulkan) 117(cuda) 51(dxva2_vld) 171(d3d11)  -> Match Found by NAME! Selected: 171
+ERROR: get_hw_format called. Available: 190(vulkan) 117(cuda) 51(dxva2_vld) 227(d3d12) 44(vaapi) 0(yuv420p) 0(yuv420p) 0(yuv420p)  -> No Match for D3D11
+ERROR: Error sending packet: Invalid data found when processing input
+# get_hw_format called. Available: 190(vulkan) 117(cuda) 51(dxva2_vld) 116(d3d11va_vld)  -> Match Found by NAME! Selected: 116
+# get_hw_format called. Available: 190(vulkan) 117(cuda) 51(dxva2_vld) 171(d3d11)  -> Match Found by NAME! Selected: 171
+ERROR: get_hw_format called. Available: 190(vulkan) 117(cuda) 51(dxva2_vld) 227(d3d12) 44(vaapi) 0(yuv420p) 0(yuv420p) 0(yuv420p)  -> No Match for D3D11
+ERROR: Error sending packet: Invalid data found when processing input
+# get_hw_format called. Available: 190(vulkan) 117(cuda) 51(dxva2_vld) 116(d3d11va_vld)  -> Match Found by NAME! Selected: 116
+# get_hw_format called. Available: 190(vulkan) 117(cuda) 51(dxva2_vld) 171(d3d11)  -> Match Found by NAME! Selected: 171
+ERROR: get_hw_format called. Available: 190(vulkan) 117(cuda) 51(dxva2_vld) 227(d3d12) 44(vaapi) 0(yuv420p) 0(yuv420p) 0(yuv420p)  -> No Match for D3D11
+ERROR: Error sending packet: Invalid data found when processing input
+# get_hw_format called. Available: 190(vulkan) 117(cuda) 51(dxva2_vld) 116(d3d11va_vld)  -> Match Found by NAME! Selected: 116
+# get_hw_format called. Available: 190(vulkan) 117(cuda) 51(dxva2_vld) 171(d3d11)  -> Match Found by NAME! Selected: 171
+ERROR: get_hw_format called. Available: 190(vulkan) 117(cuda) 51(dxva2_vld) 227(d3d12) 44(vaapi) 0(yuv420p) 0(yuv420p) 0(yuv420p)  -> No Match for D3D11
+ERROR: Error sending packet: Invalid data found when processing input
+# get_hw_format called. Available: 190(vulkan) 117(cuda) 51(dxva2_vld) 116(d3d11va_vld)  -> Match Found by NAME! Selected: 116
+# get_hw_format called. Available: 190(vulkan) 117(cuda) 51(dxva2_vld) 171(d3d11)  -> Match Found by NAME! Selected: 171
+ERROR: get_hw_format called. Available: 190(vulkan) 117(cuda) 51(dxva2_vld) 227(d3d12) 44(vaapi) 0(yuv420p) 0(yuv420p) 0(yuv420p)  -> No Match for D3D11
+ERROR: Error sending packet: Invalid data found when processing input
+# get_hw_format called. Available: 190(vulkan) 117(cuda) 51(dxva2_vld) 116(d3d11va_vld)  -> Match Found by NAME! Selected: 116
+# get_hw_format called. Available: 190(vulkan) 117(cuda) 51(dxva2_vld) 171(d3d11)  -> Match Found by NAME! Selected: 171
+ERROR: get_hw_format called. Available: 190(vulkan) 117(cuda) 51(dxva2_vld) 227(d3d12) 44(vaapi) 0(yuv420p) 0(yuv420p) 0(yuv420p)  -> No Match for D3D11
+ERROR: Error sending packet: Invalid data found when processing input
+# get_hw_format called. Available: 190(vulkan) 117(cuda) 51(dxva2_vld) 116(d3d11va_vld)  -> Match Found by NAME! Selected: 116
+# get_hw_format called. Available: 190(vulkan) 117(cuda) 51(dxva2_vld) 171(d3d11)  -> Match Found by NAME! Selected: 171
+ERROR: get_hw_format called. Available: 190(vulkan) 117(cuda) 51(dxva2_vld) 227(d3d12) 44(vaapi) 0(yuv420p) 0(yuv420p) 0(yuv420p)  -> No Match for D3D11
+ERROR: Error sending packet: Invalid data found when processing input
+# get_hw_format called. Available: 190(vulkan) 117(cuda) 51(dxva2_vld) 116(d3d11va_vld)  -> Match Found by NAME! Selected: 116
+# get_hw_format called. Available: 190(vulkan) 117(cuda) 51(dxva2_vld) 171(d3d11)  -> Match Found by NAME! Selected: 171
+ERROR: get_hw_format called. Available: 190(vulkan) 117(cuda) 51(dxva2_vld) 227(d3d12) 44(vaapi) 0(yuv420p) 0(yuv420p) 0(yuv420p)  -> No Match for D3D11
+ERROR: Error sending packet: Invalid data found when processing input
+# get_hw_format called. Available: 190(vulkan) 117(cuda) 51(dxva2_vld) 116(d3d11va_vld)  -> Match Found by NAME! Selected: 116
+# get_hw_format called. Available: 190(vulkan) 117(cuda) 51(dxva2_vld) 171(d3d11)  -> Match Found by NAME! Selected: 171
+ERROR: get_hw_format called. Available: 190(vulkan) 117(cuda) 51(dxva2_vld) 227(d3d12) 44(vaapi) 0(yuv420p) 0(yuv420p) 0(yuv420p)  -> No Match for D3D11
+ERROR: Error sending packet: Invalid data found when processing input
+# get_hw_format called. Available: 190(vulkan) 117(cuda) 51(dxva2_vld) 116(d3d11va_vld)  -> Match Found by NAME! Selected: 116
+# get_hw_format called. Available: 190(vulkan) 117(cuda) 51(dxva2_vld) 171(d3d11)  -> Match Found by NAME! Selected: 171
+ERROR: get_hw_format called. Available: 190(vulkan) 117(cuda) 51(dxva2_vld) 227(d3d12) 44(vaapi) 0(yuv420p) 0(yuv420p) 0(yuv420p)  -> No Match for D3D11
+ERROR: Error sending packet: Invalid data found when processing input
+# get_hw_format called. Available: 190(vulkan) 117(cuda) 51(dxva2_vld) 116(d3d11va_vld)  -> Match Found by NAME! Selected: 116
+# get_hw_format called. Available: 190(vulkan) 117(cuda) 51(dxva2_vld) 171(d3d11)  -> Match Found by NAME! Selected: 171
+ERROR: get_hw_format called. Available: 190(vulkan) 117(cuda) 51(dxva2_vld) 227(d3d12) 44(vaapi) 0(yuv420p) 0(yuv420p) 0(yuv420p)  -> No Match for D3D11
+ERROR: Error sending packet: Invalid data found when processing input
+# get_hw_format called. Available: 190(vulkan) 117(cuda) 51(dxva2_vld) 116(d3d11va_vld)  -> Match Found by NAME! Selected: 116
+# get_hw_format called. Available: 190(vulkan) 117(cuda) 51(dxva2_vld) 171(d3d11)  -> Match Found by NAME! Selected: 171
+ERROR: get_hw_format called. Available: 190(vulkan) 117(cuda) 51(dxva2_vld) 227(d3d12) 44(vaapi) 0(yuv420p) 0(yuv420p) 0(yuv420p)  -> No Match for D3D11
+ERROR: Error sending packet: Invalid data found when processing input
+# get_hw_format called. Available: 190(vulkan) 117(cuda) 51(dxva2_vld) 116(d3d11va_vld)  -> Match Found by NAME! Selected: 116
+# get_hw_format called. Available: 190(vulkan) 117(cuda) 51(dxva2_vld) 171(d3d11)  -> Match Found by NAME! Selected: 171
+ERROR: get_hw_format called. Available: 190(vulkan) 117(cuda) 51(dxva2_vld) 227(d3d12) 44(vaapi) 0(yuv420p) 0(yuv420p) 0(yuv420p)  -> No Match for D3D11
+ERROR: Error sending packet: Invalid data found when processing input
+# get_hw_format called. Available: 190(vulkan) 117(cuda) 51(dxva2_vld) 116(d3d11va_vld)  -> Match Found by NAME! Selected: 116
+# get_hw_format called. Available: 190(vulkan) 117(cuda) 51(dxva2_vld) 171(d3d11)  -> Match Found by NAME! Selected: 171
+ERROR: get_hw_format called. Available: 190(vulkan) 117(cuda) 51(dxva2_vld) 227(d3d12) 44(vaapi) 0(yuv420p) 0(yuv420p) 0(yuv420p)  -> No Match for D3D11
+ERROR: Error sending packet: Invalid data found when processing input
+# get_hw_format called. Available: 190(vulkan) 117(cuda) 51(dxva2_vld) 116(d3d11va_vld)  -> Match Found by NAME! Selected: 116
+# get_hw_format called. Available: 190(vulkan) 117(cuda) 51(dxva2_vld) 171(d3d11)  -> Match Found by NAME! Selected: 171
+ERROR: get_hw_format called. Available: 190(vulkan) 117(cuda) 51(dxva2_vld) 227(d3d12) 44(vaapi) 0(yuv420p) 0(yuv420p) 0(yuv420p)  -> No Match for D3D11
+ERROR: Error sending packet: Invalid data found when processing input
+# get_hw_format called. Available: 190(vulkan) 117(cuda) 51(dxva2_vld) 116(d3d11va_vld)  -> Match Found by NAME! Selected: 116
+# get_hw_format called. Available: 190(vulkan) 117(cuda) 51(dxva2_vld) 171(d3d11)  -> Match Found by NAME! Selected: 171
+ERROR: get_hw_format called. Available: 190(vulkan) 117(cuda) 51(dxva2_vld) 227(d3d12) 44(vaapi) 0(yuv420p) 0(yuv420p) 0(yuv420p)  -> No Match for D3D11
+ERROR: Error sending packet: Invalid data found when processing input
+ERROR: Error sending packet: Invalid data found when processing input
+ERROR: Error sending packet: Invalid data found when processing input
+ERROR: Error sending packet: Invalid data found when processing input
+# get_hw_format called. Available: 190(vulkan) 117(cuda) 51(dxva2_vld) 116(d3d11va_vld)  -> Match Found by NAME! Selected: 116
+# get_hw_format called. Available: 190(vulkan) 117(cuda) 51(dxva2_vld) 171(d3d11)  -> Match Found by NAME! Selected: 171
+ERROR: get_hw_format called. Available: 190(vulkan) 117(cuda) 51(dxva2_vld) 227(d3d12) 44(vaapi) 0(yuv420p) 0(yuv420p) 0(yuv420p)  -> No Match for D3D11
+ERROR: Error sending packet: Invalid data found when processing input
+# get_hw_format called. Available: 190(vulkan) 117(cuda) 51(dxva2_vld) 116(d3d11va_vld)  -> Match Found by NAME! Selected: 116
+# get_hw_format called. Available: 190(vulkan) 117(cuda) 51(dxva2_vld) 171(d3d11)  -> Match Found by NAME! Selected: 171
+ERROR: get_hw_format called. Available: 190(vulkan) 117(cuda) 51(dxva2_vld) 227(d3d12) 44(vaapi) 0(yuv420p) 0(yuv420p) 0(yuv420p)  -> No Match for D3D11
+ERROR: Error sending packet: Invalid data found when processing input
+# get_hw_format called. Available: 190(vulkan) 117(cuda) 51(dxva2_vld) 116(d3d11va_vld)  -> Match Found by NAME! Selected: 116
+# get_hw_format called. Available: 190(vulkan) 117(cuda) 51(dxva2_vld) 171(d3d11)  -> Match Found by NAME! Selected: 171
+ERROR: get_hw_format called. Available: 190(vulkan) 117(cuda) 51(dxva2_vld) 227(d3d12) 44(vaapi) 0(yuv420p) 0(yuv420p) 0(yuv420p)  -> No Match for D3D11
+ERROR: Error sending packet: Invalid data found when processing input
+# get_hw_format called. Available: 190(vulkan) 117(cuda) 51(dxva2_vld) 116(d3d11va_vld)  -> Match Found by NAME! Selected: 116
+# get_hw_format called. Available: 190(vulkan) 117(cuda) 51(dxva2_vld) 171(d3d11)  -> Match Found by NAME! Selected: 171
+ERROR: get_hw_format called. Available: 190(vulkan) 117(cuda) 51(dxva2_vld) 227(d3d12) 44(vaapi) 0(yuv420p) 0(yuv420p) 0(yuv420p)  -> No Match for D3D11
+ERROR: Error sending packet: Invalid data found when processing input
+# get_hw_format called. Available: 190(vulkan) 117(cuda) 51(dxva2_vld) 116(d3d11va_vld)  -> Match Found by NAME! Selected: 116
+# get_hw_format called. Available: 190(vulkan) 117(cuda) 51(dxva2_vld) 171(d3d11)  -> Match Found by NAME! Selected: 171
+ERROR: get_hw_format called. Available: 190(vulkan) 117(cuda) 51(dxva2_vld) 227(d3d12) 44(vaapi) 0(yuv420p) 0(yuv420p) 0(yuv420p)  -> No Match for D3D11
+ERROR: Error sending packet: Invalid data found when processing input
+# get_hw_format called. Available: 190(vulkan) 117(cuda) 51(dxva2_vld) 116(d3d11va_vld)  -> Match Found by NAME! Selected: 116
+# get_hw_format called. Available: 190(vulkan) 117(cuda) 51(dxva2_vld) 171(d3d11)  -> Match Found by NAME! Selected: 171
+ERROR: get_hw_format called. Available: 190(vulkan) 117(cuda) 51(dxva2_vld) 227(d3d12) 44(vaapi) 0(yuv420p) 0(yuv420p) 0(yuv420p)  -> No Match for D3D11
+ERROR: Error sending packet: Invalid data found when processing input
+# get_hw_format called. Available: 190(vulkan) 117(cuda) 51(dxva2_vld) 116(d3d11va_vld)  -> Match Found by NAME! Selected: 116
+# get_hw_format called. Available: 190(vulkan) 117(cuda) 51(dxva2_vld) 171(d3d11)  -> Match Found by NAME! Selected: 171
+ERROR: get_hw_format called. Available: 190(vulkan) 117(cuda) 51(dxva2_vld) 227(d3d12) 44(vaapi) 0(yuv420p) 0(yuv420p) 0(yuv420p)  -> No Match for D3D11
+ERROR: Error sending packet: Invalid data found when processing input
+# get_hw_format called. Available: 190(vulkan) 117(cuda) 51(dxva2_vld) 116(d3d11va_vld)  -> Match Found by NAME! Selected: 116
+# get_hw_format called. Available: 190(vulkan) 117(cuda) 51(dxva2_vld) 171(d3d11)  -> Match Found by NAME! Selected: 171
+ERROR: get_hw_format called. Available: 190(vulkan) 117(cuda) 51(dxva2_vld) 227(d3d12) 44(vaapi) 0(yuv420p) 0(yuv420p) 0(yuv420p)  -> No Match for D3D11
+ERROR: Error sending packet: Invalid data found when processing input
+# get_hw_format called. Available: 190(vulkan) 117(cuda) 51(dxva2_vld) 116(d3d11va_vld)  -> Match Found by NAME! Selected: 116
+# get_hw_format called. Available: 190(vulkan) 117(cuda) 51(dxva2_vld) 171(d3d11)  -> Match Found by NAME! Selected: 171
+ERROR: get_hw_format called. Available: 190(vulkan) 117(cuda) 51(dxva2_vld) 227(d3d12) 44(vaapi) 0(yuv420p) 0(yuv420p) 0(yuv420p)  -> No Match for D3D11
+ERROR: Error sending packet: Invalid data found when processing input
+# get_hw_format called. Available: 190(vulkan) 117(cuda) 51(dxva2_vld) 116(d3d11va_vld)  -> Match Found by NAME! Selected: 116
+# get_hw_format called. Available: 190(vulkan) 117(cuda) 51(dxva2_vld) 171(d3d11)  -> Match Found by NAME! Selected: 171
+ERROR: get_hw_format called. Available: 190(vulkan) 117(cuda) 51(dxva2_vld) 227(d3d12) 44(vaapi) 0(yuv420p) 0(yuv420p) 0(yuv420p)  -> No Match for D3D11
+ERROR: Error sending packet: Invalid data found when processing input
+# get_hw_format called. Available: 190(vulkan) 117(cuda) 51(dxva2_vld) 116(d3d11va_vld)  -> Match Found by NAME! Selected: 116
+# get_hw_format called. Available: 190(vulkan) 117(cuda) 51(dxva2_vld) 171(d3d11)  -> Match Found by NAME! Selected: 171
+ERROR: get_hw_format called. Available: 190(vulkan) 117(cuda) 51(dxva2_vld) 227(d3d12) 44(vaapi) 0(yuv420p) 0(yuv420p) 0(yuv420p)  -> No Match for D3D11
+ERROR: Error sending packet: Invalid data found when processing input
+# get_hw_format called. Available: 190(vulkan) 117(cuda) 51(dxva2_vld) 116(d3d11va_vld)  -> Match Found by NAME! Selected: 116
+# get_hw_format called. Available: 190(vulkan) 117(cuda) 51(dxva2_vld) 171(d3d11)  -> Match Found by NAME! Selected: 171
+ERROR: get_hw_format called. Available: 190(vulkan) 117(cuda) 51(dxva2_vld) 227(d3d12) 44(vaapi) 0(yuv420p) 0(yuv420p) 0(yuv420p)  -> No Match for D3D11
+ERROR: Error sending packet: Invalid data found when processing input
+# get_hw_format called. Available: 190(vulkan) 117(cuda) 51(dxva2_vld) 116(d3d11va_vld)  -> Match Found by NAME! Selected: 116
+# get_hw_format called. Available: 190(vulkan) 117(cuda) 51(dxva2_vld) 171(d3d11)  -> Match Found by NAME! Selected: 171
+ERROR: get_hw_format called. Available: 190(vulkan) 117(cuda) 51(dxva2_vld) 227(d3d12) 44(vaapi) 0(yuv420p) 0(yuv420p) 0(yuv420p)  -> No Match for D3D11
+ERROR: Error sending packet: Invalid data found when processing input
+# get_hw_format called. Available: 190(vulkan) 117(cuda) 51(dxva2_vld) 116(d3d11va_vld)  -> Match Found by NAME! Selected: 116
+# get_hw_format called. Available: 190(vulkan) 117(cuda) 51(dxva2_vld) 171(d3d11)  -> Match Found by NAME! Selected: 171
+ERROR: get_hw_format called. Available: 190(vulkan) 117(cuda) 51(dxva2_vld) 227(d3d12) 44(vaapi) 0(yuv420p) 0(yuv420p) 0(yuv420p)  -> No Match for D3D11
+ERROR: Error sending packet: Invalid data found when processing input
+# get_hw_format called. Available: 190(vulkan) 117(cuda) 51(dxva2_vld) 116(d3d11va_vld)  -> Match Found by NAME! Selected: 116
+# get_hw_format called. Available: 190(vulkan) 117(cuda) 51(dxva2_vld) 171(d3d11)  -> Match Found by NAME! Selected: 171
+ERROR: get_hw_format called. Available: 190(vulkan) 117(cuda) 51(dxva2_vld) 227(d3d12) 44(vaapi) 0(yuv420p) 0(yuv420p) 0(yuv420p)  -> No Match for D3D11
+ERROR: Error sending packet: Invalid data found when processing input
+# get_hw_format called. Available: 190(vulkan) 117(cuda) 51(dxva2_vld) 116(d3d11va_vld)  -> Match Found by NAME! Selected: 116
+# get_hw_format called. Available: 190(vulkan) 117(cuda) 51(dxva2_vld) 171(d3d11)  -> Match Found by NAME! Selected: 171
+ERROR: get_hw_format called. Available: 190(vulkan) 117(cuda) 51(dxva2_vld) 227(d3d12) 44(vaapi) 0(yuv420p) 0(yuv420p) 0(yuv420p)  -> No Match for D3D11
+ERROR: Error sending packet: Invalid data found when processing input
+# get_hw_format called. Available: 190(vulkan) 117(cuda) 51(dxva2_vld) 116(d3d11va_vld)  -> Match Found by NAME! Selected: 116
+# get_hw_format called. Available: 190(vulkan) 117(cuda) 51(dxva2_vld) 171(d3d11)  -> Match Found by NAME! Selected: 171
+ERROR: get_hw_format called. Available: 190(vulkan) 117(cuda) 51(dxva2_vld) 227(d3d12) 44(vaapi) 0(yuv420p) 0(yuv420p) 0(yuv420p)  -> No Match for D3D11
+ERROR: Error sending packet: Invalid data found when processing input
+# get_hw_format called. Available: 190(vulkan) 117(cuda) 51(dxva2_vld) 116(d3d11va_vld)  -> Match Found by NAME! Selected: 116
+# get_hw_format called. Available: 190(vulkan) 117(cuda) 51(dxva2_vld) 171(d3d11)  -> Match Found by NAME! Selected: 171
+ERROR: get_hw_format called. Available: 190(vulkan) 117(cuda) 51(dxva2_vld) 227(d3d12) 44(vaapi) 0(yuv420p) 0(yuv420p) 0(yuv420p)  -> No Match for D3D11
+ERROR: Error sending packet: Invalid data found when processing input
+# get_hw_format called. Available: 190(vulkan) 117(cuda) 51(dxva2_vld) 116(d3d11va_vld)  -> Match Found by NAME! Selected: 116
+# get_hw_format called. Available: 190(vulkan) 117(cuda) 51(dxva2_vld) 171(d3d11)  -> Match Found by NAME! Selected: 171
+ERROR: get_hw_format called. Available: 190(vulkan) 117(cuda) 51(dxva2_vld) 227(d3d12) 44(vaapi) 0(yuv420p) 0(yuv420p) 0(yuv420p)  -> No Match for D3D11
+ERROR: Error sending packet: Invalid data found when processing input
+# get_hw_format called. Available: 190(vulkan) 117(cuda) 51(dxva2_vld) 116(d3d11va_vld)  -> Match Found by NAME! Selected: 116
+# get_hw_format called. Available: 190(vulkan) 117(cuda) 51(dxva2_vld) 171(d3d11)  -> Match Found by NAME! Selected: 171
+ERROR: get_hw_format called. Available: 190(vulkan) 117(cuda) 51(dxva2_vld) 227(d3d12) 44(vaapi) 0(yuv420p) 0(yuv420p) 0(yuv420p)  -> No Match for D3D11
+ERROR: Error sending packet: Invalid data found when processing input
+# get_hw_format called. Available: 190(vulkan) 117(cuda) 51(dxva2_vld) 116(d3d11va_vld)  -> Match Found by NAME! Selected: 116
+# get_hw_format called. Available: 190(vulkan) 117(cuda) 51(dxva2_vld) 171(d3d11)  -> Match Found by NAME! Selected: 171
+ERROR: get_hw_format called. Available: 190(vulkan) 117(cuda) 51(dxva2_vld) 227(d3d12) 44(vaapi) 0(yuv420p) 0(yuv420p) 0(yuv420p)  -> No Match for D3D11
+ERROR: Error sending packet: Invalid data found when processing input
+# get_hw_format called. Available: 190(vulkan) 117(cuda) 51(dxva2_vld) 116(d3d11va_vld)  -> Match Found by NAME! Selected: 116
+# get_hw_format called. Available: 190(vulkan) 117(cuda) 51(dxva2_vld) 171(d3d11)  -> Match Found by NAME! Selected: 171
+ERROR: get_hw_format called. Available: 190(vulkan) 117(cuda) 51(dxva2_vld) 227(d3d12) 44(vaapi) 0(yuv420p) 0(yuv420p) 0(yuv420p)  -> No Match for D3D11
+ERROR: Error sending packet: Invalid data found when processing input
+# get_hw_format called. Available: 190(vulkan) 117(cuda) 51(dxva2_vld) 116(d3d11va_vld)  -> Match Found by NAME! Selected: 116
+# get_hw_format called. Available: 190(vulkan) 117(cuda) 51(dxva2_vld) 171(d3d11)  -> Match Found by NAME! Selected: 171
+ERROR: get_hw_format called. Available: 190(vulkan) 117(cuda) 51(dxva2_vld) 227(d3d12) 44(vaapi) 0(yuv420p) 0(yuv420p) 0(yuv420p)  -> No Match for D3D11
+ERROR: Error sending packet: Invalid data found when processing input
+# get_hw_format called. Available: 190(vulkan) 117(cuda) 51(dxva2_vld) 116(d3d11va_vld)  -> Match Found by NAME! Selected: 116
+# get_hw_format called. Available: 190(vulkan) 117(cuda) 51(dxva2_vld) 171(d3d11)  -> Match Found by NAME! Selected: 171
+ERROR: get_hw_format called. Available: 190(vulkan) 117(cuda) 51(dxva2_vld) 227(d3d12) 44(vaapi) 0(yuv420p) 0(yuv420p) 0(yuv420p)  -> No Match for D3D11
+ERROR: Error sending packet: Invalid data found when processing input
+# get_hw_format called. Available: 190(vulkan) 117(cuda) 51(dxva2_vld) 116(d3d11va_vld)  -> Match Found by NAME! Selected: 116
+# get_hw_format called. Available: 190(vulkan) 117(cuda) 51(dxva2_vld) 171(d3d11)  -> Match Found by NAME! Selected: 171
+ERROR: get_hw_format called. Available: 190(vulkan) 117(cuda) 51(dxva2_vld) 227(d3d12) 44(vaapi) 0(yuv420p) 0(yuv420p) 0(yuv420p)  -> No Match for D3D11
+ERROR: Error sending packet: Invalid data found when processing input
+# get_hw_format called. Available: 190(vulkan) 117(cuda) 51(dxva2_vld) 116(d3d11va_vld)  -> Match Found by NAME! Selected: 116
+# get_hw_format called. Available: 190(vulkan) 117(cuda) 51(dxva2_vld) 171(d3d11)  -> Match Found by NAME! Selected: 171
+ERROR: get_hw_format called. Available: 190(vulkan) 117(cuda) 51(dxva2_vld) 227(d3d12) 44(vaapi) 0(yuv420p) 0(yuv420p) 0(yuv420p)  -> No Match for D3D11
+ERROR: Error sending packet: Invalid data found when processing input
+# get_hw_format called. Available: 190(vulkan) 117(cuda) 51(dxva2_vld) 116(d3d11va_vld)  -> Match Found by NAME! Selected: 116
+# get_hw_format called. Available: 190(vulkan) 117(cuda) 51(dxva2_vld) 171(d3d11)  -> Match Found by NAME! Selected: 171
+ERROR: get_hw_format called. Available: 190(vulkan) 117(cuda) 51(dxva2_vld) 227(d3d12) 44(vaapi) 0(yuv420p) 0(yuv420p) 0(yuv420p)  -> No Match for D3D11
+ERROR: Error sending packet: Invalid data found when processing input
+# get_hw_format called. Available: 190(vulkan) 117(cuda) 51(dxva2_vld) 116(d3d11va_vld)  -> Match Found by NAME! Selected: 116
+# get_hw_format called. Available: 190(vulkan) 117(cuda) 51(dxva2_vld) 171(d3d11)  -> Match Found by NAME! Selected: 171
+ERROR: get_hw_format called. Available: 190(vulkan) 117(cuda) 51(dxva2_vld) 227(d3d12) 44(vaapi) 0(yuv420p) 0(yuv420p) 0(yuv420p)  -> No Match for D3D11
+ERROR: Error sending packet: Invalid data found when processing input
+# get_hw_format called. Available: 190(vulkan) 117(cuda) 51(dxva2_vld) 116(d3d11va_vld)  -> Match Found by NAME! Selected: 116
+# get_hw_format called. Available: 190(vulkan) 117(cuda) 51(dxva2_vld) 171(d3d11)  -> Match Found by NAME! Selected: 171
+ERROR: get_hw_format called. Available: 190(vulkan) 117(cuda) 51(dxva2_vld) 227(d3d12) 44(vaapi) 0(yuv420p) 0(yuv420p) 0(yuv420p)  -> No Match for D3D11
+ERROR: Error sending packet: Invalid data found when processing input
+# get_hw_format called. Available: 190(vulkan) 117(cuda) 51(dxva2_vld) 116(d3d11va_vld)  -> Match Found by NAME! Selected: 116
+# get_hw_format called. Available: 190(vulkan) 117(cuda) 51(dxva2_vld) 171(d3d11)  -> Match Found by NAME! Selected: 171
+ERROR: get_hw_format called. Available: 190(vulkan) 117(cuda) 51(dxva2_vld) 227(d3d12) 44(vaapi) 0(yuv420p) 0(yuv420p) 0(yuv420p)  -> No Match for D3D11
+ERROR: Error sending packet: Invalid data found when processing input
+ERROR: Error sending packet: Invalid data found when processing input
+ERROR: Error sending packet: Invalid data found when processing input
+ERROR: Error sending packet: Invalid data found when processing input
+# get_hw_format called. Available: 190(vulkan) 117(cuda) 51(dxva2_vld) 116(d3d11va_vld)  -> Match Found by NAME! Selected: 116
+# get_hw_format called. Available: 190(vulkan) 117(cuda) 51(dxva2_vld) 171(d3d11)  -> Match Found by NAME! Selected: 171
+ERROR: get_hw_format called. Available: 190(vulkan) 117(cuda) 51(dxva2_vld) 227(d3d12) 44(vaapi) 0(yuv420p) 0(yuv420p) 0(yuv420p)  -> No Match for D3D11
+ERROR: Error sending packet: Invalid data found when processing input
+# get_hw_format called. Available: 190(vulkan) 117(cuda) 51(dxva2_vld) 116(d3d11va_vld)  -> Match Found by NAME! Selected: 116
+# get_hw_format called. Available: 190(vulkan) 117(cuda) 51(dxva2_vld) 171(d3d11)  -> Match Found by NAME! Selected: 171
+ERROR: get_hw_format called. Available: 190(vulkan) 117(cuda) 51(dxva2_vld) 227(d3d12) 44(vaapi) 0(yuv420p) 0(yuv420p) 0(yuv420p)  -> No Match for D3D11
+ERROR: Error sending packet: Invalid data found when processing input
+# get_hw_format called. Available: 190(vulkan) 117(cuda) 51(dxva2_vld) 116(d3d11va_vld)  -> Match Found by NAME! Selected: 116
+# get_hw_format called. Available: 190(vulkan) 117(cuda) 51(dxva2_vld) 171(d3d11)  -> Match Found by NAME! Selected: 171
+ERROR: get_hw_format called. Available: 190(vulkan) 117(cuda) 51(dxva2_vld) 227(d3d12) 44(vaapi) 0(yuv420p) 0(yuv420p) 0(yuv420p)  -> No Match for D3D11
+ERROR: Error sending packet: Invalid data found when processing input
+# get_hw_format called. Available: 190(vulkan) 117(cuda) 51(dxva2_vld) 116(d3d11va_vld)  -> Match Found by NAME! Selected: 116
+# get_hw_format called. Available: 190(vulkan) 117(cuda) 51(dxva2_vld) 171(d3d11)  -> Match Found by NAME! Selected: 171
+ERROR: get_hw_format called. Available: 190(vulkan) 117(cuda) 51(dxva2_vld) 227(d3d12) 44(vaapi) 0(yuv420p) 0(yuv420p) 0(yuv420p)  -> No Match for D3D11
+ERROR: Error sending packet: Invalid data found when processing input
+# get_hw_format called. Available: 190(vulkan) 117(cuda) 51(dxva2_vld) 116(d3d11va_vld)  -> Match Found by NAME! Selected: 116
+# get_hw_format called. Available: 190(vulkan) 117(cuda) 51(dxva2_vld) 171(d3d11)  -> Match Found by NAME! Selected: 171
+ERROR: get_hw_format called. Available: 190(vulkan) 117(cuda) 51(dxva2_vld) 227(d3d12) 44(vaapi) 0(yuv420p) 0(yuv420p) 0(yuv420p)  -> No Match for D3D11
+ERROR: Error sending packet: Invalid data found when processing input
+# get_hw_format called. Available: 190(vulkan) 117(cuda) 51(dxva2_vld) 116(d3d11va_vld)  -> Match Found by NAME! Selected: 116
+# get_hw_format called. Available: 190(vulkan) 117(cuda) 51(dxva2_vld) 171(d3d11)  -> Match Found by NAME! Selected: 171
+ERROR: get_hw_format called. Available: 190(vulkan) 117(cuda) 51(dxva2_vld) 227(d3d12) 44(vaapi) 0(yuv420p) 0(yuv420p) 0(yuv420p)  -> No Match for D3D11
+ERROR: Error sending packet: Invalid data found when processing input
+# get_hw_format called. Available: 190(vulkan) 117(cuda) 51(dxva2_vld) 116(d3d11va_vld)  -> Match Found by NAME! Selected: 116
+# get_hw_format called. Available: 190(vulkan) 117(cuda) 51(dxva2_vld) 171(d3d11)  -> Match Found by NAME! Selected: 171
+ERROR: get_hw_format called. Available: 190(vulkan) 117(cuda) 51(dxva2_vld) 227(d3d12) 44(vaapi) 0(yuv420p) 0(yuv420p) 0(yuv420p)  -> No Match for D3D11
+ERROR: Error sending packet: Invalid data found when processing input
+# get_hw_format called. Available: 190(vulkan) 117(cuda) 51(dxva2_vld) 116(d3d11va_vld)  -> Match Found by NAME! Selected: 116
+# get_hw_format called. Available: 190(vulkan) 117(cuda) 51(dxva2_vld) 171(d3d11)  -> Match Found by NAME! Selected: 171
+ERROR: get_hw_format called. Available: 190(vulkan) 117(cuda) 51(dxva2_vld) 227(d3d12) 44(vaapi) 0(yuv420p) 0(yuv420p) 0(yuv420p)  -> No Match for D3D11
+ERROR: Error sending packet: Invalid data found when processing input
+# get_hw_format called. Available: 190(vulkan) 117(cuda) 51(dxva2_vld) 116(d3d11va_vld)  -> Match Found by NAME! Selected: 116
+# get_hw_format called. Available: 190(vulkan) 117(cuda) 51(dxva2_vld) 171(d3d11)  -> Match Found by NAME! Selected: 171
+ERROR: get_hw_format called. Available: 190(vulkan) 117(cuda) 51(dxva2_vld) 227(d3d12) 44(vaapi) 0(yuv420p) 0(yuv420p) 0(yuv420p)  -> No Match for D3D11
+ERROR: Error sending packet: Invalid data found when processing input
+# get_hw_format called. Available: 190(vulkan) 117(cuda) 51(dxva2_vld) 116(d3d11va_vld)  -> Match Found by NAME! Selected: 116
+# get_hw_format called. Available: 190(vulkan) 117(cuda) 51(dxva2_vld) 171(d3d11)  -> Match Found by NAME! Selected: 171
+ERROR: get_hw_format called. Available: 190(vulkan) 117(cuda) 51(dxva2_vld) 227(d3d12) 44(vaapi) 0(yuv420p) 0(yuv420p) 0(yuv420p)  -> No Match for D3D11
+ERROR: Error sending packet: Invalid data found when processing input
+# get_hw_format called. Available: 190(vulkan) 117(cuda) 51(dxva2_vld) 116(d3d11va_vld)  -> Match Found by NAME! Selected: 116
+# get_hw_format called. Available: 190(vulkan) 117(cuda) 51(dxva2_vld) 171(d3d11)  -> Match Found by NAME! Selected: 171
+ERROR: get_hw_format called. Available: 190(vulkan) 117(cuda) 51(dxva2_vld) 227(d3d12) 44(vaapi) 0(yuv420p) 0(yuv420p) 0(yuv420p)  -> No Match for D3D11
+ERROR: Error sending packet: Invalid data found when processing input
+# get_hw_format called. Available: 190(vulkan) 117(cuda) 51(dxva2_vld) 116(d3d11va_vld)  -> Match Found by NAME! Selected: 116
+# get_hw_format called. Available: 190(vulkan) 117(cuda) 51(dxva2_vld) 171(d3d11)  -> Match Found by NAME! Selected: 171
+ERROR: get_hw_format called. Available: 190(vulkan) 117(cuda) 51(dxva2_vld) 227(d3d12) 44(vaapi) 0(yuv420p) 0(yuv420p) 0(yuv420p)  -> No Match for D3D11
+ERROR: Error sending packet: Invalid data found when processing input
+# get_hw_format called. Available: 190(vulkan) 117(cuda) 51(dxva2_vld) 116(d3d11va_vld)  -> Match Found by NAME! Selected: 116
+# get_hw_format called. Available: 190(vulkan) 117(cuda) 51(dxva2_vld) 171(d3d11)  -> Match Found by NAME! Selected: 171
+ERROR: get_hw_format called. Available: 190(vulkan) 117(cuda) 51(dxva2_vld) 227(d3d12) 44(vaapi) 0(yuv420p) 0(yuv420p) 0(yuv420p)  -> No Match for D3D11
+ERROR: Error sending packet: Invalid data found when processing input
+# get_hw_format called. Available: 190(vulkan) 117(cuda) 51(dxva2_vld) 116(d3d11va_vld)  -> Match Found by NAME! Selected: 116
+# get_hw_format called. Available: 190(vulkan) 117(cuda) 51(dxva2_vld) 171(d3d11)  -> Match Found by NAME! Selected: 171
+ERROR: get_hw_format called. Available: 190(vulkan) 117(cuda) 51(dxva2_vld) 227(d3d12) 44(vaapi) 0(yuv420p) 0(yuv420p) 0(yuv420p)  -> No Match for D3D11
+ERROR: Error sending packet: Invalid data found when processing input
+# get_hw_format called. Available: 190(vulkan) 117(cuda) 51(dxva2_vld) 116(d3d11va_vld)  -> Match Found by NAME! Selected: 116
+# get_hw_format called. Available: 190(vulkan) 117(cuda) 51(dxva2_vld) 171(d3d11)  -> Match Found by NAME! Selected: 171
+ERROR: get_hw_format called. Available: 190(vulkan) 117(cuda) 51(dxva2_vld) 227(d3d12) 44(vaapi) 0(yuv420p) 0(yuv420p) 0(yuv420p)  -> No Match for D3D11
+ERROR: Error sending packet: Invalid data found when processing input
+# get_hw_format called. Available: 190(vulkan) 117(cuda) 51(dxva2_vld) 116(d3d11va_vld)  -> Match Found by NAME! Selected: 116
+# get_hw_format called. Available: 190(vulkan) 117(cuda) 51(dxva2_vld) 171(d3d11)  -> Match Found by NAME! Selected: 171
+ERROR: get_hw_format called. Available: 190(vulkan) 117(cuda) 51(dxva2_vld) 227(d3d12) 44(vaapi) 0(yuv420p) 0(yuv420p) 0(yuv420p)  -> No Match for D3D11
+ERROR: Error sending packet: Invalid data found when processing input
+# get_hw_format called. Available: 190(vulkan) 117(cuda) 51(dxva2_vld) 116(d3d11va_vld)  -> Match Found by NAME! Selected: 116
+# get_hw_format called. Available: 190(vulkan) 117(cuda) 51(dxva2_vld) 171(d3d11)  -> Match Found by NAME! Selected: 171
+ERROR: get_hw_format called. Available: 190(vulkan) 117(cuda) 51(dxva2_vld) 227(d3d12) 44(vaapi) 0(yuv420p) 0(yuv420p) 0(yuv420p)  -> No Match for D3D11
+ERROR: Error sending packet: Invalid data found when processing input
+# get_hw_format called. Available: 190(vulkan) 117(cuda) 51(dxva2_vld) 116(d3d11va_vld)  -> Match Found by NAME! Selected: 116
+# get_hw_format called. Available: 190(vulkan) 117(cuda) 51(dxva2_vld) 171(d3d11)  -> Match Found by NAME! Selected: 171
+ERROR: get_hw_format called. Available: 190(vulkan) 117(cuda) 51(dxva2_vld) 227(d3d12) 44(vaapi) 0(yuv420p) 0(yuv420p) 0(yuv420p)  -> No Match for D3D11
+ERROR: Error sending packet: Invalid data found when processing input
+# get_hw_format called. Available: 190(vulkan) 117(cuda) 51(dxva2_vld) 116(d3d11va_vld)  -> Match Found by NAME! Selected: 116
+# get_hw_format called. Available: 190(vulkan) 117(cuda) 51(dxva2_vld) 171(d3d11)  -> Match Found by NAME! Selected: 171
+ERROR: get_hw_format called. Available: 190(vulkan) 117(cuda) 51(dxva2_vld) 227(d3d12) 44(vaapi) 0(yuv420p) 0(yuv420p) 0(yuv420p)  -> No Match for D3D11
+ERROR: Error sending packet: Invalid data found when processing input
+# get_hw_format called. Available: 190(vulkan) 117(cuda) 51(dxva2_vld) 116(d3d11va_vld)  -> Match Found by NAME! Selected: 116
+# get_hw_format called. Available: 190(vulkan) 117(cuda) 51(dxva2_vld) 171(d3d11)  -> Match Found by NAME! Selected: 171
+ERROR: get_hw_format called. Available: 190(vulkan) 117(cuda) 51(dxva2_vld) 227(d3d12) 44(vaapi) 0(yuv420p) 0(yuv420p) 0(yuv420p)  -> No Match for D3D11
+ERROR: Error sending packet: Invalid data found when processing input
+# get_hw_format called. Available: 190(vulkan) 117(cuda) 51(dxva2_vld) 116(d3d11va_vld)  -> Match Found by NAME! Selected: 116
+# get_hw_format called. Available: 190(vulkan) 117(cuda) 51(dxva2_vld) 171(d3d11)  -> Match Found by NAME! Selected: 171
+ERROR: get_hw_format called. Available: 190(vulkan) 117(cuda) 51(dxva2_vld) 227(d3d12) 44(vaapi) 0(yuv420p) 0(yuv420p) 0(yuv420p)  -> No Match for D3D11
+ERROR: Error sending packet: Invalid data found when processing input
+# get_hw_format called. Available: 190(vulkan) 117(cuda) 51(dxva2_vld) 116(d3d11va_vld)  -> Match Found by NAME! Selected: 116
+# get_hw_format called. Available: 190(vulkan) 117(cuda) 51(dxva2_vld) 171(d3d11)  -> Match Found by NAME! Selected: 171
+ERROR: get_hw_format called. Available: 190(vulkan) 117(cuda) 51(dxva2_vld) 227(d3d12) 44(vaapi) 0(yuv420p) 0(yuv420p) 0(yuv420p)  -> No Match for D3D11
+ERROR: Error sending packet: Invalid data found when processing input
+# get_hw_format called. Available: 190(vulkan) 117(cuda) 51(dxva2_vld) 116(d3d11va_vld)  -> Match Found by NAME! Selected: 116
+# get_hw_format called. Available: 190(vulkan) 117(cuda) 51(dxva2_vld) 171(d3d11)  -> Match Found by NAME! Selected: 171
+ERROR: get_hw_format called. Available: 190(vulkan) 117(cuda) 51(dxva2_vld) 227(d3d12) 44(vaapi) 0(yuv420p) 0(yuv420p) 0(yuv420p)  -> No Match for D3D11
+ERROR: Error sending packet: Invalid data found when processing input
+# get_hw_format called. Available: 190(vulkan) 117(cuda) 51(dxva2_vld) 116(d3d11va_vld)  -> Match Found by NAME! Selected: 116
+# get_hw_format called. Available: 190(vulkan) 117(cuda) 51(dxva2_vld) 171(d3d11)  -> Match Found by NAME! Selected: 171
+ERROR: get_hw_format called. Available: 190(vulkan) 117(cuda) 51(dxva2_vld) 227(d3d12) 44(vaapi) 0(yuv420p) 0(yuv420p) 0(yuv420p)  -> No Match for D3D11
+ERROR: Error sending packet: Invalid data found when processing input
+# get_hw_format called. Available: 190(vulkan) 117(cuda) 51(dxva2_vld) 116(d3d11va_vld)  -> Match Found by NAME! Selected: 116
+# get_hw_format called. Available: 190(vulkan) 117(cuda) 51(dxva2_vld) 171(d3d11)  -> Match Found by NAME! Selected: 171
+ERROR: get_hw_format called. Available: 190(vulkan) 117(cuda) 51(dxva2_vld) 227(d3d12) 44(vaapi) 0(yuv420p) 0(yuv420p) 0(yuv420p)  -> No Match for D3D11
+ERROR: Error sending packet: Invalid data found when processing input
+# get_hw_format called. Available: 190(vulkan) 117(cuda) 51(dxva2_vld) 116(d3d11va_vld)  -> Match Found by NAME! Selected: 116
+# get_hw_format called. Available: 190(vulkan) 117(cuda) 51(dxva2_vld) 171(d3d11)  -> Match Found by NAME! Selected: 171
+ERROR: get_hw_format called. Available: 190(vulkan) 117(cuda) 51(dxva2_vld) 227(d3d12) 44(vaapi) 0(yuv420p) 0(yuv420p) 0(yuv420p)  -> No Match for D3D11
+ERROR: Error sending packet: Invalid data found when processing input
+# get_hw_format called. Available: 190(vulkan) 117(cuda) 51(dxva2_vld) 116(d3d11va_vld)  -> Match Found by NAME! Selected: 116
+# get_hw_format called. Available: 190(vulkan) 117(cuda) 51(dxva2_vld) 171(d3d11)  -> Match Found by NAME! Selected: 171
+ERROR: get_hw_format called. Available: 190(vulkan) 117(cuda) 51(dxva2_vld) 227(d3d12) 44(vaapi) 0(yuv420p) 0(yuv420p) 0(yuv420p)  -> No Match for D3D11
+ERROR: Error sending packet: Invalid data found when processing input
+# get_hw_format called. Available: 190(vulkan) 117(cuda) 51(dxva2_vld) 116(d3d11va_vld)  -> Match Found by NAME! Selected: 116
+# get_hw_format called. Available: 190(vulkan) 117(cuda) 51(dxva2_vld) 171(d3d11)  -> Match Found by NAME! Selected: 171
+ERROR: get_hw_format called. Available: 190(vulkan) 117(cuda) 51(dxva2_vld) 227(d3d12) 44(vaapi) 0(yuv420p) 0(yuv420p) 0(yuv420p)  -> No Match for D3D11
+ERROR: Error sending packet: Invalid data found when processing input
+# get_hw_format called. Available: 190(vulkan) 117(cuda) 51(dxva2_vld) 116(d3d11va_vld)  -> Match Found by NAME! Selected: 116
+# get_hw_format called. Available: 190(vulkan) 117(cuda) 51(dxva2_vld) 171(d3d11)  -> Match Found by NAME! Selected: 171
+ERROR: get_hw_format called. Available: 190(vulkan) 117(cuda) 51(dxva2_vld) 227(d3d12) 44(vaapi) 0(yuv420p) 0(yuv420p) 0(yuv420p)  -> No Match for D3D11
+ERROR: Error sending packet: Invalid data found when processing input
+# get_hw_format called. Available: 190(vulkan) 117(cuda) 51(dxva2_vld) 116(d3d11va_vld)  -> Match Found by NAME! Selected: 116
+# get_hw_format called. Available: 190(vulkan) 117(cuda) 51(dxva2_vld) 171(d3d11)  -> Match Found by NAME! Selected: 171
+ERROR: get_hw_format called. Available: 190(vulkan) 117(cuda) 51(dxva2_vld) 227(d3d12) 44(vaapi) 0(yuv420p) 0(yuv420p) 0(yuv420p)  -> No Match for D3D11
+ERROR: Error sending packet: Invalid data found when processing input
+ERROR: Error sending packet: Invalid data found when processing input
+ERROR: Error sending packet: Invalid data found when processing input
+ERROR: Error sending packet: Invalid data found when processing input
+# get_hw_format called. Available: 190(vulkan) 117(cuda) 51(dxva2_vld) 116(d3d11va_vld)  -> Match Found by NAME! Selected: 116
+# get_hw_format called. Available: 190(vulkan) 117(cuda) 51(dxva2_vld) 171(d3d11)  -> Match Found by NAME! Selected: 171
+ERROR: get_hw_format called. Available: 190(vulkan) 117(cuda) 51(dxva2_vld) 227(d3d12) 44(vaapi) 0(yuv420p) 0(yuv420p) 0(yuv420p)  -> No Match for D3D11
+ERROR: Error sending packet: Invalid data found when processing input
+# get_hw_format called. Available: 190(vulkan) 117(cuda) 51(dxva2_vld) 116(d3d11va_vld)  -> Match Found by NAME! Selected: 116
+# get_hw_format called. Available: 190(vulkan) 117(cuda) 51(dxva2_vld) 171(d3d11)  -> Match Found by NAME! Selected: 171
+ERROR: get_hw_format called. Available: 190(vulkan) 117(cuda) 51(dxva2_vld) 227(d3d12) 44(vaapi) 0(yuv420p) 0(yuv420p) 0(yuv420p)  -> No Match for D3D11
+ERROR: Error sending packet: Invalid data found when processing input
+# get_hw_format called. Available: 190(vulkan) 117(cuda) 51(dxva2_vld) 116(d3d11va_vld)  -> Match Found by NAME! Selected: 116
+# get_hw_format called. Available: 190(vulkan) 117(cuda) 51(dxva2_vld) 171(d3d11)  -> Match Found by NAME! Selected: 171
+ERROR: get_hw_format called. Available: 190(vulkan) 117(cuda) 51(dxva2_vld) 227(d3d12) 44(vaapi) 0(yuv420p) 0(yuv420p) 0(yuv420p)  -> No Match for D3D11
+ERROR: Error sending packet: Invalid data found when processing input
+# get_hw_format called. Available: 190(vulkan) 117(cuda) 51(dxva2_vld) 116(d3d11va_vld)  -> Match Found by NAME! Selected: 116
+# get_hw_format called. Available: 190(vulkan) 117(cuda) 51(dxva2_vld) 171(d3d11)  -> Match Found by NAME! Selected: 171
+ERROR: get_hw_format called. Available: 190(vulkan) 117(cuda) 51(dxva2_vld) 227(d3d12) 44(vaapi) 0(yuv420p) 0(yuv420p) 0(yuv420p)  -> No Match for D3D11
+ERROR: Error sending packet: Invalid data found when processing input
+# get_hw_format called. Available: 190(vulkan) 117(cuda) 51(dxva2_vld) 116(d3d11va_vld)  -> Match Found by NAME! Selected: 116
+# get_hw_format called. Available: 190(vulkan) 117(cuda) 51(dxva2_vld) 171(d3d11)  -> Match Found by NAME! Selected: 171
+ERROR: get_hw_format called. Available: 190(vulkan) 117(cuda) 51(dxva2_vld) 227(d3d12) 44(vaapi) 0(yuv420p) 0(yuv420p) 0(yuv420p)  -> No Match for D3D11
+ERROR: Error sending packet: Invalid data found when processing input
+# get_hw_format called. Available: 190(vulkan) 117(cuda) 51(dxva2_vld) 116(d3d11va_vld)  -> Match Found by NAME! Selected: 116
+# get_hw_format called. Available: 190(vulkan) 117(cuda) 51(dxva2_vld) 171(d3d11)  -> Match Found by NAME! Selected: 171
+ERROR: get_hw_format called. Available: 190(vulkan) 117(cuda) 51(dxva2_vld) 227(d3d12) 44(vaapi) 0(yuv420p) 0(yuv420p) 0(yuv420p)  -> No Match for D3D11
+ERROR: Error sending packet: Invalid data found when processing input
+# get_hw_format called. Available: 190(vulkan) 117(cuda) 51(dxva2_vld) 116(d3d11va_vld)  -> Match Found by NAME! Selected: 116
+# get_hw_format called. Available: 190(vulkan) 117(cuda) 51(dxva2_vld) 171(d3d11)  -> Match Found by NAME! Selected: 171
+ERROR: get_hw_format called. Available: 190(vulkan) 117(cuda) 51(dxva2_vld) 227(d3d12) 44(vaapi) 0(yuv420p) 0(yuv420p) 0(yuv420p)  -> No Match for D3D11
+ERROR: Error sending packet: Invalid data found when processing input
+# get_hw_format called. Available: 190(vulkan) 117(cuda) 51(dxva2_vld) 116(d3d11va_vld)  -> Match Found by NAME! Selected: 116
+# get_hw_format called. Available: 190(vulkan) 117(cuda) 51(dxva2_vld) 171(d3d11)  -> Match Found by NAME! Selected: 171
+ERROR: get_hw_format called. Available: 190(vulkan) 117(cuda) 51(dxva2_vld) 227(d3d12) 44(vaapi) 0(yuv420p) 0(yuv420p) 0(yuv420p)  -> No Match for D3D11
+ERROR: Error sending packet: Invalid data found when processing input
+# get_hw_format called. Available: 190(vulkan) 117(cuda) 51(dxva2_vld) 116(d3d11va_vld)  -> Match Found by NAME! Selected: 116
+# get_hw_format called. Available: 190(vulkan) 117(cuda) 51(dxva2_vld) 171(d3d11)  -> Match Found by NAME! Selected: 171
+ERROR: get_hw_format called. Available: 190(vulkan) 117(cuda) 51(dxva2_vld) 227(d3d12) 44(vaapi) 0(yuv420p) 0(yuv420p) 0(yuv420p)  -> No Match for D3D11
+ERROR: Error sending packet: Invalid data found when processing input
+# get_hw_format called. Available: 190(vulkan) 117(cuda) 51(dxva2_vld) 116(d3d11va_vld)  -> Match Found by NAME! Selected: 116
+# get_hw_format called. Available: 190(vulkan) 117(cuda) 51(dxva2_vld) 171(d3d11)  -> Match Found by NAME! Selected: 171
+ERROR: get_hw_format called. Available: 190(vulkan) 117(cuda) 51(dxva2_vld) 227(d3d12) 44(vaapi) 0(yuv420p) 0(yuv420p) 0(yuv420p)  -> No Match for D3D11
+ERROR: Error sending packet: Invalid data found when processing input
+# get_hw_format called. Available: 190(vulkan) 117(cuda) 51(dxva2_vld) 116(d3d11va_vld)  -> Match Found by NAME! Selected: 116
+# get_hw_format called. Available: 190(vulkan) 117(cuda) 51(dxva2_vld) 171(d3d11)  -> Match Found by NAME! Selected: 171
+ERROR: get_hw_format called. Available: 190(vulkan) 117(cuda) 51(dxva2_vld) 227(d3d12) 44(vaapi) 0(yuv420p) 0(yuv420p) 0(yuv420p)  -> No Match for D3D11
+ERROR: Error sending packet: Invalid data found when processing input
+# get_hw_format called. Available: 190(vulkan) 117(cuda) 51(dxva2_vld) 116(d3d11va_vld)  -> Match Found by NAME! Selected: 116
+# get_hw_format called. Available: 190(vulkan) 117(cuda) 51(dxva2_vld) 171(d3d11)  -> Match Found by NAME! Selected: 171
+ERROR: get_hw_format called. Available: 190(vulkan) 117(cuda) 51(dxva2_vld) 227(d3d12) 44(vaapi) 0(yuv420p) 0(yuv420p) 0(yuv420p)  -> No Match for D3D11
+ERROR: Error sending packet: Invalid data found when processing input
+# get_hw_format called. Available: 190(vulkan) 117(cuda) 51(dxva2_vld) 116(d3d11va_vld)  -> Match Found by NAME! Selected: 116
+# get_hw_format called. Available: 190(vulkan) 117(cuda) 51(dxva2_vld) 171(d3d11)  -> Match Found by NAME! Selected: 171
+ERROR: get_hw_format called. Available: 190(vulkan) 117(cuda) 51(dxva2_vld) 227(d3d12) 44(vaapi) 0(yuv420p) 0(yuv420p) 0(yuv420p)  -> No Match for D3D11
+ERROR: Error sending packet: Invalid data found when processing input
+# get_hw_format called. Available: 190(vulkan) 117(cuda) 51(dxva2_vld) 116(d3d11va_vld)  -> Match Found by NAME! Selected: 116
+# get_hw_format called. Available: 190(vulkan) 117(cuda) 51(dxva2_vld) 171(d3d11)  -> Match Found by NAME! Selected: 171
+ERROR: get_hw_format called. Available: 190(vulkan) 117(cuda) 51(dxva2_vld) 227(d3d12) 44(vaapi) 0(yuv420p) 0(yuv420p) 0(yuv420p)  -> No Match for D3D11
+ERROR: Error sending packet: Invalid data found when processing input
+# get_hw_format called. Available: 190(vulkan) 117(cuda) 51(dxva2_vld) 116(d3d11va_vld)  -> Match Found by NAME! Selected: 116
+# get_hw_format called. Available: 190(vulkan) 117(cuda) 51(dxva2_vld) 171(d3d11)  -> Match Found by NAME! Selected: 171
+ERROR: get_hw_format called. Available: 190(vulkan) 117(cuda) 51(dxva2_vld) 227(d3d12) 44(vaapi) 0(yuv420p) 0(yuv420p) 0(yuv420p)  -> No Match for D3D11
+ERROR: Error sending packet: Invalid data found when processing input
+# get_hw_format called. Available: 190(vulkan) 117(cuda) 51(dxva2_vld) 116(d3d11va_vld)  -> Match Found by NAME! Selected: 116
+# get_hw_format called. Available: 190(vulkan) 117(cuda) 51(dxva2_vld) 171(d3d11)  -> Match Found by NAME! Selected: 171
+ERROR: get_hw_format called. Available: 190(vulkan) 117(cuda) 51(dxva2_vld) 227(d3d12) 44(vaapi) 0(yuv420p) 0(yuv420p) 0(yuv420p)  -> No Match for D3D11
+ERROR: Error sending packet: Invalid data found when processing input
+# get_hw_format called. Available: 190(vulkan) 117(cuda) 51(dxva2_vld) 116(d3d11va_vld)  -> Match Found by NAME! Selected: 116
+# get_hw_format called. Available: 190(vulkan) 117(cuda) 51(dxva2_vld) 171(d3d11)  -> Match Found by NAME! Selected: 171
+ERROR: get_hw_format called. Available: 190(vulkan) 117(cuda) 51(dxva2_vld) 227(d3d12) 44(vaapi) 0(yuv420p) 0(yuv420p) 0(yuv420p)  -> No Match for D3D11
+ERROR: Error sending packet: Invalid data found when processing input
+# get_hw_format called. Available: 190(vulkan) 117(cuda) 51(dxva2_vld) 116(d3d11va_vld)  -> Match Found by NAME! Selected: 116
+# get_hw_format called. Available: 190(vulkan) 117(cuda) 51(dxva2_vld) 171(d3d11)  -> Match Found by NAME! Selected: 171
+ERROR: get_hw_format called. Available: 190(vulkan) 117(cuda) 51(dxva2_vld) 227(d3d12) 44(vaapi) 0(yuv420p) 0(yuv420p) 0(yuv420p)  -> No Match for D3D11
+ERROR: Error sending packet: Invalid data found when processing input
+# get_hw_format called. Available: 190(vulkan) 117(cuda) 51(dxva2_vld) 116(d3d11va_vld)  -> Match Found by NAME! Selected: 116
+# get_hw_format called. Available: 190(vulkan) 117(cuda) 51(dxva2_vld) 171(d3d11)  -> Match Found by NAME! Selected: 171
+ERROR: get_hw_format called. Available: 190(vulkan) 117(cuda) 51(dxva2_vld) 227(d3d12) 44(vaapi) 0(yuv420p) 0(yuv420p) 0(yuv420p)  -> No Match for D3D11
+ERROR: Error sending packet: Invalid data found when processing input
+# get_hw_format called. Available: 190(vulkan) 117(cuda) 51(dxva2_vld) 116(d3d11va_vld)  -> Match Found by NAME! Selected: 116
+# get_hw_format called. Available: 190(vulkan) 117(cuda) 51(dxva2_vld) 171(d3d11)  -> Match Found by NAME! Selected: 171
+ERROR: get_hw_format called. Available: 190(vulkan) 117(cuda) 51(dxva2_vld) 227(d3d12) 44(vaapi) 0(yuv420p) 0(yuv420p) 0(yuv420p)  -> No Match for D3D11
+ERROR: Error sending packet: Invalid data found when processing input
+# get_hw_format called. Available: 190(vulkan) 117(cuda) 51(dxva2_vld) 116(d3d11va_vld)  -> Match Found by NAME! Selected: 116
+# get_hw_format called. Available: 190(vulkan) 117(cuda) 51(dxva2_vld) 171(d3d11)  -> Match Found by NAME! Selected: 171
+ERROR: get_hw_format called. Available: 190(vulkan) 117(cuda) 51(dxva2_vld) 227(d3d12) 44(vaapi) 0(yuv420p) 0(yuv420p) 0(yuv420p)  -> No Match for D3D11
+ERROR: Error sending packet: Invalid data found when processing input
+# get_hw_format called. Available: 190(vulkan) 117(cuda) 51(dxva2_vld) 116(d3d11va_vld)  -> Match Found by NAME! Selected: 116
+# get_hw_format called. Available: 190(vulkan) 117(cuda) 51(dxva2_vld) 171(d3d11)  -> Match Found by NAME! Selected: 171
+ERROR: get_hw_format called. Available: 190(vulkan) 117(cuda) 51(dxva2_vld) 227(d3d12) 44(vaapi) 0(yuv420p) 0(yuv420p) 0(yuv420p)  -> No Match for D3D11
+ERROR: Error sending packet: Invalid data found when processing input
+# get_hw_format called. Available: 190(vulkan) 117(cuda) 51(dxva2_vld) 116(d3d11va_vld)  -> Match Found by NAME! Selected: 116
+# get_hw_format called. Available: 190(vulkan) 117(cuda) 51(dxva2_vld) 171(d3d11)  -> Match Found by NAME! Selected: 171
+ERROR: get_hw_format called. Available: 190(vulkan) 117(cuda) 51(dxva2_vld) 227(d3d12) 44(vaapi) 0(yuv420p) 0(yuv420p) 0(yuv420p)  -> No Match for D3D11
+ERROR: Error sending packet: Invalid data found when processing input
+# get_hw_format called. Available: 190(vulkan) 117(cuda) 51(dxva2_vld) 116(d3d11va_vld)  -> Match Found by NAME! Selected: 116
+# get_hw_format called. Available: 190(vulkan) 117(cuda) 51(dxva2_vld) 171(d3d11)  -> Match Found by NAME! Selected: 171
+ERROR: get_hw_format called. Available: 190(vulkan) 117(cuda) 51(dxva2_vld) 227(d3d12) 44(vaapi) 0(yuv420p) 0(yuv420p) 0(yuv420p)  -> No Match for D3D11
+ERROR: Error sending packet: Invalid data found when processing input
+# get_hw_format called. Available: 190(vulkan) 117(cuda) 51(dxva2_vld) 116(d3d11va_vld)  -> Match Found by NAME! Selected: 116
+# get_hw_format called. Available: 190(vulkan) 117(cuda) 51(dxva2_vld) 171(d3d11)  -> Match Found by NAME! Selected: 171
+ERROR: get_hw_format called. Available: 190(vulkan) 117(cuda) 51(dxva2_vld) 227(d3d12) 44(vaapi) 0(yuv420p) 0(yuv420p) 0(yuv420p)  -> No Match for D3D11
+ERROR: Error sending packet: Invalid data found when processing input
+# get_hw_format called. Available: 190(vulkan) 117(cuda) 51(dxva2_vld) 116(d3d11va_vld)  -> Match Found by NAME! Selected: 116
+# get_hw_format called. Available: 190(vulkan) 117(cuda) 51(dxva2_vld) 171(d3d11)  -> Match Found by NAME! Selected: 171
+ERROR: get_hw_format called. Available: 190(vulkan) 117(cuda) 51(dxva2_vld) 227(d3d12) 44(vaapi) 0(yuv420p) 0(yuv420p) 0(yuv420p)  -> No Match for D3D11
+ERROR: Error sending packet: Invalid data found when processing input
+# get_hw_format called. Available: 190(vulkan) 117(cuda) 51(dxva2_vld) 116(d3d11va_vld)  -> Match Found by NAME! Selected: 116
+# get_hw_format called. Available: 190(vulkan) 117(cuda) 51(dxva2_vld) 171(d3d11)  -> Match Found by NAME! Selected: 171
+ERROR: get_hw_format called. Available: 190(vulkan) 117(cuda) 51(dxva2_vld) 227(d3d12) 44(vaapi) 0(yuv420p) 0(yuv420p) 0(yuv420p)  -> No Match for D3D11
+ERROR: Error sending packet: Invalid data found when processing input
+# get_hw_format called. Available: 190(vulkan) 117(cuda) 51(dxva2_vld) 116(d3d11va_vld)  -> Match Found by NAME! Selected: 116
+# get_hw_format called. Available: 190(vulkan) 117(cuda) 51(dxva2_vld) 171(d3d11)  -> Match Found by NAME! Selected: 171

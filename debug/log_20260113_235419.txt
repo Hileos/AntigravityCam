@@ -1,0 +1,241 @@
+Frame,Time,R,G,B
+# Decoder Configured for SOFTWARE
+# NAL: SPS (7) found
+#  [Keyframe/Header Found! Syncing Stream...] 
+# NAL: PPS (8) found
+# [FFMPEG] nal_unit_type: 6(SEI), nal_ref_idc: 0
+# [FFMPEG] no frame!
+ERROR: Error sending packet: Invalid data found when processing input
+# NAL: IDR (5) found
+# Re-initializing Decoder with SPS/PPS Extradata...
+# Decoder configured with Extradata (SPS+PPS)
+# Decoder Configured for SOFTWARE
+# [FFMPEG] nal_unit_type: 7(SPS), nal_ref_idc: 1
+# [FFMPEG] nal_unit_type: 8(PPS), nal_ref_idc: 1
+# [FFMPEG] nal_unit_type: 7(SPS), nal_ref_idc: 1
+# [FFMPEG] nal_unit_type: 8(PPS), nal_ref_idc: 1
+# [FFMPEG] nal_unit_type: 5(IDR), nal_ref_idc: 1
+# [FFMPEG] Format yuv420p chosen by get_format().
+# [FFMPEG] Reinit context to 1280x720, pix_fmt: yuv420p
+1,254,0,0
+# [FFMPEG] nal_unit_type: 1(Coded slice of a non-IDR picture), nal_ref_idc: 1
+# [FFMPEG] nal_unit_type: 1(Coded slice of a non-IDR picture), nal_ref_idc: 1
+3,0,254,0
+# [FFMPEG] nal_unit_type: 1(Coded slice of a non-IDR picture), nal_ref_idc: 1
+# [FFMPEG] nal_unit_type: 1(Coded slice of a non-IDR picture), nal_ref_idc: 1
+# [FFMPEG] nal_unit_type: 1(Coded slice of a non-IDR picture), nal_ref_idc: 1
+# [FFMPEG] nal_unit_type: 1(Coded slice of a non-IDR picture), nal_ref_idc: 1
+# [FFMPEG] nal_unit_type: 1(Coded slice of a non-IDR picture), nal_ref_idc: 1
+# [FFMPEG] nal_unit_type: 1(Coded slice of a non-IDR picture), nal_ref_idc: 1
+# [FFMPEG] nal_unit_type: 1(Coded slice of a non-IDR picture), nal_ref_idc: 1
+# [FFMPEG] nal_unit_type: 1(Coded slice of a non-IDR picture), nal_ref_idc: 1
+# [FFMPEG] nal_unit_type: 1(Coded slice of a non-IDR picture), nal_ref_idc: 1
+# [FFMPEG] nal_unit_type: 1(Coded slice of a non-IDR picture), nal_ref_idc: 1
+# [FFMPEG] nal_unit_type: 1(Coded slice of a non-IDR picture), nal_ref_idc: 1
+# [FFMPEG] nal_unit_type: 1(Coded slice of a non-IDR picture), nal_ref_idc: 1
+# [FFMPEG] nal_unit_type: 1(Coded slice of a non-IDR picture), nal_ref_idc: 1
+# [FFMPEG] nal_unit_type: 1(Coded slice of a non-IDR picture), nal_ref_idc: 1
+# [FFMPEG] nal_unit_type: 1(Coded slice of a non-IDR picture), nal_ref_idc: 1
+# [FFMPEG] nal_unit_type: 1(Coded slice of a non-IDR picture), nal_ref_idc: 1
+# [FFMPEG] nal_unit_type: 1(Coded slice of a non-IDR picture), nal_ref_idc: 1
+# [FFMPEG] nal_unit_type: 1(Coded slice of a non-IDR picture), nal_ref_idc: 1
+# [FFMPEG] nal_unit_type: 1(Coded slice of a non-IDR picture), nal_ref_idc: 1
+# [FFMPEG] nal_unit_type: 1(Coded slice of a non-IDR picture), nal_ref_idc: 1
+# [FFMPEG] nal_unit_type: 1(Coded slice of a non-IDR picture), nal_ref_idc: 1
+# [FFMPEG] nal_unit_type: 1(Coded slice of a non-IDR picture), nal_ref_idc: 1
+# [FFMPEG] nal_unit_type: 1(Coded slice of a non-IDR picture), nal_ref_idc: 1
+# [FFMPEG] nal_unit_type: 1(Coded slice of a non-IDR picture), nal_ref_idc: 1
+# [FFMPEG] nal_unit_type: 1(Coded slice of a non-IDR picture), nal_ref_idc: 1
+# [FFMPEG] nal_unit_type: 1(Coded slice of a non-IDR picture), nal_ref_idc: 1
+# [FFMPEG] nal_unit_type: 1(Coded slice of a non-IDR picture), nal_ref_idc: 1
+30,0,254,0
+# NAL: SPS (7) found
+# NAL: PPS (8) found
+# [FFMPEG] nal_unit_type: 6(SEI), nal_ref_idc: 0
+# [FFMPEG] no frame!
+# NAL: IDR (5) found
+# [FFMPEG] nal_unit_type: 7(SPS), nal_ref_idc: 1
+# [FFMPEG] nal_unit_type: 8(PPS), nal_ref_idc: 1
+# [FFMPEG] nal_unit_type: 5(IDR), nal_ref_idc: 1
+# [FFMPEG] nal_unit_type: 1(Coded slice of a non-IDR picture), nal_ref_idc: 1
+# [FFMPEG] nal_unit_type: 1(Coded slice of a non-IDR picture), nal_ref_idc: 1
+33,0,0,251
+# [FFMPEG] nal_unit_type: 1(Coded slice of a non-IDR picture), nal_ref_idc: 1
+# [FFMPEG] nal_unit_type: 1(Coded slice of a non-IDR picture), nal_ref_idc: 1
+# [FFMPEG] nal_unit_type: 1(Coded slice of a non-IDR picture), nal_ref_idc: 1
+# [FFMPEG] nal_unit_type: 1(Coded slice of a non-IDR picture), nal_ref_idc: 1
+# [FFMPEG] nal_unit_type: 1(Coded slice of a non-IDR picture), nal_ref_idc: 1
+# [FFMPEG] nal_unit_type: 1(Coded slice of a non-IDR picture), nal_ref_idc: 1
+# [FFMPEG] nal_unit_type: 1(Coded slice of a non-IDR picture), nal_ref_idc: 1
+# [FFMPEG] nal_unit_type: 1(Coded slice of a non-IDR picture), nal_ref_idc: 1
+# [FFMPEG] nal_unit_type: 1(Coded slice of a non-IDR picture), nal_ref_idc: 1
+# [FFMPEG] nal_unit_type: 1(Coded slice of a non-IDR picture), nal_ref_idc: 1
+# [FFMPEG] nal_unit_type: 1(Coded slice of a non-IDR picture), nal_ref_idc: 1
+# [FFMPEG] nal_unit_type: 1(Coded slice of a non-IDR picture), nal_ref_idc: 1
+# [FFMPEG] nal_unit_type: 1(Coded slice of a non-IDR picture), nal_ref_idc: 1
+# NAL: SPS (7) found
+# NAL: PPS (8) found
+# [FFMPEG] nal_unit_type: 6(SEI), nal_ref_idc: 0
+# [FFMPEG] no frame!
+# NAL: IDR (5) found
+# [FFMPEG] nal_unit_type: 7(SPS), nal_ref_idc: 1
+# [FFMPEG] nal_unit_type: 8(PPS), nal_ref_idc: 1
+# [FFMPEG] nal_unit_type: 5(IDR), nal_ref_idc: 1
+# [FFMPEG] nal_unit_type: 1(Coded slice of a non-IDR picture), nal_ref_idc: 1
+# [FFMPEG] nal_unit_type: 1(Coded slice of a non-IDR picture), nal_ref_idc: 1
+# [FFMPEG] nal_unit_type: 1(Coded slice of a non-IDR picture), nal_ref_idc: 1
+# [FFMPEG] nal_unit_type: 1(Coded slice of a non-IDR picture), nal_ref_idc: 1
+# [FFMPEG] nal_unit_type: 1(Coded slice of a non-IDR picture), nal_ref_idc: 1
+# [FFMPEG] nal_unit_type: 1(Coded slice of a non-IDR picture), nal_ref_idc: 1
+# [FFMPEG] nal_unit_type: 1(Coded slice of a non-IDR picture), nal_ref_idc: 1
+# [FFMPEG] nal_unit_type: 1(Coded slice of a non-IDR picture), nal_ref_idc: 1
+# [FFMPEG] nal_unit_type: 1(Coded slice of a non-IDR picture), nal_ref_idc: 1
+# [FFMPEG] nal_unit_type: 1(Coded slice of a non-IDR picture), nal_ref_idc: 1
+# [FFMPEG] nal_unit_type: 1(Coded slice of a non-IDR picture), nal_ref_idc: 1
+# [FFMPEG] nal_unit_type: 1(Coded slice of a non-IDR picture), nal_ref_idc: 1
+# [FFMPEG] nal_unit_type: 1(Coded slice of a non-IDR picture), nal_ref_idc: 1
+60,5,0,252
+# [FFMPEG] nal_unit_type: 1(Coded slice of a non-IDR picture), nal_ref_idc: 1
+# [FFMPEG] nal_unit_type: 1(Coded slice of a non-IDR picture), nal_ref_idc: 1
+# [FFMPEG] nal_unit_type: 1(Coded slice of a non-IDR picture), nal_ref_idc: 1
+63,255,7,4
+# [FFMPEG] nal_unit_type: 1(Coded slice of a non-IDR picture), nal_ref_idc: 1
+# [FFMPEG] nal_unit_type: 1(Coded slice of a non-IDR picture), nal_ref_idc: 1
+# [FFMPEG] nal_unit_type: 1(Coded slice of a non-IDR picture), nal_ref_idc: 1
+# [FFMPEG] nal_unit_type: 1(Coded slice of a non-IDR picture), nal_ref_idc: 1
+# [FFMPEG] nal_unit_type: 1(Coded slice of a non-IDR picture), nal_ref_idc: 1
+# [FFMPEG] nal_unit_type: 1(Coded slice of a non-IDR picture), nal_ref_idc: 1
+# [FFMPEG] nal_unit_type: 1(Coded slice of a non-IDR picture), nal_ref_idc: 1
+# [FFMPEG] nal_unit_type: 1(Coded slice of a non-IDR picture), nal_ref_idc: 1
+# [FFMPEG] nal_unit_type: 1(Coded slice of a non-IDR picture), nal_ref_idc: 1
+# [FFMPEG] nal_unit_type: 1(Coded slice of a non-IDR picture), nal_ref_idc: 1
+# [FFMPEG] nal_unit_type: 1(Coded slice of a non-IDR picture), nal_ref_idc: 1
+# [FFMPEG] nal_unit_type: 1(Coded slice of a non-IDR picture), nal_ref_idc: 1
+# [FFMPEG] nal_unit_type: 1(Coded slice of a non-IDR picture), nal_ref_idc: 1
+# NAL: SPS (7) found
+# NAL: PPS (8) found
+# [FFMPEG] nal_unit_type: 6(SEI), nal_ref_idc: 0
+# [FFMPEG] no frame!
+# NAL: IDR (5) found
+# [FFMPEG] nal_unit_type: 7(SPS), nal_ref_idc: 1
+# [FFMPEG] nal_unit_type: 8(PPS), nal_ref_idc: 1
+# [FFMPEG] nal_unit_type: 5(IDR), nal_ref_idc: 1
+# [FFMPEG] nal_unit_type: 1(Coded slice of a non-IDR picture), nal_ref_idc: 1
+# [FFMPEG] nal_unit_type: 1(Coded slice of a non-IDR picture), nal_ref_idc: 1
+# [FFMPEG] nal_unit_type: 1(Coded slice of a non-IDR picture), nal_ref_idc: 1
+# [FFMPEG] nal_unit_type: 1(Coded slice of a non-IDR picture), nal_ref_idc: 1
+# [FFMPEG] nal_unit_type: 1(Coded slice of a non-IDR picture), nal_ref_idc: 1
+# [FFMPEG] nal_unit_type: 1(Coded slice of a non-IDR picture), nal_ref_idc: 1
+# [FFMPEG] nal_unit_type: 1(Coded slice of a non-IDR picture), nal_ref_idc: 1
+# [FFMPEG] nal_unit_type: 1(Coded slice of a non-IDR picture), nal_ref_idc: 1
+# [FFMPEG] nal_unit_type: 1(Coded slice of a non-IDR picture), nal_ref_idc: 1
+# [FFMPEG] nal_unit_type: 1(Coded slice of a non-IDR picture), nal_ref_idc: 1
+# [FFMPEG] nal_unit_type: 1(Coded slice of a non-IDR picture), nal_ref_idc: 1
+# [FFMPEG] nal_unit_type: 1(Coded slice of a non-IDR picture), nal_ref_idc: 1
+# [FFMPEG] nal_unit_type: 1(Coded slice of a non-IDR picture), nal_ref_idc: 1
+90,253,1,7
+# [FFMPEG] nal_unit_type: 1(Coded slice of a non-IDR picture), nal_ref_idc: 1
+# [FFMPEG] nal_unit_type: 1(Coded slice of a non-IDR picture), nal_ref_idc: 1
+# [FFMPEG] nal_unit_type: 1(Coded slice of a non-IDR picture), nal_ref_idc: 1
+93,0,249,3
+# [FFMPEG] nal_unit_type: 1(Coded slice of a non-IDR picture), nal_ref_idc: 1
+# [FFMPEG] nal_unit_type: 1(Coded slice of a non-IDR picture), nal_ref_idc: 1
+# [FFMPEG] nal_unit_type: 1(Coded slice of a non-IDR picture), nal_ref_idc: 1
+# [FFMPEG] nal_unit_type: 1(Coded slice of a non-IDR picture), nal_ref_idc: 1
+# [FFMPEG] nal_unit_type: 1(Coded slice of a non-IDR picture), nal_ref_idc: 1
+# [FFMPEG] nal_unit_type: 1(Coded slice of a non-IDR picture), nal_ref_idc: 1
+# [FFMPEG] nal_unit_type: 1(Coded slice of a non-IDR picture), nal_ref_idc: 1
+# [FFMPEG] nal_unit_type: 1(Coded slice of a non-IDR picture), nal_ref_idc: 1
+# [FFMPEG] nal_unit_type: 1(Coded slice of a non-IDR picture), nal_ref_idc: 1
+# [FFMPEG] nal_unit_type: 1(Coded slice of a non-IDR picture), nal_ref_idc: 1
+# [FFMPEG] nal_unit_type: 1(Coded slice of a non-IDR picture), nal_ref_idc: 1
+# [FFMPEG] nal_unit_type: 1(Coded slice of a non-IDR picture), nal_ref_idc: 1
+# [FFMPEG] nal_unit_type: 1(Coded slice of a non-IDR picture), nal_ref_idc: 1
+# NAL: SPS (7) found
+# NAL: PPS (8) found
+# [FFMPEG] nal_unit_type: 6(SEI), nal_ref_idc: 0
+# [FFMPEG] no frame!
+# NAL: IDR (5) found
+# [FFMPEG] nal_unit_type: 7(SPS), nal_ref_idc: 1
+# [FFMPEG] nal_unit_type: 8(PPS), nal_ref_idc: 1
+# [FFMPEG] nal_unit_type: 5(IDR), nal_ref_idc: 1
+# [FFMPEG] nal_unit_type: 1(Coded slice of a non-IDR picture), nal_ref_idc: 1
+# [FFMPEG] nal_unit_type: 1(Coded slice of a non-IDR picture), nal_ref_idc: 1
+# [FFMPEG] nal_unit_type: 1(Coded slice of a non-IDR picture), nal_ref_idc: 1
+# [FFMPEG] nal_unit_type: 1(Coded slice of a non-IDR picture), nal_ref_idc: 1
+# [FFMPEG] nal_unit_type: 1(Coded slice of a non-IDR picture), nal_ref_idc: 1
+# [FFMPEG] nal_unit_type: 1(Coded slice of a non-IDR picture), nal_ref_idc: 1
+# [FFMPEG] nal_unit_type: 1(Coded slice of a non-IDR picture), nal_ref_idc: 1
+# [FFMPEG] nal_unit_type: 1(Coded slice of a non-IDR picture), nal_ref_idc: 1
+# [FFMPEG] nal_unit_type: 1(Coded slice of a non-IDR picture), nal_ref_idc: 1
+# [FFMPEG] nal_unit_type: 1(Coded slice of a non-IDR picture), nal_ref_idc: 1
+# [FFMPEG] nal_unit_type: 1(Coded slice of a non-IDR picture), nal_ref_idc: 1
+# [FFMPEG] nal_unit_type: 1(Coded slice of a non-IDR picture), nal_ref_idc: 1
+# [FFMPEG] nal_unit_type: 1(Coded slice of a non-IDR picture), nal_ref_idc: 1
+120,0,253,3
+# [FFMPEG] nal_unit_type: 1(Coded slice of a non-IDR picture), nal_ref_idc: 1
+# [FFMPEG] nal_unit_type: 1(Coded slice of a non-IDR picture), nal_ref_idc: 1
+# [FFMPEG] nal_unit_type: 1(Coded slice of a non-IDR picture), nal_ref_idc: 1
+123,4,0,253
+# [FFMPEG] nal_unit_type: 1(Coded slice of a non-IDR picture), nal_ref_idc: 1
+# [FFMPEG] nal_unit_type: 1(Coded slice of a non-IDR picture), nal_ref_idc: 1
+# [FFMPEG] nal_unit_type: 1(Coded slice of a non-IDR picture), nal_ref_idc: 1
+# [FFMPEG] nal_unit_type: 1(Coded slice of a non-IDR picture), nal_ref_idc: 1
+# [FFMPEG] nal_unit_type: 1(Coded slice of a non-IDR picture), nal_ref_idc: 1
+# [FFMPEG] nal_unit_type: 1(Coded slice of a non-IDR picture), nal_ref_idc: 1
+# [FFMPEG] nal_unit_type: 1(Coded slice of a non-IDR picture), nal_ref_idc: 1
+# [FFMPEG] nal_unit_type: 1(Coded slice of a non-IDR picture), nal_ref_idc: 1
+# [FFMPEG] nal_unit_type: 1(Coded slice of a non-IDR picture), nal_ref_idc: 1
+# [FFMPEG] nal_unit_type: 1(Coded slice of a non-IDR picture), nal_ref_idc: 1
+# [FFMPEG] nal_unit_type: 1(Coded slice of a non-IDR picture), nal_ref_idc: 1
+# [FFMPEG] nal_unit_type: 1(Coded slice of a non-IDR picture), nal_ref_idc: 1
+# [FFMPEG] nal_unit_type: 1(Coded slice of a non-IDR picture), nal_ref_idc: 1
+# NAL: SPS (7) found
+# NAL: PPS (8) found
+# [FFMPEG] nal_unit_type: 6(SEI), nal_ref_idc: 0
+# [FFMPEG] no frame!
+# NAL: IDR (5) found
+# [FFMPEG] nal_unit_type: 7(SPS), nal_ref_idc: 1
+# [FFMPEG] nal_unit_type: 8(PPS), nal_ref_idc: 1
+# [FFMPEG] nal_unit_type: 5(IDR), nal_ref_idc: 1
+# [FFMPEG] nal_unit_type: 1(Coded slice of a non-IDR picture), nal_ref_idc: 1
+# [FFMPEG] nal_unit_type: 1(Coded slice of a non-IDR picture), nal_ref_idc: 1
+# [FFMPEG] nal_unit_type: 1(Coded slice of a non-IDR picture), nal_ref_idc: 1
+# [FFMPEG] nal_unit_type: 1(Coded slice of a non-IDR picture), nal_ref_idc: 1
+# [FFMPEG] nal_unit_type: 1(Coded slice of a non-IDR picture), nal_ref_idc: 1
+# [FFMPEG] nal_unit_type: 1(Coded slice of a non-IDR picture), nal_ref_idc: 1
+# [FFMPEG] nal_unit_type: 1(Coded slice of a non-IDR picture), nal_ref_idc: 1
+# [FFMPEG] nal_unit_type: 1(Coded slice of a non-IDR picture), nal_ref_idc: 1
+# [FFMPEG] nal_unit_type: 1(Coded slice of a non-IDR picture), nal_ref_idc: 1
+# [FFMPEG] nal_unit_type: 1(Coded slice of a non-IDR picture), nal_ref_idc: 1
+# [FFMPEG] nal_unit_type: 1(Coded slice of a non-IDR picture), nal_ref_idc: 1
+# [FFMPEG] nal_unit_type: 1(Coded slice of a non-IDR picture), nal_ref_idc: 1
+# [FFMPEG] nal_unit_type: 1(Coded slice of a non-IDR picture), nal_ref_idc: 1
+150,1,0,254
+# [FFMPEG] nal_unit_type: 1(Coded slice of a non-IDR picture), nal_ref_idc: 1
+# [FFMPEG] nal_unit_type: 1(Coded slice of a non-IDR picture), nal_ref_idc: 1
+# [FFMPEG] nal_unit_type: 1(Coded slice of a non-IDR picture), nal_ref_idc: 1
+153,253,2,5
+# [FFMPEG] nal_unit_type: 1(Coded slice of a non-IDR picture), nal_ref_idc: 1
+# [FFMPEG] nal_unit_type: 1(Coded slice of a non-IDR picture), nal_ref_idc: 1
+# [FFMPEG] nal_unit_type: 1(Coded slice of a non-IDR picture), nal_ref_idc: 1
+# [FFMPEG] nal_unit_type: 1(Coded slice of a non-IDR picture), nal_ref_idc: 1
+# [FFMPEG] nal_unit_type: 1(Coded slice of a non-IDR picture), nal_ref_idc: 1
+# [FFMPEG] nal_unit_type: 1(Coded slice of a non-IDR picture), nal_ref_idc: 1
+# [FFMPEG] nal_unit_type: 1(Coded slice of a non-IDR picture), nal_ref_idc: 1
+# [FFMPEG] nal_unit_type: 1(Coded slice of a non-IDR picture), nal_ref_idc: 1
+# [FFMPEG] nal_unit_type: 1(Coded slice of a non-IDR picture), nal_ref_idc: 1
+# [FFMPEG] nal_unit_type: 1(Coded slice of a non-IDR picture), nal_ref_idc: 1
+# [FFMPEG] nal_unit_type: 1(Coded slice of a non-IDR picture), nal_ref_idc: 1
+# [FFMPEG] nal_unit_type: 1(Coded slice of a non-IDR picture), nal_ref_idc: 1
+# [FFMPEG] nal_unit_type: 1(Coded slice of a non-IDR picture), nal_ref_idc: 1
+# NAL: SPS (7) found
+# NAL: PPS (8) found
+# [FFMPEG] nal_unit_type: 6(SEI), nal_ref_idc: 0
+# [FFMPEG] no frame!
+# NAL: IDR (5) found
+# [FFMPEG] nal_unit_type: 7(SPS), nal_ref_idc: 1
+# [FFMPEG] nal_unit_type: 8(PPS), nal_ref_idc: 1
+# [FFMPEG] nal_unit_type: 5(IDR), nal_ref_idc: 1
+# [FFMPEG] nal_unit_type: 1(Coded slice of a non-IDR picture), nal_ref_idc: 1
+# [FFMPEG] nal_unit_type: 1(Coded slice of a non-IDR picture), nal_ref_idc: 1

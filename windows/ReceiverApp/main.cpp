@@ -549,41 +549,67 @@ void receiver_thread_func() {
   closesocket(ListenSocket);
 }
 
-// UDP Beacon Listener
+// Active Discovery Thread: Broadcasts PING, Listens for PONG
 void beacon_listener_thread_func() {
   SOCKET udpSock = socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP);
   if (udpSock == INVALID_SOCKET) {
-    std::cerr << "UDP socket creation failed\n";
+    log_msg("[Discovery] Error: Socket creation failed\n");
     return;
   }
 
-  // Allow reuse address
-  BOOL opt = TRUE;
-  setsockopt(udpSock, SOL_SOCKET, SO_REUSEADDR, (const char *)&opt,
-             sizeof(opt));
-
-  sockaddr_in local;
-  local.sin_family = AF_INET;
-  local.sin_addr.s_addr = INADDR_ANY;
-  local.sin_port = htons(5001);
-
-  if (bind(udpSock, (SOCKADDR *)&local, sizeof(local)) == SOCKET_ERROR) {
-    std::cerr << "UDP bind failed\n";
+  // 1. Enable Broadcast
+  BOOL broadcast = TRUE;
+  if (setsockopt(udpSock, SOL_SOCKET, SO_BROADCAST, (char *)&broadcast,
+                 sizeof(broadcast)) < 0) {
+    log_msg("[Discovery] Error: Could not enable broadcast.\n");
     closesocket(udpSock);
     return;
   }
 
-  // Set timeout for select/recv
-  DWORD timeout = 1000;
+  // 2. Bind to 5001
+  sockaddr_in local;
+  local.sin_family = AF_INET;
+  local.sin_addr.s_addr = INADDR_ANY;
+  local.sin_port = htons(5001);
+  bind(udpSock, (SOCKADDR *)&local, sizeof(local));
+
+  // 3. Set Timeout
+  DWORD timeout = 200;
   setsockopt(udpSock, SOL_SOCKET, SO_RCVTIMEO, (const char *)&timeout,
              sizeof(timeout));
 
-  std::cout << "Beacon listener started on port 5001\n";
+  // 4. Setup Broadcast Destination
+  sockaddr_in broadcastAddr;
+  broadcastAddr.sin_family = AF_INET;
+  broadcastAddr.sin_port = htons(5001);
+  broadcastAddr.sin_addr.s_addr = INADDR_BROADCAST;
+
+  log_msg(
+      "[Discovery] Starting Active Discovery (Broadcasting PING on 5001)...\n");
+  std::cout << "Device Not Found\n";
 
   auto lastBeaconTime = std::chrono::steady_clock::now();
+  auto lastPingTime = std::chrono::steady_clock::now();
   bool deviceAvailable = false;
 
+  enum DiscoveryState { STATE_WAITING, STATE_AVAILABLE, STATE_CONNECTED };
+  DiscoveryState lastConsoleState = STATE_WAITING;
+
+  const char PING_PACKET[] = {0x41, 0x47, 0x43, 0x4D, 0x01, 1};
+
   while (isRunning) {
+    auto now = std::chrono::steady_clock::now();
+
+    long long elapsedPing =
+        std::chrono::duration_cast<std::chrono::milliseconds>(now -
+                                                              lastPingTime)
+            .count();
+    if (elapsedPing >= 1000) {
+      sendto(udpSock, PING_PACKET, sizeof(PING_PACKET), 0,
+             (sockaddr *)&broadcastAddr, sizeof(broadcastAddr));
+      lastPingTime = now;
+    }
+
     char buf[1024];
     sockaddr_in sender;
     int senderLen = sizeof(sender);
@@ -591,42 +617,51 @@ void beacon_listener_thread_func() {
     int len =
         recvfrom(udpSock, buf, sizeof(buf), 0, (sockaddr *)&sender, &senderLen);
 
-    auto now = std::chrono::steady_clock::now();
+    if (len > 0) {
+      if (len >= 39 && buf[0] == 0x41 && buf[1] == 0x47 && buf[2] == 0x43 &&
+          buf[3] == 0x4D && buf[4] == 0x02) {
 
-    if (len >= 38 && !isConnected) {
-      // Parse Protocol: Magic(4) + Version(1) + State(1) + Name(32)
-      // Magic: AGCM (0x41 0x47 0x43 0x4D)
-      if (buf[0] == 0x41 && buf[1] == 0x47 && buf[2] == 0x43 &&
-          buf[3] == 0x4D) {
-
-        uint8_t version = buf[4];
-        uint8_t state = buf[5]; // 0=Available, 1=Streaming
         char name[33] = {0};
-        memcpy(name, &buf[6], 32);
+        memcpy(name, &buf[7], 32);
 
-        if (state == 0) {
-          lastBeaconTime = now;
-          deviceAvailable = true;
+        lastBeaconTime = now;
+        deviceAvailable = true;
 
-          if (hWindow) {
-            std::string title = "AntigravityCam Receiver - Device Available: " +
-                                std::string(name);
-            SetWindowTextA(hWindow, title.c_str());
+        // UI Update Logic (Console Only, No Window Title)
+        if (!isConnected) {
+          if (lastConsoleState != STATE_AVAILABLE) {
+            std::cout << "Device Found: " << name << "\n";
+            log_msg("[Discovery] Device Found: " + std::string(name) + "\n");
+            lastConsoleState = STATE_AVAILABLE;
+          }
+        } else {
+          if (lastConsoleState != STATE_CONNECTED) {
+            lastConsoleState = STATE_CONNECTED;
           }
         }
       }
     }
 
-    // Check for timeout if not connected
-    if (!isConnected && deviceAvailable) {
-      auto elapsed =
+    if (deviceAvailable) {
+      long long elapsed =
           std::chrono::duration_cast<std::chrono::seconds>(now - lastBeaconTime)
               .count();
-      if (elapsed > 10) {
+      if (elapsed > 3) {
         deviceAvailable = false;
-        if (hWindow) {
-          SetWindowTextA(hWindow, "AntigravityCam Receiver - Waiting...");
+
+        if (lastConsoleState != STATE_WAITING) {
+          if (!isConnected) {
+            std::cout << "Device Not Found\n";
+            log_msg("[Discovery] Device Lost (Timeout)\n");
+          }
+          lastConsoleState = STATE_WAITING;
         }
+      }
+    } else {
+      if (!deviceAvailable && !isConnected &&
+          lastConsoleState != STATE_WAITING) {
+        std::cout << "Device Not Found\n";
+        lastConsoleState = STATE_WAITING;
       }
     }
   }

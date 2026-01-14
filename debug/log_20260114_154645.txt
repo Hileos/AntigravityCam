@@ -1,0 +1,90 @@
+Frame,Time,R,G,B
+# Using H.264 software decoder
+# Decoder Configured for SOFTWARE decoding
+# [Discovery] Listening for iOS devices on port 5001...
+# NAL: SPS (7) found
+#  [Keyframe/Header Found! Syncing Stream...] 
+# NAL: PPS (8) found
+# [FFMPEG] no frame!
+# NAL: IDR (5) found
+# Re-initializing Decoder with SPS/PPS Extradata...
+# Decoder configured with Extradata (SPS+PPS)
+# Decoder Configured for SOFTWARE decoding
+# NAL: SPS (7) found
+# NAL: PPS (8) found
+# [FFMPEG] no frame!
+1,254,0,0
+# NAL: IDR (5) found
+ERROR: Error sending packet: Invalid data found when processing input
+30,254,0,0
+# NAL: SPS (7) found
+# NAL: PPS (8) found
+# [FFMPEG] no frame!
+31,0,253,0
+# NAL: IDR (5) found
+60,0,254,2
+# NAL: SPS (7) found
+# NAL: PPS (8) found
+# [FFMPEG] no frame!
+61,1,0,255
+# NAL: IDR (5) found
+90,0,0,254
+# NAL: SPS (7) found
+# NAL: PPS (8) found
+# [FFMPEG] no frame!
+91,255,0,1
+# NAL: IDR (5) found
+120,254,0,0
+# NAL: SPS (7) found
+# NAL: PPS (8) found
+# [FFMPEG] no frame!
+121,0,253,0
+# NAL: IDR (5) found
+150,0,254,2
+# NAL: SPS (7) found
+# NAL: PPS (8) found
+# [FFMPEG] no frame!
+151,0,0,254
+# NAL: IDR (5) found
+180,1,0,254
+# NAL: SPS (7) found
+# NAL: PPS (8) found
+# [FFMPEG] no frame!
+181,254,0,0
+# NAL: IDR (5) found
+210,254,0,0
+# NAL: SPS (7) found
+# NAL: PPS (8) found
+# [FFMPEG] no frame!
+211,0,254,0
+# NAL: IDR (5) found
+240,0,254,2
+# NAL: SPS (7) found
+# NAL: PPS (8) found
+# [FFMPEG] no frame!
+241,0,0,254
+# NAL: IDR (5) found
+270,0,0,254
+# NAL: SPS (7) found
+# NAL: PPS (8) found
+# [FFMPEG] no frame!
+271,254,0,0
+# NAL: IDR (5) found
+300,254,0,0
+# NAL: SPS (7) found
+# NAL: PPS (8) found
+# [FFMPEG] no frame!
+301,0,254,0
+# NAL: IDR (5) found
+330,0,254,0
+# NAL: SPS (7) found
+# NAL: PPS (8) found
+# [FFMPEG] no frame!
+331,0,0,254
+# NAL: IDR (5) found
+360,0,0,254
+# NAL: SPS (7) found
+# NAL: PPS (8) found
+# [FFMPEG] no frame!
+361,254,0,0
+# NAL: IDR (5) found

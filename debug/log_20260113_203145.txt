@@ -1,0 +1,39 @@
+Frame,Time,R,G,B
+# D3D11 Device Created.
+# Decoder Configured for SOFTWARE
+# NAL: PPS (8) found
+#  [Keyframe/Header Found! Syncing Stream...] 
+ERROR: Error sending packet: Invalid data found when processing input
+# NAL: IDR (5) found
+# NAL: PPS (8) found
+# NAL: IDR (5) found
+# NAL: PPS (8) found
+# NAL: IDR (5) found
+# NAL: SPS (7) found
+# NAL: PPS (8) found
+# NAL: IDR (5) found
+# Re-initializing Decoder with SPS/PPS Extradata...
+# Decoder configured with Extradata (SPS+PPS)
+# Decoder Configured for SOFTWARE
+1,254,0,0
+# NAL: SPS (7) found
+# NAL: PPS (8) found
+# NAL: IDR (5) found
+20,0,247,1
+30,1,253,0
+# NAL: SPS (7) found
+# NAL: PPS (8) found
+# NAL: IDR (5) found
+50,6,1,253
+# Decoder Configured for HARDWARE (D3D11)
+# Decoder configured with Extradata (SPS+PPS)
+# Decoder Configured for HARDWARE (D3D11)
+# NAL: SPS (7) found
+#  [Keyframe/Header Found! Syncing Stream...] 
+# NAL: PPS (8) found
+# NAL: IDR (5) found
+# get_hw_format called. Available: 190(vulkan) 117(cuda) 51(dxva2_vld) 116(d3d11va_vld)  -> Match Found by NAME! Selected: 116
+# NAL: SPS (7) found
+# NAL: PPS (8) found
+# NAL: IDR (5) found
+# get_hw_format called. Available: 190(vulkan) 117(cuda) 51(dxva2_vld) 171(d3d11)  -> Match Found by NAME! Selected: 171
