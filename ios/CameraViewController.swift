@@ -732,16 +732,6 @@ class TCPClient: NSObject, StreamDelegate {
     }
 }
 
-// MARK: - UDP Beacon Sender
-import Network
-
-class BeaconSender {
-    private let port: UInt16
-    private let deviceName: String
-    private var timer: Timer?
-    private var connection: NWConnection?
-    private var isStreaming = false
-    
 // MARK: - Active Discovery Listener
 class BeaconListener {
     var port: UInt16
