@@ -286,6 +286,14 @@ class CameraViewController: UIViewController {
                         self.log("✅ Logs Uploaded Successfully!")
                         // Close after send
                         connection.cancel()
+                        
+                        // Delete local file to free space
+                        do {
+                            try FileManager.default.removeItem(at: fileURL)
+                            self.log("Local log file cleared.")
+                        } catch {
+                            self.log("Failed to clear logs: \(error)")
+                        }
                     }
                 }))
             case .failed(let error):
