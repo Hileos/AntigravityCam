@@ -196,15 +196,15 @@ class CameraViewController: UIViewController {
         connectButton.frame = CGRect(x: 230, y: 100, width: 100, height: 40)
         connectButton.addTarget(self, action: #selector(connectTapped), for: .touchUpInside)
         view.addSubview(connectButton)
-        
-        // Debug TextView
-        debugTextView.frame = CGRect(x: 20, y: 150, width: view.bounds.width - 40, height: 200)
-        view.addSubview(debugTextView)
-        
-        // Send Logs Button
-        sendLogsButton.frame = CGRect(x: 340, y: 100, width: 80, height: 40) // Right side
+
+        // Send Logs Button (New Row)
+        sendLogsButton.frame = CGRect(x: 20, y: 150, width: 310, height: 40) // Full width roughly
         sendLogsButton.addTarget(self, action: #selector(sendLogsTapped), for: .touchUpInside)
         view.addSubview(sendLogsButton)
+        
+        // Debug TextView (Shifted down)
+        debugTextView.frame = CGRect(x: 20, y: 200, width: view.bounds.width - 40, height: view.bounds.height - 220)
+        view.addSubview(debugTextView)
         
         updateConnectionUI()
     }
