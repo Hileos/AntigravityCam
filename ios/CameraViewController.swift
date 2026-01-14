@@ -57,6 +57,7 @@ class CameraViewController: UIViewController {
     private var serverIP = "192.168.1.2" 
     private let serverPort: UInt32 = 5000
     private let beaconPort: UInt16 = 5001
+    private var currentFPS: Double = 30.0
     
     // UDP Beacon for device discovery
     private var beaconListener: BeaconListener?
@@ -112,6 +113,16 @@ class CameraViewController: UIViewController {
         btn.setTitleColor(.white, for: .normal)
         btn.layer.cornerRadius = 5
         btn.isHidden = false
+        return btn
+    }()
+
+    // FPS Toggle Button
+    private let fpsButton: UIButton = {
+        let btn = UIButton(type: .system)
+        btn.setTitle("30 FPS", for: .normal)
+        btn.backgroundColor = .systemGray
+        btn.setTitleColor(.white, for: .normal)
+        btn.layer.cornerRadius = 5
         return btn
     }()
     
@@ -198,9 +209,14 @@ class CameraViewController: UIViewController {
         view.addSubview(connectButton)
 
         // Send Logs Button (New Row)
-        sendLogsButton.frame = CGRect(x: 20, y: 150, width: 310, height: 40) // Full width roughly
+        sendLogsButton.frame = CGRect(x: 20, y: 150, width: 220, height: 40)
         sendLogsButton.addTarget(self, action: #selector(sendLogsTapped), for: .touchUpInside)
         view.addSubview(sendLogsButton)
+
+        // FPS Button
+        fpsButton.frame = CGRect(x: 250, y: 150, width: 80, height: 40)
+        fpsButton.addTarget(self, action: #selector(fpsTapped), for: .touchUpInside)
+        view.addSubview(fpsButton)
         
         // Debug TextView (Shifted down)
         debugTextView.frame = CGRect(x: 20, y: 200, width: view.bounds.width - 40, height: view.bounds.height - 220)
@@ -316,6 +332,59 @@ class CameraViewController: UIViewController {
             }
             
             connection.start(queue: DispatchQueue(label: "LogUpload"))
+        }
+    }
+
+    @objc private func fpsTapped() {
+        if currentFPS == 30.0 {
+            updateFrameRate(fps: 60.0)
+        } else {
+            updateFrameRate(fps: 30.0)
+        }
+    }
+
+    private func updateFrameRate(fps: Double) {
+        guard let device = AVCaptureDevice.default(.builtInWideAngleCamera, for: .video, position: .back) else { return }
+        
+        do {
+            try device.lockForConfiguration()
+            
+            // Find best format for desired FPS at 720p
+            let targetDimensions = CMVideoDimensions(width: 1280, height: 720)
+            var bestFormat: AVCaptureDevice.Format?
+            
+            for format in device.formats {
+                let dimensions = CMVideoFormatDescriptionGetDimensions(format.formatDescription)
+                if dimensions.width == targetDimensions.width && dimensions.height == targetDimensions.height {
+                    // Check if it supports the desired FPS
+                    for range in format.videoSupportedFrameRateRanges {
+                        if range.maxFrameRate >= fps && range.minFrameRate <= fps {
+                            bestFormat = format
+                            break
+                        }
+                    }
+                }
+                if bestFormat != nil { break }
+            }
+            
+            if let format = bestFormat {
+                device.activeFormat = format
+                device.activeVideoMinFrameDuration = CMTime(value: 1, timescale: Int32(fps))
+                device.activeVideoMaxFrameDuration = CMTime(value: 1, timescale: Int32(fps))
+                
+                currentFPS = fps
+                DispatchQueue.main.async {
+                    self.fpsButton.setTitle("\(Int(fps)) FPS", for: .normal)
+                    self.fpsButton.backgroundColor = fps == 60.0 ? .systemGreen : .systemGray
+                    self.log("Camera set to \(Int(fps)) FPS")
+                }
+            } else {
+                log("Requested FPS \(fps) not supported for current resolution")
+            }
+            
+            device.unlockForConfiguration()
+        } catch {
+            log("Failed to configure camera: \(error)")
         }
     }
     

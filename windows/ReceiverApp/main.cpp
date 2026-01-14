@@ -428,8 +428,10 @@ void decode_frame(SOCKET clientSocket, uint8_t *data, int size,
       int64_t remoteUnixUs = captureTimestampUs + APPLE_TO_UNIX_OFFSET_US;
 
       // Adjust for Clock Offset
+      // Offset = iPhone - Windows
+      // We want Windows Time, so Windows = iPhone - Offset
       double offsetUs = time_offset_ms.load() * 1000.0;
-      int64_t remoteUnixUsCorrected = remoteUnixUs + (int64_t)offsetUs;
+      int64_t remoteUnixUsCorrected = remoteUnixUs - (int64_t)offsetUs;
 
       auto now = std::chrono::system_clock::now();
       int64_t nowUs = std::chrono::duration_cast<std::chrono::microseconds>(
