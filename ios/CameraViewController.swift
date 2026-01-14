@@ -538,7 +538,7 @@ extension CameraViewController: AVCaptureVideoDataOutputSampleBufferDelegate {
 }
 
 extension CameraViewController: VideoEncoderDelegate {
-    func didEncode(nalData: Data, isKeyFrame: Bool) {
+    func didEncode(nalData: Data, isKeyFrame: Bool, captureTime: TimeInterval) {
         // 1. Recovery Logic: If we are in "Drop Mode", we ignore everything until we see a KeyFrame
         if isDroppingFrames {
             if isKeyFrame {
@@ -551,7 +551,7 @@ extension CameraViewController: VideoEncoderDelegate {
         }
     
         // 2. Try to Send
-        let sent = tcpClient?.send(data: nalData) ?? false
+        let sent = tcpClient?.send(data: nalData, captureTime: captureTime) ?? false
         
         // 3. Handle Send Failure
         if !sent {
@@ -569,7 +569,7 @@ extension CameraViewController: VideoEncoderDelegate {
 
 // MARK: - Video Encoder
 protocol VideoEncoderDelegate: AnyObject {
-    func didEncode(nalData: Data, isKeyFrame: Bool)
+    func didEncode(nalData: Data, isKeyFrame: Bool, captureTime: TimeInterval)
 }
 
 class VideoEncoder {
@@ -633,7 +633,7 @@ class VideoEncoder {
         }
     }
     
-    func sendSPSandPPS(from sampleBuffer: CMSampleBuffer) {
+    func sendSPSandPPS(from sampleBuffer: CMSampleBuffer, captureTime: TimeInterval) {
         guard let description = CMSampleBufferGetFormatDescription(sampleBuffer) else { return }
         
         var parameterSetCount = 0
@@ -647,12 +647,12 @@ class VideoEncoder {
             if let pointer = pointer {
                 let data = Data(bytes: pointer, count: size)
                 // SPS/PPS are considered KeyFrame data
-                delegate?.didEncode(nalData: data, isKeyFrame: true)
+                delegate?.didEncode(nalData: data, isKeyFrame: true, captureTime: captureTime)
             }
         }
     }
     
-    func sendNALUs(from sampleBuffer: CMSampleBuffer, isKeyFrame: Bool) {
+    func sendNALUs(from sampleBuffer: CMSampleBuffer, isKeyFrame: Bool, captureTime: TimeInterval) {
         guard let dataBuffer = CMSampleBufferGetDataBuffer(sampleBuffer) else { return }
         
         var length: Int = 0
@@ -668,7 +668,7 @@ class VideoEncoder {
             naluLength = CFSwapInt32BigToHost(naluLength)
             
             let data = Data(bytes: dataPointer! + bufferOffset + 4, count: Int(naluLength))
-            delegate?.didEncode(nalData: data, isKeyFrame: isKeyFrame)
+            delegate?.didEncode(nalData: data, isKeyFrame: isKeyFrame, captureTime: captureTime)
             
             bufferOffset += 4 + Int(naluLength)
         }
@@ -680,16 +680,16 @@ private func compressionCallback(outputCallbackRefCon: UnsafeMutableRawPointer?,
     guard let refCon = outputCallbackRefCon else { return }
     let encoder = Unmanaged<VideoEncoder>.fromOpaque(refCon).takeUnretainedValue()
     
+    var captureTime: TimeInterval = 0
+    
     // Verify sourceFrameRefCon exists
     if let sourceRefCon = sourceFrameRefCon {
         let startTime = sourceRefCon.assumingMemoryBound(to: CFAbsoluteTime.self).pointee
+        captureTime = startTime
+        
         let now = CFAbsoluteTimeGetCurrent()
         let latency = (now - startTime) * 1000.0
         
-        // Log if high latency (> 15ms) to filter noise, or every 30 frames
-        // For debugging now, let's log everything but throttle slightly if needed
-        // encoder.errorHandler?("[Encoder] Latency: \(String(format: "%.1f", latency))ms")
-        // Use a lightweight logging callback if possible, or print
         encoder.errorHandler?("[Encoder] Latency: \(String(format: "%.1f", latency))ms")
 
         sourceRefCon.deallocate()
@@ -713,10 +713,10 @@ private func compressionCallback(outputCallbackRefCon: UnsafeMutableRawPointer?,
     }
     
     if isKeyFrame {
-        encoder.sendSPSandPPS(from: sampleBuffer)
+        encoder.sendSPSandPPS(from: sampleBuffer, captureTime: captureTime)
     }
     
-    encoder.sendNALUs(from: sampleBuffer, isKeyFrame: isKeyFrame)
+    encoder.sendNALUs(from: sampleBuffer, isKeyFrame: isKeyFrame, captureTime: captureTime)
 }
 
 // MARK: - TCP Client with StreamDelegate
@@ -780,19 +780,35 @@ class TCPClient {
         pendingPackets = 0
     }
     
-    func send(data: Data) -> Bool {
+    func send(data: Data, captureTime: TimeInterval) -> Bool {
         guard let connection = connection, connection.state == .ready else { return false }
         
         // 1. Backpressure Check
-        // If we have too many packets in flight, drop this one to prevent lag accumulation
         if pendingPackets > maxPendingPackets {
              return false
         }
         
-        // 2. Coalesce Header + Body
-        let packetSize = UInt32(data.count)
-        var header = packetSize.bigEndian
+        // 2. Coalesce Header (Length + Timestamp) + Body
+        // Header Structure: [Length (4 bytes)][Timestamp (8 bytes)]
+        
+        let packetBodySize = UInt32(data.count + 8) // +8 for timestamp
+        var header = packetBodySize.bigEndian
         var packetData = Data(bytes: &header, count: 4)
+        
+        // Convert TimeInterval (Double) to UInt64 microseconds for transmission
+        // Using since 1970 to match Windows std::time if needed, but relative time is fine for delta
+        // Let's use CFAbsoluteTime (seconds since 2001) as base, convertible to system clock
+        // Actually, best to just send the bits of the Double or use a fixed point.
+        // Let's use microseconds (UInt64) relative to UNKNOWN epoch, just for delta measurement?
+        // No, we need wall-clock sync.
+        // Let's stick to simple: Send Double (8 bytes) directly, trusting endianness (ARM64/x64 both Little Endian)
+        // OR better: Send microsecond timestamp (UInt64) to be safe.
+        
+        // Using UInt64 microseconds
+        let timestampMicros = UInt64(captureTime * 1_000_000)
+        var tsBigEndian = timestampMicros.bigEndian
+        packetData.append(Data(bytes: &tsBigEndian, count: 8))
+        
         packetData.append(data)
         
         // 3. Send
@@ -907,16 +923,49 @@ class BeaconListener {
             return 
         }
         
-        if data[0] == 0x41 && data[1] == 0x47 && data[2] == 0x43 && data[3] == 0x4D &&
-           data[4] == 0x01 { // PING
-            
-            onLog?("PING Received (\(data.count)b) -> Responding")
-            sendPong(connection: connection) {
-                connection.cancel() // Close ONLY after send completes
+        if data[0] == 0x41 && data[1] == 0x47 && data[2] == 0x43 && data[3] == 0x4D {
+            if data[4] == 0x01 { // PING
+                onLog?("PING Received (\(data.count)b) -> Responding")
+                sendPong(connection: connection) {
+                    connection.cancel() // Close ONLY after send completes
+                }
+                return
+            } else if data[4] == 0x03 { // SYNC_REQUEST
+                handleSyncRequest(data, connection)
+                return
             }
-        } else {
-            connection.cancel() // Close if not PING
         }
+        
+        connection.cancel() // Close if not PING/SYNC
+    }
+    
+    private func handleSyncRequest(_ data: Data, connection: NWConnection) {
+         // T2: Receive Timestamp
+         let t2 = Int64(Date().timeIntervalSince1970 * 1_000_000)
+         
+         // Extract T1 (starts at index 5, 8 bytes)
+         guard data.count >= 13 else { connection.cancel(); return }
+         let t1Data = data.subdata(in: 5..<13)
+         
+         // Prepare Reply
+         // Format: Magic(4) + Type(1)=0x04 + T1(8) + T2(8) + T3(8)
+         var packet = Data(magic)
+         packet.append(0x04) // SYNC_REPLY
+         packet.append(t1Data) // Echo T1
+         
+         // T2
+         withUnsafeBytes(of: t2) { packet.append(contentsOf: $0) }
+         
+         // T3: Send Timestamp
+         let t3 = Int64(Date().timeIntervalSince1970 * 1_000_000)
+         withUnsafeBytes(of: t3) { packet.append(contentsOf: $0) }
+         
+         connection.send(content: packet, completion: .contentProcessed({ [weak self] error in
+             if let error = error {
+                 self?.onLog?("Failed to send SYNC_REPLY: \(error)")
+             }
+             connection.cancel()
+         }))
     }
     
     private func sendPong(connection: NWConnection, completion: @escaping () -> Void) {

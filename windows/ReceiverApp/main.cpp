@@ -234,13 +234,18 @@ void init_shared_memory() {
 std::atomic<bool> hasSeenKeyframe(false);
 bool isDecoderConfiguredWithHeaders = false;
 
+// Clock Synchronization
+std::atomic<double> time_offset_ms{0.0};
+std::atomic<bool> is_clock_synced{false};
+
 // SPS/PPS Cache for bundling with IDR
 std::vector<uint8_t> sps_cache;
 std::vector<uint8_t> pps_cache;
 static int send_packet_err_count = 0;
 
 // Decode function taking raw NAL buf (adds start code for FFmpeg)
-void decode_frame(SOCKET clientSocket, uint8_t *data, int size) {
+void decode_frame(SOCKET clientSocket, uint8_t *data, int size,
+                  uint64_t captureTimestampUs) {
   if (size <= 0)
     return;
 
@@ -333,6 +338,7 @@ void decode_frame(SOCKET clientSocket, uint8_t *data, int size) {
   // Performance Metrics
   static long long totalDecodeTime = 0;
   static long long totalRenderTime = 0;
+  static double totalE2ELatency = 0;
   static int frameMetricCount = 0;
   static auto lastMetricTime = std::chrono::steady_clock::now();
 
@@ -414,6 +420,25 @@ void decode_frame(SOCKET clientSocket, uint8_t *data, int size) {
 
       auto t2 = std::chrono::high_resolution_clock::now(); // Render Done
 
+      // Calculate E2E Latency
+      // iOS sends microseconds since 2001-01-01.
+      // Need to adjust to Unix Epoch (1970) for system_clock comparison
+      // Offset: 978307200 seconds * 1,000,000
+      const int64_t APPLE_TO_UNIX_OFFSET_US = 978307200000000LL;
+      int64_t remoteUnixUs = captureTimestampUs + APPLE_TO_UNIX_OFFSET_US;
+
+      // Adjust for Clock Offset
+      double offsetUs = time_offset_ms.load() * 1000.0;
+      int64_t remoteUnixUsCorrected = remoteUnixUs + (int64_t)offsetUs;
+
+      auto now = std::chrono::system_clock::now();
+      int64_t nowUs = std::chrono::duration_cast<std::chrono::microseconds>(
+                          now.time_since_epoch())
+                          .count();
+
+      double latencyMs = (nowUs - remoteUnixUsCorrected) / 1000.0;
+      totalE2ELatency += latencyMs;
+
       // Accumulate Metrics
       long long decodeUs =
           std::chrono::duration_cast<std::chrono::microseconds>(t1 - t0)
@@ -428,15 +453,16 @@ void decode_frame(SOCKET clientSocket, uint8_t *data, int size) {
 
       // Log Every 30 Frames (~0.5 sec)
       if (frameMetricCount >= 30) {
-        auto now = std::chrono::steady_clock::now();
+        auto nowSteady = std::chrono::steady_clock::now();
         long long elapsedMs =
             std::chrono::duration_cast<std::chrono::milliseconds>(
-                now - lastMetricTime)
+                nowSteady - lastMetricTime)
                 .count();
         if (elapsedMs > 0) {
           double fps = (frameMetricCount * 1000.0) / elapsedMs;
           double avgDecode = (totalDecodeTime / 1000.0) / frameMetricCount;
           double avgRender = (totalRenderTime / 1000.0) / frameMetricCount;
+          double avgE2E = totalE2ELatency / frameMetricCount;
 
           // Check Pending Network Bytes (Latency Indicator)
           u_long pendingBytes = 0;
@@ -445,8 +471,9 @@ void decode_frame(SOCKET clientSocket, uint8_t *data, int size) {
 
           std::stringstream ss;
           ss << "[Metrics] FPS: " << std::fixed << std::setprecision(1) << fps
-             << " | Decode: " << std::setprecision(3) << avgDecode << "ms"
-             << " | Render: " << std::setprecision(3) << avgRender << "ms"
+             << " | E2E Latency: " << std::setprecision(1) << avgE2E << "ms"
+             << " | Decode: " << std::setprecision(2) << avgDecode << "ms"
+             << " | Render: " << std::setprecision(2) << avgRender << "ms"
              << " | Queue: " << std::setprecision(1) << pendingKB << " KB\n";
           log_msg(ss.str());
           std::cout << ss.str(); // Keep console output too
@@ -456,7 +483,13 @@ void decode_frame(SOCKET clientSocket, uint8_t *data, int size) {
         frameMetricCount = 0;
         totalDecodeTime = 0;
         totalRenderTime = 0;
-        lastMetricTime = now;
+        totalE2ELatency = 0;
+        lastMetricTime = nowSteady;
+
+        // Quick Drift Correction Check: If negative latency, our clocks are
+        // mismatched or we are too fast :). Just alert if it is weird. if
+        // (avgE2E < -1000 || avgE2E > 5000) { log_msg("WARNING: Large Clock
+        // Skew detected.\n"); }
       }
 
       // Request UI Repaint
@@ -570,17 +603,32 @@ void receiver_thread_func() {
         break;
       }
 
-      // 2. Read Payload
-      std::vector<uint8_t> buf(len);
-      if (!recv_all(ClientSocket, buf.data(), len)) {
+      if (len < 8) {
+        std::cerr << "Packet too small (no timestamp).\n";
         break;
       }
 
-      decode_frame(ClientSocket, buf.data(), len);
+      // 2. Read Timestamp (8 bytes)
+      uint64_t netTimestamp = 0;
+      if (!recv_all(ClientSocket, &netTimestamp, 8)) {
+        break;
+      }
+      uint64_t captureTimestamp =
+          _byteswap_uint64(netTimestamp); // Big Endian -> Little Endian
+
+      // 3. Read Payload (len - 8)
+      uint32_t payloadSize = len - 8;
+      std::vector<uint8_t> buf(payloadSize);
+      if (!recv_all(ClientSocket, buf.data(), payloadSize)) {
+        break;
+      }
+
+      decode_frame(ClientSocket, buf.data(), payloadSize, captureTimestamp);
     }
 
     std::cout << "Disconnected.\n";
     isConnected = false;
+    is_clock_synced = false;
     if (hWindow)
       SetWindowTextA(hWindow, "AntigravityCam Receiver - Waiting...");
     closesocket(ClientSocket);
@@ -635,6 +683,7 @@ void beacon_listener_thread_func() {
   // Track last discovery to avoid log spam
   char lastDiscoveryName[33] = {0};
   char lastDiscoveryIP[INET_ADDRSTRLEN] = {0};
+  sockaddr_in lastDeviceAddr = {0};
 
   auto lastBeaconTime = std::chrono::steady_clock::now();
   auto lastPingTime = std::chrono::steady_clock::now();
@@ -656,6 +705,24 @@ void beacon_listener_thread_func() {
       sendto(udpSock, PING_PACKET, sizeof(PING_PACKET), 0,
              (sockaddr *)&broadcastAddr, sizeof(broadcastAddr));
       lastPingTime = now;
+
+      // SYNC REQUEST every 2s if connected but not synced
+      if (isConnected && deviceAvailable && !is_clock_synced) {
+        char syncPkt[13]; // Magic(4) + Type(1) + T1(8)
+        memcpy(syncPkt, "AGCM", 4);
+        syncPkt[4] = 0x03; // SYNC_REQUEST
+
+        auto nowSys = std::chrono::system_clock::now();
+        int64_t t1 = std::chrono::duration_cast<std::chrono::microseconds>(
+                         nowSys.time_since_epoch())
+                         .count();
+        // Little Endian assuming x64
+        memcpy(syncPkt + 5, &t1, 8);
+
+        // Send to specific device IP, not broadcast
+        sendto(udpSock, syncPkt, sizeof(syncPkt), 0,
+               (sockaddr *)&lastDeviceAddr, sizeof(lastDeviceAddr));
+      }
     }
 
     char buf[1024];
@@ -705,6 +772,8 @@ void beacon_listener_thread_func() {
           lastDiscoveryIP[INET_ADDRSTRLEN - 1] = 0;
         }
 
+        lastDeviceAddr = sender;
+
         lastBeaconTime = now;
         deviceAvailable = true;
 
@@ -718,6 +787,35 @@ void beacon_listener_thread_func() {
             lastConsoleState = STATE_CONNECTED;
           }
         }
+      } else if (buf[4] == 0x04 &&
+                 len >= 29) { // SYNC_REPLY: Magic(4)+Type(1)+T1(8)+T2(8)+T3(8)
+        // Handle Sync Reply
+        int64_t t1, t2, t3;
+        memcpy(&t1, buf + 5, 8);
+        memcpy(&t2, buf + 13, 8);
+        memcpy(&t3, buf + 21, 8);
+
+        auto nowSys = std::chrono::system_clock::now();
+        int64_t t4 = std::chrono::duration_cast<std::chrono::microseconds>(
+                         nowSys.time_since_epoch())
+                         .count();
+
+        // Check if this reply matches our recent request (T1)
+        // For simplicity, we just use it if reasonable RTT
+        int64_t rtt = (t4 - t1) - (t3 - t2);
+        if (rtt < 0)
+          rtt = 0;
+
+        // Offset = ((T2 - T1) + (T3 - T4)) / 2
+        double offset = ((double)(t2 - t1) + (double)(t3 - t4)) / 2.0;
+
+        time_offset_ms = offset / 1000.0;
+        is_clock_synced = true;
+
+        std::stringstream ss;
+        ss << "[ClockSync] Synced! Offset: " << time_offset_ms.load()
+           << "ms | RTT: " << (rtt / 1000.0) << "ms\n";
+        log_msg(ss.str());
       }
     }
 
