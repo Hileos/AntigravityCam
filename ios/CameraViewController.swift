@@ -777,10 +777,23 @@ class BeaconListener {
     
     private func handleConnection(_ connection: NWConnection) {
         connection.start(queue: .global())
-        
+        receiveLoop(connection)
+    }
+    
+    private func receiveLoop(_ connection: NWConnection) {
         connection.receiveMessage { [weak self] content, context, isComplete, error in
-            guard let self = self, let data = content, error == nil else { return }
-            self.processPacket(data, connection: connection)
+            guard let self = self else { return }
+            
+            if let data = content {
+                self.processPacket(data, connection: connection)
+            }
+            
+            if error == nil {
+                // Continue listening for next packet
+                self.receiveLoop(connection)
+            } else {
+                print("Beacon receive error: \(String(describing: error))")
+            }
         }
     }
     
