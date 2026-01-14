@@ -813,8 +813,7 @@ class BeaconListener {
             
             if let data = content {
                 self.processPacket(data, connection: connection)
-                // Stateless: Close flow after one valid packet to force fresh state for next broadcast
-                connection.cancel()
+                // Stateless: connection.cancel() is now handled inside processPacket -> sendPong
                 return 
             }
             
@@ -829,17 +828,24 @@ class BeaconListener {
     
     private func processPacket(_ data: Data, connection: NWConnection) {
         // Validate PING: Magic(4) + Type(1)=0x01 + Ver(1)
-        guard data.count >= 6 else { return }
+        guard data.count >= 6 else { 
+            connection.cancel() // Close if junk
+            return 
+        }
         
         if data[0] == 0x41 && data[1] == 0x47 && data[2] == 0x43 && data[3] == 0x4D &&
            data[4] == 0x01 { // PING
             
             onLog?("PING Received (\(data.count)b) -> Responding")
-            sendPong(connection: connection)
+            sendPong(connection: connection) {
+                connection.cancel() // Close ONLY after send completes
+            }
+        } else {
+            connection.cancel() // Close if not PING
         }
     }
     
-    private func sendPong(connection: NWConnection) {
+    private func sendPong(connection: NWConnection, completion: @escaping () -> Void) {
         var packet = Data()
         // Magic
         packet.append(contentsOf: magic)
@@ -858,6 +864,7 @@ class BeaconListener {
              if let error = error {
                  self?.onLog?("Failed to send PONG: \(error)")
              }
+             completion() // Done
         }))
     }
     }
