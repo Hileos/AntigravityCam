@@ -37,7 +37,6 @@ class CameraViewController: UIViewController {
     private var tcpClient: TCPClient?
     private var videoEncoder: VideoEncoder?
     private var needsKeyFrame = false
-    private var needsKeyFrame = false
     private var isDroppingFrames = false // Recovery State
     private var frameCount: Int = 0 
     
