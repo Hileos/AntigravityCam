@@ -537,52 +537,52 @@ class CameraViewController: UIViewController {
         
         guard CVPixelBufferGetPlaneCount(pixelBuffer) >= 2 else { return }
         
-        // Cycle colors: Red, Green, Blue every 30 frames
-        let cycle = (frameCount / 30) % 3
+        // Increase frame count
         frameCount += 1
         
-        // Approximate YUV values (BT.601)
-        // Red:   Y=82,  U=90,  V=240
-        // Green: Y=145, U=54,  V=34
-        // Blue:  Y=41,  U=240, V=110
+        let width = CVPixelBufferGetWidth(pixelBuffer)
+        let height = CVPixelBufferGetHeight(pixelBuffer)
         
-        var yVal: UInt8 = 0
-        var uVal: UInt8 = 0
-        var vVal: UInt8 = 0
+        // Visual Latency Test: Moving White Square
+        // Speed: 20 pixels per frame (at 60fps = 1200px/sec)
+        // Wraps around screen width
+        let boxSize = 100
+        let speed = 20
+        let xPos = (frameCount * speed) % (width - boxSize)
+        let yPos = (height / 2) - (boxSize / 2) // Center vertically
         
-        switch cycle {
-        case 0: // Red
-            yVal = 82; uVal = 90; vVal = 240
-        case 1: // Green
-            yVal = 145; uVal = 54; vVal = 34
-        case 2: // Blue
-            yVal = 41; uVal = 240; vVal = 110
-        default: break
-        }
+        // Draw White Box (Y=255, U=128, V=128)
         
-        let width = 64
-        let height = 64
-        
-        // Plane 0: Y
+        // Plane 0: Y (Luma)
         if let yBase = CVPixelBufferGetBaseAddressOfPlane(pixelBuffer, 0) {
             let yStride = CVPixelBufferGetBytesPerRowOfPlane(pixelBuffer, 0)
-            for r in 0..<height {
-                let rowPtr = yBase.advanced(by: r * yStride).assumingMemoryBound(to: UInt8.self)
-                // Fill row
-                memset(rowPtr, Int32(yVal), width)
+            
+            for r in 0..<boxSize {
+                let rowIdx = yPos + r
+                if rowIdx >= height { break }
+                
+                let rowPtr = yBase.advanced(by: rowIdx * yStride).assumingMemoryBound(to: UInt8.self)
+                // Set memory to 255 (White) starting at xPos
+                memset(rowPtr + xPos, 255, boxSize)
             }
         }
         
-        // Plane 1: UV (interleaved)
+        // Plane 1: UV (Chroma)
         if let uvBase = CVPixelBufferGetBaseAddressOfPlane(pixelBuffer, 1) {
             let uvStride = CVPixelBufferGetBytesPerRowOfPlane(pixelBuffer, 1)
-            // UV is subsampled vertically by 2
-            for r in 0..<(height/2) {
-                let rowPtr = uvBase.advanced(by: r * uvStride).assumingMemoryBound(to: UInt8.self)
-                // Write U, V, U, V...
-                for c in 0..<(width/2) {
-                    rowPtr[c*2] = uVal
-                    rowPtr[c*2+1] = vVal
+            
+            for r in 0..<(boxSize/2) {
+                let rowIdx = (yPos / 2) + r
+                if rowIdx >= (height/2) { break }
+                
+                let rowPtr = uvBase.advanced(by: rowIdx * uvStride).assumingMemoryBound(to: UInt8.self)
+                let uvXStart = (xPos / 2) * 2 // Must be even for interleaved UV
+                
+                // Write Neutral Chroma (128)
+                for c in 0..<(boxSize/2) {
+                    let ptrIdx = uvXStart + (c * 2)
+                    rowPtr[ptrIdx] = 128     // U
+                    rowPtr[ptrIdx + 1] = 128 // V
                 }
             }
         }
