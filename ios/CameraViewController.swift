@@ -3,6 +3,31 @@ import Foundation
 import AVFoundation
 import VideoToolbox
 
+// MARK: - Connection State Enum
+enum ConnectionState {
+    case disconnected
+    case connecting
+    case connected
+    case reconnecting
+    
+    var displayText: String {
+        switch self {
+        case .disconnected: return "Disconnected"
+        case .connecting: return "Connecting..."
+        case .connected: return "Connected"
+        case .reconnecting: return "Reconnecting..."
+        }
+    }
+    
+    var color: UIColor {
+        switch self {
+        case .disconnected: return .systemRed
+        case .connecting, .reconnecting: return .systemOrange
+        case .connected: return .systemGreen
+        }
+    }
+}
+
 class CameraViewController: UIViewController {
     
     private let captureSession = AVCaptureSession()
@@ -12,6 +37,19 @@ class CameraViewController: UIViewController {
     private var needsKeyFrame = false
     private var isDroppingFrames = false // Recovery State
     private var frameCount: Int = 0 
+    
+    // Connection State Management
+    private var connectionState: ConnectionState = .disconnected {
+        didSet {
+            DispatchQueue.main.async {
+                self.updateConnectionUI()
+            }
+        }
+    }
+    private var autoReconnectEnabled = false
+    private var reconnectTimer: Timer?
+    private let reconnectDelay: TimeInterval = 3.0
+    private var hasConnectedOnce = false
     
     // Config
     private var serverIP = "192.168.1.2" 
@@ -26,6 +64,24 @@ class CameraViewController: UIViewController {
         tf.textColor = .black
         tf.text = "192.168.1.2" // Default
         return tf
+    }()
+    
+    // Connection Status Indicator
+    private let statusLabel: UILabel = {
+        let label = UILabel()
+        label.text = "● Disconnected"
+        label.textColor = .systemRed
+        label.font = .systemFont(ofSize: 14, weight: .medium)
+        return label
+    }()
+    
+    // Connect/Disconnect Button
+    private let connectButton: UIButton = {
+        let btn = UIButton(type: .system)
+        btn.setTitle("Connect", for: .normal)
+        btn.backgroundColor = .white
+        btn.layer.cornerRadius = 5
+        return btn
     }()
     
     // Debug Console
@@ -53,8 +109,11 @@ class CameraViewController: UIViewController {
         DispatchQueue.main.async {
             let timestamp = DateFormatter.localizedString(from: Date(), dateStyle: .none, timeStyle: .medium)
             self.debugTextView.text = "[\(timestamp)] \(msg)\n" + self.debugTextView.text
-            // Keep only last 20 lines
-            // if self.debugTextView.text.components(separatedBy: "\n").count > 20 { ... } 
+            // Keep only last 50 lines
+            let lines = self.debugTextView.text.components(separatedBy: "\n")
+            if lines.count > 50 {
+                self.debugTextView.text = lines.prefix(50).joined(separator: "\n")
+            }
         }
         print(msg)
     }
@@ -66,36 +125,69 @@ class CameraViewController: UIViewController {
         let label = UILabel()
         label.text = "Antigravity Cam"
         label.textColor = .white
-        label.frame = CGRect(x: 20, y: 50, width: 300, height: 40)
+        label.frame = CGRect(x: 20, y: 50, width: 200, height: 40)
         view.addSubview(label)
+        
+        // Status Label (next to title)
+        statusLabel.frame = CGRect(x: 220, y: 50, width: 150, height: 40)
+        view.addSubview(statusLabel)
         
         // IP Text Field
         ipTextField.frame = CGRect(x: 20, y: 100, width: 200, height: 40)
         view.addSubview(ipTextField)
         
         // Connect Button
-        let btn = UIButton(type: .system)
-        btn.setTitle("Connect", for: .normal)
-        btn.frame = CGRect(x: 230, y: 100, width: 100, height: 40)
-        btn.backgroundColor = .white
-        btn.layer.cornerRadius = 5
-        btn.addTarget(self, action: #selector(connectTapped), for: .touchUpInside)
-        view.addSubview(btn)
+        connectButton.frame = CGRect(x: 230, y: 100, width: 100, height: 40)
+        connectButton.addTarget(self, action: #selector(connectTapped), for: .touchUpInside)
+        view.addSubview(connectButton)
         
         // Debug TextView
         debugTextView.frame = CGRect(x: 20, y: 150, width: view.bounds.width - 40, height: 200)
         view.addSubview(debugTextView)
+        
+        updateConnectionUI()
+    }
+    
+    private func updateConnectionUI() {
+        statusLabel.text = "● " + connectionState.displayText
+        statusLabel.textColor = connectionState.color
+        
+        switch connectionState {
+        case .disconnected:
+            connectButton.setTitle("Connect", for: .normal)
+            connectButton.isEnabled = true
+        case .connecting, .reconnecting:
+            connectButton.setTitle("Cancel", for: .normal)
+            connectButton.isEnabled = true
+        case .connected:
+            connectButton.setTitle("Disconnect", for: .normal)
+            connectButton.isEnabled = true
+        }
     }
     
     @objc private func connectTapped() {
-        guard let ip = ipTextField.text, !ip.isEmpty else {
-            log("IP is empty")
-            return
+        switch connectionState {
+        case .disconnected:
+            // Start connection
+            guard let ip = ipTextField.text, !ip.isEmpty else {
+                log("IP is empty")
+                return
+            }
+            serverIP = ip
+            view.endEditing(true) // Dismiss keyboard
+            connectToServer()
+            
+        case .connecting, .reconnecting:
+            // Cancel connection attempt
+            log("Connection cancelled by user")
+            cancelConnection()
+            
+        case .connected:
+            // Disconnect and disable auto-reconnect
+            log("Disconnecting (auto-reconnect disabled)")
+            autoReconnectEnabled = false
+            disconnectFromServer()
         }
-        serverIP = ip
-        log("Connecting to \(serverIP)...")
-        view.endEditing(true) // Dismiss keyboard
-        connectToServer()
     }
     
     private func setupCamera() {
@@ -130,7 +222,23 @@ class CameraViewController: UIViewController {
     private func setupEncoder() {
         videoEncoder = VideoEncoder()
         videoEncoder?.delegate = self
+        videoEncoder?.errorHandler = { [weak self] error in
+            self?.log("⚠️ Encoder Error: \(error)")
+            self?.handleEncoderError()
+        }
         log("Video Encoder Setup")
+    }
+    
+    private func handleEncoderError() {
+        // Recreate encoder on critical error
+        log("Recreating encoder after error...")
+        videoEncoder = VideoEncoder()
+        videoEncoder?.delegate = self
+        videoEncoder?.errorHandler = { [weak self] error in
+            self?.log("⚠️ Encoder Error: \(error)")
+            self?.handleEncoderError()
+        }
+        needsKeyFrame = true
     }
     
     private func startCapture() {
@@ -141,18 +249,78 @@ class CameraViewController: UIViewController {
     }
     
     private func connectToServer() {
+        connectionState = .connecting
+        log("Connecting to \(serverIP)...")
+        
         tcpClient = TCPClient(address: serverIP, port: serverPort)
         tcpClient?.logger = self.log
-        tcpClient?.connect()
-        
-        self.log("Connecting...")
-        
-        // Delay keyframe request to ensure TCP socket is ready
-        // The encoder callback will send SPS/PPS when the keyframe is encoded
-        DispatchQueue.main.asyncAfter(deadline: .now() + 1.5) {
-             self.needsKeyFrame = true
-             self.log("Socket ready. Requesting KeyFrame (SPS/PPS will be sent with it).")
+        tcpClient?.onConnected = { [weak self] in
+            self?.handleConnected()
         }
+        tcpClient?.onDisconnected = { [weak self] error in
+            self?.handleDisconnected(error: error)
+        }
+        tcpClient?.connect()
+    }
+    
+    private func handleConnected() {
+        connectionState = .connected
+        hasConnectedOnce = true
+        autoReconnectEnabled = true // Enable auto-reconnect after first successful connection
+        log("✓ Connected! Auto-reconnect enabled.")
+        
+        // Request keyframe after connection is stable
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+            self.needsKeyFrame = true
+            self.log("Requesting KeyFrame for stream sync")
+        }
+    }
+    
+    private func handleDisconnected(error: String?) {
+        let wasConnected = connectionState == .connected
+        connectionState = .disconnected
+        
+        if let error = error {
+            log("⚠️ Disconnected: \(error)")
+        } else {
+            log("Disconnected")
+        }
+        
+        // Reset stream state
+        isDroppingFrames = true // Drop frames until we reconnect and get keyframe
+        
+        // Auto-reconnect if enabled and was previously connected
+        if autoReconnectEnabled && wasConnected {
+            scheduleReconnect()
+        }
+    }
+    
+    private func scheduleReconnect() {
+        guard autoReconnectEnabled else { return }
+        
+        connectionState = .reconnecting
+        log("Scheduling reconnect in \(Int(reconnectDelay))s...")
+        
+        reconnectTimer?.invalidate()
+        reconnectTimer = Timer.scheduledTimer(withTimeInterval: reconnectDelay, repeats: false) { [weak self] _ in
+            guard let self = self, self.autoReconnectEnabled else { return }
+            self.log("Attempting reconnect...")
+            self.connectToServer()
+        }
+    }
+    
+    private func cancelConnection() {
+        autoReconnectEnabled = false
+        reconnectTimer?.invalidate()
+        reconnectTimer = nil
+        disconnectFromServer()
+    }
+    
+    private func disconnectFromServer() {
+        tcpClient?.disconnect()
+        tcpClient = nil
+        connectionState = .disconnected
+        isDroppingFrames = true
     }
 
     private func drawDebugPattern(on pixelBuffer: CVPixelBuffer) {
@@ -215,6 +383,9 @@ class CameraViewController: UIViewController {
 
 extension CameraViewController: AVCaptureVideoDataOutputSampleBufferDelegate {
     func captureOutput(_ output: AVCaptureOutput, didOutput sampleBuffer: CMSampleBuffer, from connection: AVCaptureConnection) {
+        // Only process frames if connected
+        guard connectionState == .connected else { return }
+        
         // Draw Debug Pattern
         if let pixelBuffer = CMSampleBufferGetImageBuffer(sampleBuffer) {
             drawDebugPattern(on: pixelBuffer)
@@ -264,9 +435,14 @@ protocol VideoEncoderDelegate: AnyObject {
 
 class VideoEncoder {
     weak var delegate: VideoEncoderDelegate?
+    var errorHandler: ((String) -> Void)?
     private var session: VTCompressionSession?
     
     init() {
+        createSession()
+    }
+    
+    private func createSession() {
         let status = VTCompressionSessionCreate(
             allocator: nil,
             width: 1280,
@@ -281,7 +457,7 @@ class VideoEncoder {
         )
         
         guard status == noErr, let session = session else {
-            print("Failed to create encoder: \(status)")
+            errorHandler?("Failed to create encoder: \(status)")
             return
         }
         
@@ -305,7 +481,11 @@ class VideoEncoder {
             properties = [kVTEncodeFrameOptionKey_ForceKeyFrame as String: kCFBooleanTrue]
         }
         
-        VTCompressionSessionEncodeFrame(session, imageBuffer: imageBuffer, presentationTimeStamp: pts, duration: .invalid, frameProperties: properties as CFDictionary?, sourceFrameRefcon: nil, infoFlagsOut: nil)
+        let status = VTCompressionSessionEncodeFrame(session, imageBuffer: imageBuffer, presentationTimeStamp: pts, duration: .invalid, frameProperties: properties as CFDictionary?, sourceFrameRefcon: nil, infoFlagsOut: nil)
+        
+        if status != noErr {
+            errorHandler?("Encode frame failed: \(status)")
+        }
     }
     
     func sendSPSandPPS(from sampleBuffer: CMSampleBuffer) {
@@ -352,8 +532,16 @@ class VideoEncoder {
 
 // C-style Callback function must be outside class or static
 private func compressionCallback(outputCallbackRefCon: UnsafeMutableRawPointer?, sourceFrameRefCon: UnsafeMutableRawPointer?, status: OSStatus, infoFlags: VTEncodeInfoFlags, sampleBuffer: CMSampleBuffer?) {
-    guard status == noErr, let sampleBuffer = sampleBuffer, let refCon = outputCallbackRefCon else { return }
+    guard let refCon = outputCallbackRefCon else { return }
     let encoder = Unmanaged<VideoEncoder>.fromOpaque(refCon).takeUnretainedValue()
+    
+    // Handle encoder errors
+    if status != noErr {
+        encoder.errorHandler?("Compression callback error: \(status)")
+        return
+    }
+    
+    guard let sampleBuffer = sampleBuffer else { return }
     
     // Check KeyFrame
     var isKeyFrame = false
@@ -372,17 +560,22 @@ private func compressionCallback(outputCallbackRefCon: UnsafeMutableRawPointer?,
     encoder.sendNALUs(from: sampleBuffer, isKeyFrame: isKeyFrame)
 }
 
-// MARK: - TCP Client
-class TCPClient {
+// MARK: - TCP Client with StreamDelegate
+class TCPClient: NSObject, StreamDelegate {
     let address: String
     let port: UInt32
     private var inputStream: InputStream?
     private var outputStream: OutputStream?
+    private var isConnected = false
+    
     var logger: ((String) -> Void)?
+    var onConnected: (() -> Void)?
+    var onDisconnected: ((String?) -> Void)?
     
     init(address: String, port: UInt32) {
         self.address = address
         self.port = port
+        super.init()
     }
     
     func connect() {
@@ -394,17 +587,87 @@ class TCPClient {
         inputStream = readStream?.takeRetainedValue()
         outputStream = writeStream?.takeRetainedValue()
         
-        inputStream?.schedule(in: .current, forMode: .common)
-        outputStream?.schedule(in: .current, forMode: .common)
+        guard let input = inputStream, let output = outputStream else {
+            logger?("Failed to create streams")
+            onDisconnected?("Failed to create streams")
+            return
+        }
         
-        inputStream?.open()
-        outputStream?.open()
+        // Set delegate to handle stream events
+        input.delegate = self
+        output.delegate = self
+        
+        // Schedule on main run loop for event handling
+        input.schedule(in: .main, forMode: .common)
+        output.schedule(in: .main, forMode: .common)
+        
+        input.open()
+        output.open()
         
         logger?("TCP connecting to \(address):\(port)")
     }
     
+    func disconnect() {
+        isConnected = false
+        
+        inputStream?.delegate = nil
+        outputStream?.delegate = nil
+        
+        inputStream?.close()
+        outputStream?.close()
+        
+        inputStream?.remove(from: .main, forMode: .common)
+        outputStream?.remove(from: .main, forMode: .common)
+        
+        inputStream = nil
+        outputStream = nil
+    }
+    
+    // MARK: - StreamDelegate
+    func stream(_ aStream: Stream, handle eventCode: Stream.Event) {
+        switch eventCode {
+        case .openCompleted:
+            if aStream == outputStream && !isConnected {
+                isConnected = true
+                logger?("Stream opened successfully")
+                onConnected?()
+            }
+            
+        case .errorOccurred:
+            let error = aStream.streamError?.localizedDescription ?? "Unknown error"
+            logger?("Stream error: \(error)")
+            if isConnected {
+                disconnect()
+                onDisconnected?(error)
+            } else {
+                onDisconnected?("Connection failed: \(error)")
+            }
+            
+        case .endEncountered:
+            logger?("Stream ended")
+            if isConnected {
+                disconnect()
+                onDisconnected?("Connection closed by server")
+            }
+            
+        case .hasBytesAvailable:
+            // We don't expect incoming data, but drain it to prevent buffer issues
+            if aStream == inputStream {
+                var buffer = [UInt8](repeating: 0, count: 1024)
+                inputStream?.read(&buffer, maxLength: buffer.count)
+            }
+            
+        case .hasSpaceAvailable:
+            // Output stream has space - could be used for flow control
+            break
+            
+        default:
+            break
+        }
+    }
+    
     func send(data: Data) -> Bool {
-        guard let outputStream = outputStream else { return false }
+        guard let outputStream = outputStream, isConnected else { return false }
         
         // 1. Pre-check space (optimization)
         if !outputStream.hasSpaceAvailable {
@@ -435,6 +698,11 @@ class TCPClient {
             
             if result < 0 {
                 logger?("TCP Write Error")
+                // Notify disconnection on write error
+                DispatchQueue.main.async {
+                    self.disconnect()
+                    self.onDisconnected?("Write error")
+                }
                 return false
             }
             if result == 0 {

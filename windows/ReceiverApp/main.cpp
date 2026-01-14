@@ -50,12 +50,36 @@ void init_debug_log() {
   }
 }
 
+template <typename T> void log_msg(const T &msg) {
+  std::cout << msg;
+  if (debugFile.is_open()) {
+    debugFile << "# " << msg;
+    debugFile.flush();
+  }
+}
+
+template <typename T> void log_err(const T &msg) {
+  std::cerr << msg;
+  if (debugFile.is_open()) {
+    debugFile << "ERROR: " << msg;
+    debugFile.flush();
+  }
+}
+
 // Global AV variables
 AVCodecContext *codecCtx = nullptr;
 AVCodecParserContext *parser = nullptr;
 AVFrame *pFrame = nullptr;
 AVFrame *pFrameRGB = nullptr;
 SwsContext *sws_ctx = nullptr;
+uint8_t *pFrameRGBBuffer = nullptr; // Track RGB buffer for cleanup
+
+// Decoding State
+const AVCodec *codec = nullptr;
+
+// Socket timeout in milliseconds (5 seconds)
+const int SOCKET_TIMEOUT_MS = 5000;
+
 HANDLE hMapFile = NULL;
 SharedMemoryLayout *pSharedMem = nullptr;
 
@@ -65,13 +89,30 @@ std::mutex frameMutex;
 std::atomic<bool> isRunning(true);
 std::atomic<bool> isConnected(false);
 
+// FFmpeg Log Callback
+void ffmpeg_log_callback(void *ptr, int level, const char *fmt, va_list vl) {
+  if (level > AV_LOG_WARNING)
+    return; // Only log warnings and above
+
+  // Format the message
+  char line[1024];
+  vsnprintf(line, sizeof(line), fmt, vl);
+
+  // Write to our log file
+  log_msg(std::string("[FFMPEG] ") + line);
+}
+
 void cleanup() {
   if (debugFile.is_open())
     debugFile.close();
+  if (sws_ctx)
+    sws_freeContext(sws_ctx);
   if (pFrame)
     av_frame_free(&pFrame);
   if (pFrameRGB)
     av_frame_free(&pFrameRGB);
+  if (pFrameRGBBuffer)
+    av_free(pFrameRGBBuffer);
   if (codecCtx)
     avcodec_free_context(&codecCtx);
   if (parser)
@@ -83,20 +124,68 @@ void cleanup() {
   WSACleanup();
 }
 
+// NAL start code for Annex B format (required by FFmpeg H.264 decoder)
+static const uint8_t NAL_START_CODE[] = {0x00, 0x00, 0x00, 0x01};
+
+// Core initialization of decoder context (Software Only)
+bool setup_decoder(const std::vector<uint8_t> &sps = {},
+                   const std::vector<uint8_t> &pps = {}) {
+  if (codecCtx) {
+    avcodec_free_context(&codecCtx);
+  }
+
+  codecCtx = avcodec_alloc_context3(codec);
+  if (!codecCtx) {
+    std::cerr << "Could not allocate video codec context\n";
+    return false;
+  }
+
+  // Set Extradata if provided
+  if (!sps.empty() && !pps.empty()) {
+    size_t extraSize = sps.size() + pps.size() + 8; // +8 for start codes
+    codecCtx->extradata =
+        (uint8_t *)av_malloc(extraSize + AV_INPUT_BUFFER_PADDING_SIZE);
+    codecCtx->extradata_size = extraSize;
+
+    uint8_t *ptr = codecCtx->extradata;
+    memcpy(ptr, NAL_START_CODE, 4);
+    ptr += 4;
+    memcpy(ptr, sps.data(), sps.size());
+    ptr += sps.size();
+    memcpy(ptr, NAL_START_CODE, 4);
+    ptr += 4;
+    memcpy(ptr, pps.data(), pps.size());
+    ptr += pps.size();
+
+    memset(ptr, 0, AV_INPUT_BUFFER_PADDING_SIZE);
+    log_msg("Decoder configured with Extradata (SPS+PPS)\n");
+  }
+
+  // Software decoding configuration
+  log_msg("Decoder Configured for SOFTWARE decoding\n");
+  codecCtx->thread_count = 0; // Auto-detect optimal thread count
+
+  if (avcodec_open2(codecCtx, codec, NULL) < 0) {
+    std::cerr << "Could not open codec\n";
+    return false;
+  }
+  return true;
+}
+
 void init_ffmpeg() {
-  const AVCodec *codec = avcodec_find_decoder(AV_CODEC_ID_H264);
+  // Setup Logging
+  av_log_set_callback(ffmpeg_log_callback);
+  av_log_set_level(AV_LOG_WARNING);
+
+  codec = avcodec_find_decoder(AV_CODEC_ID_H264);
   if (!codec) {
     std::cerr << "Codec not found\n";
     exit(1);
   }
 
-  parser = av_parser_init(codec->id);
-  codecCtx = avcodec_alloc_context3(codec);
+  log_msg("Using H.264 software decoder\n");
 
-  if (avcodec_open2(codecCtx, codec, NULL) < 0) {
-    std::cerr << "Could not open codec\n";
-    exit(1);
-  }
+  setup_decoder();
 
   pFrame = av_frame_alloc();
   pFrameRGB = av_frame_alloc();
@@ -104,13 +193,11 @@ void init_ffmpeg() {
   // Prepare RGB Frame buffer
   int numBytes =
       av_image_get_buffer_size(AV_PIX_FMT_BGRA, VIDEO_WIDTH, VIDEO_HEIGHT, 1);
-  uint8_t *buffer = (uint8_t *)av_malloc(numBytes * sizeof(uint8_t));
-  av_image_fill_arrays(pFrameRGB->data, pFrameRGB->linesize, buffer,
+  pFrameRGBBuffer = (uint8_t *)av_malloc(numBytes * sizeof(uint8_t));
+  av_image_fill_arrays(pFrameRGB->data, pFrameRGB->linesize, pFrameRGBBuffer,
                        AV_PIX_FMT_BGRA, VIDEO_WIDTH, VIDEO_HEIGHT, 1);
 
-  sws_ctx = sws_getContext(VIDEO_WIDTH, VIDEO_HEIGHT, AV_PIX_FMT_YUV420P,
-                           VIDEO_WIDTH, VIDEO_HEIGHT, AV_PIX_FMT_BGRA,
-                           SWS_BILINEAR, NULL, NULL, NULL);
+  sws_ctx = NULL;
 }
 
 void init_shared_memory() {
@@ -134,17 +221,21 @@ void init_shared_memory() {
 
   // Init Header
   pSharedMem->magic = 0x43424557; // 'WEBC'
-  pSharedMem->version = 1;
+  pSharedMem->version = 2;        // Version 2: double-buffered
   pSharedMem->width = VIDEO_WIDTH;
   pSharedMem->height = VIDEO_HEIGHT;
   pSharedMem->write_sequence = 0;
+  pSharedMem->active_buffer = 0;
 }
-
-// NAL start code for Annex B format (required by FFmpeg H.264 decoder)
-static const uint8_t NAL_START_CODE[] = {0x00, 0x00, 0x00, 0x01};
 
 // Connection / Stream State
 std::atomic<bool> hasSeenKeyframe(false);
+bool isDecoderConfiguredWithHeaders = false;
+
+// SPS/PPS Cache for bundling with IDR
+std::vector<uint8_t> sps_cache;
+std::vector<uint8_t> pps_cache;
+static int send_packet_err_count = 0;
 
 // Decode function taking raw NAL buf (adds start code for FFmpeg)
 void decode_frame(uint8_t *data, int size) {
@@ -154,10 +245,17 @@ void decode_frame(uint8_t *data, int size) {
   // Simple NAL Unit Type Check (first byte & 0x1F)
   int nalType = data[0] & 0x1F;
 
+  if (nalType == 7)
+    log_msg("NAL: SPS (7) found\n");
+  else if (nalType == 8)
+    log_msg("NAL: PPS (8) found\n");
+  else if (nalType == 5)
+    log_msg("NAL: IDR (5) found\n");
+
   // SPS (7), PPS (8), IDR (5) are critical for starting playback
   if (nalType == 7 || nalType == 8 || nalType == 5) {
     if (!hasSeenKeyframe) {
-      std::cout << " [Keyframe/Header Found! Syncing Stream...] \n";
+      log_msg(" [Keyframe/Header Found! Syncing Stream...] \n");
       hasSeenKeyframe = true;
     }
   }
@@ -167,44 +265,124 @@ void decode_frame(uint8_t *data, int size) {
     return;
   }
 
-  // Create buffer with NAL start code prepended + Padding
-  std::vector<uint8_t> nalWithStartCode(4 + size +
-                                        AV_INPUT_BUFFER_PADDING_SIZE);
-  memcpy(nalWithStartCode.data(), NAL_START_CODE, 4);
-  memcpy(nalWithStartCode.data() + 4, data, size);
-  // Zero out padding
-  memset(nalWithStartCode.data() + 4 + size, 0, AV_INPUT_BUFFER_PADDING_SIZE);
+  // Handle SPS/PPS Caching
+  if (nalType == 7) {
+    sps_cache.assign(data, data + size);
+    return; // Wait for IDR to bundle
+  }
+  if (nalType == 8) {
+    pps_cache.assign(data, data + size);
+    return; // Wait for IDR to bundle
+  }
 
-  // std::cout << "Debug: Decoding frame size " << size << "\n";
+  // Prepare Payload
+  std::vector<uint8_t> payload;
+  payload.reserve(size + 1024);
 
-  // Direct Send to Decoder (Bypassing Parser)
+  // If IDR, prepend SPS/PPS if available
+  if (nalType == 5) {
+    // LAZY INIT: If we have SPS/PPS but haven't configured decoder with
+    // them yet, do it now.
+    if (!isDecoderConfiguredWithHeaders && !sps_cache.empty() &&
+        !pps_cache.empty()) {
+      log_msg("Re-initializing Decoder with SPS/PPS Extradata...\n");
+      setup_decoder(sps_cache, pps_cache);
+      isDecoderConfiguredWithHeaders = true;
+    }
+
+    if (!sps_cache.empty()) {
+      payload.insert(payload.end(), NAL_START_CODE, NAL_START_CODE + 4);
+      payload.insert(payload.end(), sps_cache.begin(), sps_cache.end());
+    }
+    if (!pps_cache.empty()) {
+      payload.insert(payload.end(), NAL_START_CODE, NAL_START_CODE + 4);
+      payload.insert(payload.end(), pps_cache.begin(), pps_cache.end());
+    }
+  }
+
+  // Add Start Code + Current NAL
+  payload.insert(payload.end(), NAL_START_CODE, NAL_START_CODE + 4);
+  payload.insert(payload.end(), data, data + size);
+
+  // Actual data size without padding
+  size_t actualSize = payload.size();
+
+  // Direct Send to Decoder
   AVPacket *pkt = av_packet_alloc();
   if (!pkt) {
     std::cerr << "OOM: Could not allocate packet struct\n";
     return;
   }
 
-  if (av_new_packet(pkt, 4 + size) < 0) {
+  if (av_new_packet(pkt, actualSize) < 0) {
     std::cerr << "OOM: Could not allocate packet buffer\n";
     av_packet_free(&pkt);
     return;
   }
 
-  memcpy(pkt->data, nalWithStartCode.data(), 4 + size);
+  memcpy(pkt->data, payload.data(), actualSize);
+  memset(pkt->data + actualSize, 0, AV_INPUT_BUFFER_PADDING_SIZE);
+
+  // Set Flags
+  if (nalType == 5) {
+    pkt->flags |= AV_PKT_FLAG_KEY;
+  }
 
   int sendRes = avcodec_send_packet(codecCtx, pkt);
   if (sendRes < 0) {
-    // char err[AV_ERROR_MAX_STRING_SIZE];
-    // av_strerror(sendRes, err, sizeof(err));
-    // std::cerr << "Error sending packet: " << err << "\n";
+    send_packet_err_count++;
+    if (send_packet_err_count % 100 == 1) {
+      char errbuf[AV_ERROR_MAX_STRING_SIZE] = {0};
+      av_strerror(sendRes, errbuf, AV_ERROR_MAX_STRING_SIZE);
+      std::string errmsg =
+          "Error sending packet: " + std::string(errbuf) + "\n";
+      log_err(errmsg);
+    }
   } else {
-    while (avcodec_receive_frame(codecCtx, pFrame) == 0) {
+    int recvRes = 0;
+    while (true) {
+      recvRes = avcodec_receive_frame(codecCtx, pFrame);
+      if (recvRes == AVERROR(EAGAIN) || recvRes == AVERROR_EOF) {
+        break;
+      }
+      if (recvRes < 0) {
+        char errbuf[AV_ERROR_MAX_STRING_SIZE] = {0};
+        av_strerror(recvRes, errbuf, AV_ERROR_MAX_STRING_SIZE);
+        static int recv_err_count = 0;
+        recv_err_count++;
+        if (recv_err_count % 100 == 1) {
+          log_err("Error receiving frame: " + std::string(errbuf) + "\n");
+        }
+        break;
+      }
+
       // Convert to RGB
       {
         std::lock_guard<std::mutex> lock(frameMutex);
-        sws_scale(sws_ctx, (uint8_t const *const *)pFrame->data,
-                  pFrame->linesize, 0, codecCtx->height, pFrameRGB->data,
-                  pFrameRGB->linesize);
+
+        // Re-initialize scaler if format/size changes
+        static int cached_format = -1;
+        static int cached_w = -1;
+        static int cached_h = -1;
+
+        if (cached_format != pFrame->format || cached_w != pFrame->width ||
+            cached_h != pFrame->height) {
+          if (sws_ctx)
+            sws_freeContext(sws_ctx);
+          sws_ctx = sws_getContext(VIDEO_WIDTH, VIDEO_HEIGHT,
+                                   (AVPixelFormat)pFrame->format, VIDEO_WIDTH,
+                                   VIDEO_HEIGHT, AV_PIX_FMT_BGRA, SWS_BILINEAR,
+                                   NULL, NULL, NULL);
+          cached_format = pFrame->format;
+          cached_w = pFrame->width;
+          cached_h = pFrame->height;
+        }
+
+        if (sws_ctx) {
+          sws_scale(sws_ctx, (uint8_t const *const *)pFrame->data,
+                    pFrame->linesize, 0, codecCtx->height, pFrameRGB->data,
+                    pFrameRGB->linesize);
+        }
 
         // DEBUG: Sample Pixel (32, 32)
         static int debugFrameCount = 0;
@@ -243,12 +421,21 @@ void decode_frame(uint8_t *data, int size) {
           }
         }
 
-        // Write to Shared Memory inside the lock as well to be safe
+        // Write to Shared Memory (double-buffered)
         if (pSharedMem) {
-          memcpy(pSharedMem->data, pFrameRGB->data[0], FRAME_BUFFER_SIZE);
+          // Write to inactive buffer
+          uint32_t writeBuffer = pSharedMem->active_buffer ^ 1;
+          memcpy(pSharedMem->data[writeBuffer], pFrameRGB->data[0],
+                 FRAME_BUFFER_SIZE);
+
+          // Memory barrier to ensure write completes before updating index
+          _ReadWriteBarrier();
+
+          // Atomically switch to new buffer
+          pSharedMem->active_buffer = writeBuffer;
           pSharedMem->write_sequence++;
         }
-      } // mutex unlocks here
+      }
 
       // Request UI Repaint
       if (hWindow) {
@@ -305,9 +492,14 @@ void receiver_thread_func() {
       continue;
     }
 
+    // Set socket receive timeout to detect dead connections
+    setsockopt(ClientSocket, SOL_SOCKET, SO_RCVTIMEO,
+               (const char *)&SOCKET_TIMEOUT_MS, sizeof(SOCKET_TIMEOUT_MS));
+
     // New Connection: Reset Stream State
     hasSeenKeyframe = false;
-    // Flush decoder to remove any old reference frames or stale state
+    isDecoderConfiguredWithHeaders = false;
+    // Flush decoder to remove any old reference frames
     if (codecCtx) {
       avcodec_flush_buffers(codecCtx);
     }
@@ -318,7 +510,7 @@ void receiver_thread_func() {
     std::cout << "Connected: " << clientIP << ":" << clientPort << "\n";
     isConnected = true;
 
-    // Update Window Title to show status
+    // Update Window Title
     if (hWindow)
       SetWindowTextA(hWindow, "AntigravityCam Receiver - Connected");
 
@@ -326,13 +518,12 @@ void receiver_thread_func() {
       // 1. Read Length Header (4 bytes)
       uint32_t netLen = 0;
       if (!recv_all(ClientSocket, &netLen, 4)) {
-        break; // Connection closed or error
+        break;
       }
 
       uint32_t len = ntohl(netLen);
 
-      // Sanity check: If len is huge, we are probably desynced or reading
-      // garbage
+      // Sanity check
       if (len > 1000000) {
         std::cerr << "Oversized packet (" << len
                   << " bytes). Dropping connection.\n";
@@ -342,7 +533,7 @@ void receiver_thread_func() {
       // 2. Read Payload
       std::vector<uint8_t> buf(len);
       if (!recv_all(ClientSocket, buf.data(), len)) {
-        break; // Connection closed or error mid-packet
+        break;
       }
 
       decode_frame(buf.data(), len);
@@ -396,7 +587,11 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam,
 
 int main() {
   WSADATA wsaData;
-  WSAStartup(MAKEWORD(2, 2), &wsaData);
+  int wsaResult = WSAStartup(MAKEWORD(2, 2), &wsaData);
+  if (wsaResult != 0) {
+    std::cerr << "WSAStartup failed with error: " << wsaResult << "\n";
+    return 1;
+  }
 
   init_debug_log();
   init_shared_memory();
@@ -412,14 +607,14 @@ int main() {
 
   RegisterClassW(&wc);
 
-  // Resize window to fit video content approximately (plus borders)
+  // Resize window to fit video content (plus borders)
   RECT rect = {0, 0, VIDEO_WIDTH, VIDEO_HEIGHT};
   AdjustWindowRect(&rect, WS_OVERLAPPEDWINDOW, FALSE);
 
-  hWindow = CreateWindowExW(
-      0, CLASS_NAME, L"AntigravityCam Receiver - Waiting...",
-      WS_OVERLAPPEDWINDOW, CW_USEDEFAULT, CW_USEDEFAULT, rect.right - rect.left,
-      rect.bottom - rect.top, NULL, NULL, GetModuleHandle(NULL), NULL);
+  hWindow = CreateWindowExW(0, CLASS_NAME, L"AntigravityCam Receiver",
+                            WS_OVERLAPPEDWINDOW, CW_USEDEFAULT, CW_USEDEFAULT,
+                            rect.right - rect.left, rect.bottom - rect.top,
+                            NULL, NULL, GetModuleHandle(NULL), NULL);
 
   if (hWindow == NULL) {
     return 0;
@@ -438,9 +633,8 @@ int main() {
   }
 
   isRunning = false;
-  // receiverThread.join(); // May block if stuck in recv/accept, so we detach
-  // or force close
-  receiverThread.detach();
+  if (receiverThread.joinable())
+    receiverThread.join();
 
   cleanup();
   return 0;

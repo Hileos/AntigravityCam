@@ -119,10 +119,10 @@ HRESULT CVCamStream::FillBuffer(IMediaSample *pms) {
   memset(pData, 0, size); // Black
 
   if (m_pSharedMem && m_pSharedMem->magic == 0x43424557) {
-    // Simple polling approach (blocking here would block the graph, but
-    // FillBuffer is called in a loop) ideally we wait for event, but for MVP we
-    // just copy latest
-    memcpy(pData, (void *)m_pSharedMem->data, FRAME_BUFFER_SIZE);
+    // Read from the currently active buffer (double-buffered for race-free
+    // access)
+    uint32_t readBuffer = m_pSharedMem->active_buffer;
+    memcpy(pData, (void *)m_pSharedMem->data[readBuffer], FRAME_BUFFER_SIZE);
     m_lastReadSequence = m_pSharedMem->write_sequence;
   }
 
