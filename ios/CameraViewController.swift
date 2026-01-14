@@ -113,6 +113,9 @@ class CameraViewController: UIViewController {
     
     private func startBeacon() {
         beaconListener = BeaconListener(port: beaconPort, deviceName: UIDevice.current.name)
+        beaconListener?.onLog = { [weak self] msg in
+            self?.log(msg)
+        }
         beaconListener?.start()
         log("UDP Listener started on port \(beaconPort)")
     }
@@ -743,6 +746,9 @@ class BeaconListener {
     
     private var listener: NWListener?
     private var connections: [NWConnection] = []
+    private let queue = DispatchQueue(label: "com.antigravity.beacon")
+    
+    var onLog: ((String) -> Void)?
     
     init(port: UInt16, deviceName: String) {
         self.port = port
@@ -760,9 +766,10 @@ class BeaconListener {
                 self?.handleConnection(newConnection)
             }
             
-            listener?.start(queue: .global())
+            listener?.start(queue: queue)
+            onLog?("Beacon Listener Started on 5001")
         } catch {
-            print("Failed to start listener: \(error)")
+            onLog?("Failed to start listener: \(error)")
         }
     }
     
@@ -786,14 +793,17 @@ class BeaconListener {
         
         connection.stateUpdateHandler = { [weak self] state in
             switch state {
-            case .cancelled, .failed:
+            case .cancelled, .failed(let error):
                 // Remove from array to release
                 self?.connections.removeAll { $0 === connection }
+                if case .failed(let error) = state {
+                    self?.onLog?("Connection failed: \(error)")
+                }
             default: break
             }
         }
         
-        connection.start(queue: .global())
+        connection.start(queue: queue)
         receiveLoop(connection)
     }
     
@@ -809,7 +819,7 @@ class BeaconListener {
                 // Continue listening for next packet
                 self.receiveLoop(connection)
             } else {
-                print("Beacon receive error: \(String(describing: error))")
+                self.onLog?("Receive error: \(String(describing: error))")
             }
         }
     }
@@ -821,6 +831,7 @@ class BeaconListener {
         if data[0] == 0x41 && data[1] == 0x47 && data[2] == 0x43 && data[3] == 0x4D &&
            data[4] == 0x01 { // PING
             
+            onLog?("PING Received (\(data.count) bytes)")
             sendPong(connection: connection)
         }
     }
@@ -840,8 +851,12 @@ class BeaconListener {
         while nameBytes.count < 32 { nameBytes.append(0) }
         packet.append(contentsOf: nameBytes)
         
-        connection.send(content: packet, completion: .contentProcessed({ error in
-             // Sent
+        connection.send(content: packet, completion: .contentProcessed({ [weak self] error in
+             if let error = error {
+                 self?.onLog?("Failed to send PONG: \(error)")
+             } else {
+                 // self?.onLog?("PONG Sent") // Verbose
+             }
         }))
     }
 }
