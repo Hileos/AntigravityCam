@@ -742,6 +742,7 @@ class BeaconListener {
     private let magic: [UInt8] = [0x41, 0x47, 0x43, 0x4D]
     
     private var listener: NWListener?
+    private var connections: [NWConnection] = []
     
     init(port: UInt16, deviceName: String) {
         self.port = port
@@ -760,7 +761,6 @@ class BeaconListener {
             }
             
             listener?.start(queue: .global())
-            // print("BeaconListener started")
         } catch {
             print("Failed to start listener: \(error)")
         }
@@ -769,6 +769,11 @@ class BeaconListener {
     func stop() {
         listener?.cancel()
         listener = nil
+        // Cancel all connections
+        for connection in connections {
+            connection.cancel()
+        }
+        connections.removeAll()
     }
     
     func setStreaming(_ streaming: Bool) {
@@ -776,6 +781,18 @@ class BeaconListener {
     }
     
     private func handleConnection(_ connection: NWConnection) {
+        // Retain connection
+        connections.append(connection)
+        
+        connection.stateUpdateHandler = { [weak self] state in
+            switch state {
+            case .cancelled, .failed:
+                // Remove from array to release
+                self?.connections.removeAll { $0 === connection }
+            default: break
+            }
+        }
+        
         connection.start(queue: .global())
         receiveLoop(connection)
     }
