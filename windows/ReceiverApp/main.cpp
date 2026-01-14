@@ -495,6 +495,15 @@ void receiver_thread_func() {
     setsockopt(ClientSocket, SOL_SOCKET, SO_RCVTIMEO,
                (const char *)&SOCKET_TIMEOUT_MS, sizeof(SOCKET_TIMEOUT_MS));
 
+    // Disable Nagle's Algorithm for Low Latency
+    BOOL nodelay = TRUE;
+    if (setsockopt(ClientSocket, IPPROTO_TCP, TCP_NODELAY,
+                   (const char *)&nodelay, sizeof(nodelay)) < 0) {
+      log_msg("Warning: Could not set TCP_NODELAY\n");
+    } else {
+      log_msg("Low Latency Mode Enabled (TCP_NODELAY)\n");
+    }
+
     // New Connection: Reset Stream State
     hasSeenKeyframe = false;
     isDecoderConfiguredWithHeaders = false;
