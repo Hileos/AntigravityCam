@@ -181,10 +181,7 @@ class CameraViewController: UIViewController {
             log("Orientation changed to \(videoOrientation.rawValue)")
         }
         
-        // Update Display Layer (Local Preview)
-        if let displayConnection = displayLayer.connection, displayConnection.isVideoOrientationSupported {
-            displayConnection.videoOrientation = videoOrientation
-        }
+
     }
     
     private func startBeacon() {
