@@ -861,4 +861,4 @@ class BeaconListener {
         }))
     }
     }
-}
+
