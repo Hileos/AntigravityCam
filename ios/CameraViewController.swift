@@ -5,7 +5,7 @@ import VideoToolbox
 import Network
 
 // MARK: - Connection State Enum
-// Build Trigger: Manual Request - Encoder Latency Instrumentation
+// Build Trigger: Manual Request - On-Screen Encoder Logs
 enum ConnectionState {
     case disconnected
     case connecting
@@ -236,7 +236,7 @@ class CameraViewController: UIViewController {
     }
     
     private func setupEncoder() {
-        videoEncoder = VideoEncoder()
+        videoEncoder = VideoEncoder(logger: self.log)
         videoEncoder?.delegate = self
         videoEncoder?.errorHandler = { [weak self] error in
             self?.log("⚠️ Encoder Error: \(error)")
@@ -248,7 +248,7 @@ class CameraViewController: UIViewController {
     private func handleEncoderError() {
         // Recreate encoder on critical error
         log("Recreating encoder after error...")
-        videoEncoder = VideoEncoder()
+        videoEncoder = VideoEncoder(logger: self.log)
         videoEncoder?.delegate = self
         videoEncoder?.errorHandler = { [weak self] error in
             self?.log("⚠️ Encoder Error: \(error)")
@@ -456,7 +456,8 @@ class VideoEncoder {
     var errorHandler: ((String) -> Void)?
     private var session: VTCompressionSession?
     
-    init() {
+    init(logger: ((String) -> Void)? = nil) {
+        self.errorHandler = logger
         createSession()
     }
     
@@ -568,7 +569,7 @@ private func compressionCallback(outputCallbackRefCon: UnsafeMutableRawPointer?,
         // For debugging now, let's log everything but throttle slightly if needed
         // encoder.errorHandler?("[Encoder] Latency: \(String(format: "%.1f", latency))ms")
         // Use a lightweight logging callback if possible, or print
-        print("[Encoder] Latency: \(String(format: "%.1f", latency))ms")
+        encoder.errorHandler?("[Encoder] Latency: \(String(format: "%.1f", latency))ms")
 
         sourceRefCon.deallocate()
     }
