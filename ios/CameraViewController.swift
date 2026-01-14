@@ -578,12 +578,16 @@ private func compressionCallback(outputCallbackRefCon: UnsafeMutableRawPointer?,
 }
 
 // MARK: - TCP Client with StreamDelegate
-class TCPClient: NSObject, StreamDelegate {
+// MARK: - TCP Client with NWConnection (Low Latency)
+class TCPClient {
     let address: String
     let port: UInt32
-    private var inputStream: InputStream?
-    private var outputStream: OutputStream?
-    private var isConnected = false
+    private var connection: NWConnection?
+    private let queue = DispatchQueue(label: "com.antigravity.tcp")
+    
+    // Backpressure
+    private var pendingPackets = 0
+    private let maxPendingPackets = 5 // Low buffer for real-time
     
     var logger: ((String) -> Void)?
     var onConnected: (() -> Void)?
@@ -592,143 +596,73 @@ class TCPClient: NSObject, StreamDelegate {
     init(address: String, port: UInt32) {
         self.address = address
         self.port = port
-        super.init()
     }
     
     func connect() {
-        var readStream: Unmanaged<CFReadStream>?
-        var writeStream: Unmanaged<CFWriteStream>?
+        let host = NWEndpoint.Host(address)
+        let port = NWEndpoint.Port(rawValue: UInt16(self.port))!
         
-        CFStreamCreatePairWithSocketToHost(kCFAllocatorDefault, address as CFString, port, &readStream, &writeStream)
+        let tcpOptions = NWProtocolTCP.Options()
+        tcpOptions.noDelay = true // Vital for Low Latency
+        tcpOptions.enableKeepalive = true
         
-        inputStream = readStream?.takeRetainedValue()
-        outputStream = writeStream?.takeRetainedValue()
+        let params = NWParameters(tls: nil, tcp: tcpOptions)
         
-        guard let input = inputStream, let output = outputStream else {
-            logger?("Failed to create streams")
-            onDisconnected?("Failed to create streams")
-            return
+        connection = NWConnection(host: host, port: port, using: params)
+        
+        connection?.stateUpdateHandler = { [weak self] state in
+            switch state {
+            case .ready:
+                self?.logger?("Connected to \(self?.address ?? ""):\(self?.port ?? 0)")
+                self?.onConnected?()
+            case .failed(let error):
+                self?.logger?("Connection failed: \(error)")
+                self?.onDisconnected?(error.localizedDescription)
+            case .cancelled:
+                self?.logger?("Connection cancelled")
+                self?.onDisconnected?(nil)
+            case .waiting(let error):
+                self?.logger?("Connection waiting: \(error)")
+            default:
+                break
+            }
         }
         
-        // Set delegate to handle stream events
-        input.delegate = self
-        output.delegate = self
-        
-        // Schedule on main run loop for event handling
-        input.schedule(in: .main, forMode: .common)
-        output.schedule(in: .main, forMode: .common)
-        
-        input.open()
-        output.open()
-        
-        logger?("TCP connecting to \(address):\(port)")
+        connection?.start(queue: queue)
+        logger?("Connecting to \(address):\(port)...")
     }
     
     func disconnect() {
-        isConnected = false
-        
-        inputStream?.delegate = nil
-        outputStream?.delegate = nil
-        
-        inputStream?.close()
-        outputStream?.close()
-        
-        inputStream?.remove(from: .main, forMode: .common)
-        outputStream?.remove(from: .main, forMode: .common)
-        
-        inputStream = nil
-        outputStream = nil
-    }
-    
-    // MARK: - StreamDelegate
-    func stream(_ aStream: Stream, handle eventCode: Stream.Event) {
-        switch eventCode {
-        case .openCompleted:
-            if aStream == outputStream && !isConnected {
-                isConnected = true
-                logger?("Stream opened successfully")
-                onConnected?()
-            }
-            
-        case .errorOccurred:
-            let error = aStream.streamError?.localizedDescription ?? "Unknown error"
-            logger?("Stream error: \(error)")
-            if isConnected {
-                disconnect()
-                onDisconnected?(error)
-            } else {
-                onDisconnected?("Connection failed: \(error)")
-            }
-            
-        case .endEncountered:
-            logger?("Stream ended")
-            if isConnected {
-                disconnect()
-                onDisconnected?("Connection closed by server")
-            }
-            
-        case .hasBytesAvailable:
-            // We don't expect incoming data, but drain it to prevent buffer issues
-            if aStream == inputStream {
-                var buffer = [UInt8](repeating: 0, count: 1024)
-                inputStream?.read(&buffer, maxLength: buffer.count)
-            }
-            
-        case .hasSpaceAvailable:
-            // Output stream has space - could be used for flow control
-            break
-            
-        default:
-            break
-        }
+        connection?.cancel()
+        connection = nil
+        pendingPackets = 0
     }
     
     func send(data: Data) -> Bool {
-        guard let outputStream = outputStream, isConnected else { return false }
+        guard let connection = connection, connection.state == .ready else { return false }
         
-        // 1. Pre-check space (optimization)
-        if !outputStream.hasSpaceAvailable {
+        // 1. Backpressure Check
+        // If we have too many packets in flight, drop this one to prevent lag accumulation
+        if pendingPackets > maxPendingPackets {
              return false
         }
         
-        // 2. Coalesce Header + Body into one buffer to minimize syscalls and lower fragmentation risk
-        let packetSize = data.count
-        let totalSize = 4 + packetSize
-        var packetData = Data(count: totalSize)
+        // 2. Coalesce Header + Body
+        let packetSize = UInt32(data.count)
+        var header = packetSize.bigEndian
+        var packetData = Data(bytes: &header, count: 4)
+        packetData.append(data)
         
-        // Write Length Header (Big Endian)
-        var lengthBE = UInt32(packetSize).bigEndian
-        withUnsafeBytes(of: &lengthBE) { packetData.replaceSubrange(0..<4, with: $0) }
-        
-        // Write Body
-        packetData.replaceSubrange(4..<totalSize, with: data)
-        
-        // 3. Write Loop - Ensure EVERY byte is sent
-        var bytesWritten = 0
-        while bytesWritten < totalSize {
-            let result = packetData.withUnsafeBytes { ptr -> Int in
-                let remaining = totalSize - bytesWritten
-                // Advanced pointer arithmetic
-                let startAddress = ptr.baseAddress!.advanced(by: bytesWritten).assumingMemoryBound(to: UInt8.self)
-                return outputStream.write(startAddress, maxLength: remaining)
+        // 3. Send
+        pendingPackets += 1
+        connection.send(content: packetData, completion: .contentProcessed({ [weak self] error in
+            self?.queue.async {
+                self?.pendingPackets -= 1
             }
-            
-            if result < 0 {
-                logger?("TCP Write Error")
-                // Notify disconnection on write error
-                DispatchQueue.main.async {
-                    self.disconnect()
-                    self.onDisconnected?("Write error")
-                }
-                return false
+            if let error = error {
+                self?.logger?("Send error: \(error)")
             }
-            if result == 0 {
-                // Stream full? If we are in middle of packet, we MUST block/retry or else stream corrupts.
-                // But typically 0 means closed.
-                return false
-            }
-            bytesWritten += result
-        }
+        }))
         
         return true
     }
