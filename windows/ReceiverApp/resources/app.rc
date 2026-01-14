@@ -1,0 +1,7 @@
+// Windows Resource File for AntigravityCam Receiver App
+// This file defines the application icon
+
+#include <windows.h>
+
+// Application icon (used in taskbar, window title, etc.)
+IDI_APPICON ICON "app_icon.ico"

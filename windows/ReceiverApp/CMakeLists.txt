@@ -13,7 +13,12 @@ include_directories("../common")
 
 link_directories("${FFMPEG_ROOT}/lib")
 
-add_executable(ReceiverApp main.cpp)
+# Windows resource file for app icon
+if(WIN32)
+    set(APP_ICON_RESOURCE "${CMAKE_CURRENT_SOURCE_DIR}/resources/app.rc")
+endif()
+
+add_executable(ReceiverApp main.cpp ${APP_ICON_RESOURCE})
 
 target_link_libraries(ReceiverApp 
     ws2_32 
