@@ -353,6 +353,10 @@ class CameraViewController: UIViewController {
         videoEncoder?.delegate = self
         videoEncoder?.errorHandler = { [weak self] error in
             self?.log("⚠️ Encoder Error: \(error)")
+            
+            // CRITICAL FIX: Do NOT recreate encoder for simple latency warnings
+            if error.contains("Latency") { return }
+            
             self?.handleEncoderError()
         }
         log("Video Encoder Setup")
@@ -365,6 +369,10 @@ class CameraViewController: UIViewController {
         videoEncoder?.delegate = self
         videoEncoder?.errorHandler = { [weak self] error in
             self?.log("⚠️ Encoder Error: \(error)")
+            
+            // CRITICAL FIX: Do NOT recreate encoder for simple latency warnings
+            if error.contains("Latency") { return }
+            
             self?.handleEncoderError()
         }
         needsKeyFrame = true
