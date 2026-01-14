@@ -748,6 +748,79 @@ void beacon_listener_thread_func() {
   closesocket(udpSock);
 }
 
+// Log Receiver Thread: Listens on 5002 for text logs
+void log_receiver_thread_func() {
+  SOCKET ListenSocket = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
+  sockaddr_in service;
+  service.sin_family = AF_INET;
+  service.sin_addr.s_addr = INADDR_ANY;
+  service.sin_port = htons(5002);
+
+  if (bind(ListenSocket, (SOCKADDR *)&service, sizeof(service)) ==
+      SOCKET_ERROR) {
+    log_msg("[LogReceiver] Bind failed on 5002.\n");
+    return;
+  }
+
+  if (listen(ListenSocket, 1) == SOCKET_ERROR) {
+    log_msg("[LogReceiver] Listen failed.\n");
+    return;
+  }
+
+  log_msg("[LogReceiver] Listening for logs on port 5002...\n");
+
+  // Create logs directory if it doesn't exist
+  CreateDirectoryA("C:\\Users\\Hamza\\Documents\\Antigravity\\IOS Camrea "
+                   "Potato Stream\\logs",
+                   NULL);
+
+  while (isRunning) {
+    sockaddr_in clientAddr;
+    int clientAddrLen = sizeof(clientAddr);
+    SOCKET ClientSocket =
+        accept(ListenSocket, (SOCKADDR *)&clientAddr, &clientAddrLen);
+
+    if (ClientSocket == INVALID_SOCKET) {
+      if (!isRunning)
+        break;
+      continue;
+    }
+
+    log_msg("[LogReceiver] Receiving Log File...\n");
+
+    // Generate filename with timestamp
+    auto t = std::time(nullptr);
+    auto tm = *std::localtime(&t);
+    std::ostringstream oss;
+    oss << "C:\\Users\\Hamza\\Documents\\Antigravity\\IOS Camrea Potato "
+           "Stream\\logs\\iphone_log_"
+        << std::put_time(&tm, "%Y%m%d_%H%M%S") << ".txt";
+
+    std::ofstream logOut(oss.str(), std::ios::binary);
+
+    // Read and Write
+    char buffer[4096];
+    int totalBytes = 0;
+    while (true) {
+      int bytesReceived = recv(ClientSocket, buffer, sizeof(buffer), 0);
+      if (bytesReceived <= 0)
+        break;
+      logOut.write(buffer, bytesReceived);
+      totalBytes += bytesReceived;
+    }
+
+    logOut.close();
+    closesocket(ClientSocket);
+
+    std::stringstream ss;
+    ss << "[LogReceiver] Saved " << totalBytes << " bytes to " << oss.str()
+       << "\n";
+    log_msg(ss.str());
+  }
+
+  closesocket(ListenSocket);
+}
+
 LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam,
                             LPARAM lParam) {
   switch (uMsg) {
@@ -824,6 +897,7 @@ int main() {
   // Start Receiver Thread
   std::thread receiverThread(receiver_thread_func);
   std::thread beaconThread(beacon_listener_thread_func);
+  std::thread logReceiverThread(log_receiver_thread_func);
 
   // Message Loop
   MSG msg = {};
@@ -833,10 +907,12 @@ int main() {
   }
 
   isRunning = false;
-  if (receiverThread.joinable())
-    receiverThread.join();
-  if (beaconThread.joinable())
-    beaconThread.join();
+
+  // Close socket to unblock accept() if possible, or just detach
+  // Ideally, we'd have a way to signal threads to exit cleanly
+  receiverThread.detach();
+  beaconThread.detach();
+  logReceiverThread.detach();
 
   cleanup();
   return 0;

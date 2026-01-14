@@ -101,6 +101,17 @@ class CameraViewController: UIViewController {
         return tv
     }()
     
+    // Send Logs Button
+    private let sendLogsButton: UIButton = {
+        let btn = UIButton(type: .system)
+        btn.setTitle("Send Logs", for: .normal)
+        btn.backgroundColor = .systemBlue
+        btn.setTitleColor(.white, for: .normal)
+        btn.layer.cornerRadius = 5
+        btn.isHidden = false
+        return btn
+    }()
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         setupUI()
@@ -122,15 +133,35 @@ class CameraViewController: UIViewController {
     
     // Custom Logger
     func log(_ msg: String) {
+        let timestamp = DateFormatter.localizedString(from: Date(), dateStyle: .none, timeStyle: .medium)
+        let logLine = "[\(timestamp)] \(msg)\n"
+        
+        // 1. Update UI
         DispatchQueue.main.async {
-            let timestamp = DateFormatter.localizedString(from: Date(), dateStyle: .none, timeStyle: .medium)
-            self.debugTextView.text = "[\(timestamp)] \(msg)\n" + self.debugTextView.text
+            self.debugTextView.text = logLine + self.debugTextView.text
             // Keep only last 50 lines
             let lines = self.debugTextView.text.components(separatedBy: "\n")
             if lines.count > 50 {
                 self.debugTextView.text = lines.prefix(50).joined(separator: "\n")
             }
         }
+        
+        // 2. Append to File
+        if let dir = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first {
+            let fileURL = dir.appendingPathComponent("console.log")
+            if let data = logLine.data(using: .utf8) {
+                if FileManager.default.fileExists(atPath: fileURL.path) {
+                    if let fileHandle = try? FileHandle(forWritingTo: fileURL) {
+                        fileHandle.seekToEndOfFile()
+                        fileHandle.write(data)
+                        fileHandle.closeFile()
+                    }
+                } else {
+                    try? data.write(to: fileURL)
+                }
+            }
+        }
+        
         print(msg)
     }
     
@@ -161,6 +192,11 @@ class CameraViewController: UIViewController {
         debugTextView.frame = CGRect(x: 20, y: 150, width: view.bounds.width - 40, height: 200)
         view.addSubview(debugTextView)
         
+        // Send Logs Button
+        sendLogsButton.frame = CGRect(x: 340, y: 100, width: 80, height: 40) // Right side
+        sendLogsButton.addTarget(self, action: #selector(sendLogsTapped), for: .touchUpInside)
+        view.addSubview(sendLogsButton)
+        
         updateConnectionUI()
     }
     
@@ -172,12 +208,18 @@ class CameraViewController: UIViewController {
         case .disconnected:
             connectButton.setTitle("Connect", for: .normal)
             connectButton.isEnabled = true
+            sendLogsButton.isEnabled = true
+            sendLogsButton.alpha = 1.0
         case .connecting, .reconnecting:
             connectButton.setTitle("Cancel", for: .normal)
             connectButton.isEnabled = true
+            sendLogsButton.isEnabled = false
+            sendLogsButton.alpha = 0.5
         case .connected:
             connectButton.setTitle("Disconnect", for: .normal)
             connectButton.isEnabled = true
+            sendLogsButton.isEnabled = false
+            sendLogsButton.alpha = 0.5
         }
     }
     
@@ -204,6 +246,55 @@ class CameraViewController: UIViewController {
             autoReconnectEnabled = false
             disconnectFromServer()
         }
+    }
+    
+    @objc private func sendLogsTapped() {
+        guard let ip = ipTextField.text, !ip.isEmpty else {
+            log("Enter IP Address first")
+            return
+        }
+        
+        log("Uploading logs to \(ip):5002...")
+        
+        DispatchQueue.global(qos: .background).async {
+            self.uploadLogs(to: ip)
+        }
+    }
+    
+    private func uploadLogs(to ip: String) {
+        guard let dir = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first else { return }
+        let fileURL = dir.appendingPathComponent("console.log")
+        
+        guard let logData = try? Data(contentsOf: fileURL) else {
+            self.log("No logs to send")
+            return
+        }
+        
+        // Simple TCP Connect & Send & Close
+        let host = NWEndpoint.Host(ip)
+        let port = NWEndpoint.Port(rawValue: 5002)!
+        let connection = NWConnection(host: host, port: port, using: .tcp)
+        
+        connection.stateUpdateHandler = { state in
+            switch state {
+            case .ready:
+                // Send Data
+                connection.send(content: logData, completion: .contentProcessed({ error in
+                    if let error = error {
+                        self.log("Log upload failed: \(error)")
+                    } else {
+                        self.log("✅ Logs Uploaded Successfully!")
+                        // Close after send
+                        connection.cancel()
+                    }
+                }))
+            case .failed(let error):
+                self.log("Log Connection Failed: \(error)")
+            default: break
+            }
+        }
+        
+        connection.start(queue: DispatchQueue(label: "LogUpload"))
     }
     
     private func setupCamera() {
