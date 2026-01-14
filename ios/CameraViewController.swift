@@ -61,6 +61,9 @@ class CameraViewController: UIViewController {
     // UDP Beacon for device discovery
     private var beaconListener: BeaconListener?
     
+    // Logging Queue context
+    private let logQueue = DispatchQueue(label: "com.antigravity.logger")
+    
     // UI Elements
     private let ipTextField: UITextField = {
         let tf = UITextField()
@@ -133,36 +136,42 @@ class CameraViewController: UIViewController {
     
     // Custom Logger
     func log(_ msg: String) {
-        let timestamp = DateFormatter.localizedString(from: Date(), dateStyle: .none, timeStyle: .medium)
-        let logLine = "[\(timestamp)] \(msg)\n"
-        
-        // 1. Update UI
-        DispatchQueue.main.async {
-            self.debugTextView.text = logLine + self.debugTextView.text
-            // Keep only last 50 lines
-            let lines = self.debugTextView.text.components(separatedBy: "\n")
-            if lines.count > 50 {
-                self.debugTextView.text = lines.prefix(50).joined(separator: "\n")
-            }
-        }
-        
-        // 2. Append to File
-        if let dir = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first {
-            let fileURL = dir.appendingPathComponent("console.log")
-            if let data = logLine.data(using: .utf8) {
-                if FileManager.default.fileExists(atPath: fileURL.path) {
-                    if let fileHandle = try? FileHandle(forWritingTo: fileURL) {
-                        fileHandle.seekToEndOfFile()
-                        fileHandle.write(data)
-                        fileHandle.closeFile()
+        logQueue.async {
+            let timestamp = DateFormatter.localizedString(from: Date(), dateStyle: .none, timeStyle: .medium)
+            let logLine = "[\(timestamp)] \(msg)\n"
+            
+            // 1. Append to File (Thread Safe)
+            if let dir = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first {
+                let fileURL = dir.appendingPathComponent("console.log")
+                if let data = logLine.data(using: .utf8) {
+                    do {
+                        if FileManager.default.fileExists(atPath: fileURL.path) {
+                            let fileHandle = try FileHandle(forWritingTo: fileURL)
+                            fileHandle.seekToEndOfFile()
+                            fileHandle.write(data)
+                            fileHandle.closeFile()
+                        } else {
+                            try data.write(to: fileURL)
+                        }
+                    } catch {
+                        print("File Log Error: \(error)")
                     }
-                } else {
-                    try? data.write(to: fileURL)
                 }
             }
+            
+            // 2. Update UI (Main Thread via async)
+            DispatchQueue.main.async { [weak self] in
+                guard let self = self else { return }
+                self.debugTextView.text = logLine + self.debugTextView.text
+                // Keep only last 50 lines
+                let lines = self.debugTextView.text.components(separatedBy: "\n")
+                if lines.count > 50 {
+                    self.debugTextView.text = lines.prefix(50).joined(separator: "\n")
+                }
+            }
+            
+            print(msg)
         }
-        
-        print(msg)
     }
     
     private func setupUI() {
@@ -262,47 +271,52 @@ class CameraViewController: UIViewController {
     }
     
     private func uploadLogs(to ip: String) {
-        guard let dir = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first else { return }
-        let fileURL = dir.appendingPathComponent("console.log")
-        
-        guard let logData = try? Data(contentsOf: fileURL) else {
-            self.log("No logs to send")
-            return
-        }
-        
-        // Simple TCP Connect & Send & Close
-        let host = NWEndpoint.Host(ip)
-        let port = NWEndpoint.Port(rawValue: 5002)!
-        let connection = NWConnection(host: host, port: port, using: .tcp)
-        
-        connection.stateUpdateHandler = { state in
-            switch state {
-            case .ready:
-                // Send Data
-                connection.send(content: logData, completion: .contentProcessed({ error in
-                    if let error = error {
-                        self.log("Log upload failed: \(error)")
-                    } else {
-                        self.log("✅ Logs Uploaded Successfully!")
-                        // Close after send
-                        connection.cancel()
-                        
-                        // Delete local file to free space
-                        do {
-                            try FileManager.default.removeItem(at: fileURL)
-                            self.log("Local log file cleared.")
-                        } catch {
-                            self.log("Failed to clear logs: \(error)")
-                        }
-                    }
-                }))
-            case .failed(let error):
-                self.log("Log Connection Failed: \(error)")
-            default: break
+        logQueue.async { [weak self] in
+            guard let self = self else { return }
+            guard let dir = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first else { return }
+            let fileURL = dir.appendingPathComponent("console.log")
+            
+            guard let logData = try? Data(contentsOf: fileURL) else {
+                self.log("No logs to send")
+                return
             }
+            
+            // Simple TCP Connect & Send & Close
+            let host = NWEndpoint.Host(ip)
+            let port = NWEndpoint.Port(rawValue: 5002)!
+            let connection = NWConnection(host: host, port: port, using: .tcp)
+            
+            connection.stateUpdateHandler = { state in
+                switch state {
+                case .ready:
+                    // Send Data
+                    connection.send(content: logData, completion: .contentProcessed({ error in
+                        if let error = error {
+                            self.log("Log upload failed: \(error)")
+                        } else {
+                            self.log("✅ Logs Uploaded Successfully!")
+                            // Close after send
+                            connection.cancel()
+                            
+                            // Delete local file to free space (Must be on logQueue)
+                            self.logQueue.async {
+                                do {
+                                    try FileManager.default.removeItem(at: fileURL)
+                                    self.log("Local log file cleared.")
+                                } catch {
+                                    self.log("Failed to clear logs: \(error)")
+                                }
+                            }
+                        }
+                    }))
+                case .failed(let error):
+                    self.log("Log Connection Failed: \(error)")
+                default: break
+                }
+            }
+            
+            connection.start(queue: DispatchQueue(label: "LogUpload"))
         }
-        
-        connection.start(queue: DispatchQueue(label: "LogUpload"))
     }
     
     private func setupCamera() {
