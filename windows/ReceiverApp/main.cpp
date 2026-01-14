@@ -570,7 +570,11 @@ void beacon_listener_thread_func() {
   local.sin_family = AF_INET;
   local.sin_addr.s_addr = INADDR_ANY;
   local.sin_port = htons(5001);
-  bind(udpSock, (SOCKADDR *)&local, sizeof(local));
+  if (bind(udpSock, (SOCKADDR *)&local, sizeof(local)) < 0) {
+    log_msg("[Discovery] Error: Bind failed.\n");
+    closesocket(udpSock);
+    return;
+  }
 
   // 3. Set Timeout
   DWORD timeout = 200;
