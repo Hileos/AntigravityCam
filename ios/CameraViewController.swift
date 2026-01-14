@@ -129,6 +129,11 @@ class CameraViewController: UIViewController {
         return btn
     }()
     
+    override func viewDidLayoutSubviews() {
+        super.viewDidLayoutSubviews()
+        displayLayer.frame = view.bounds
+    }
+
     override func viewDidLoad() {
         super.viewDidLoad()
         setupUI()
