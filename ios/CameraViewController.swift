@@ -931,7 +931,7 @@ class BeaconListener {
                 }
                 return
             } else if data[4] == 0x03 { // SYNC_REQUEST
-                handleSyncRequest(data, connection)
+                handleSyncRequest(data, connection: connection)
                 return
             }
         }
