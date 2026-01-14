@@ -37,8 +37,12 @@ class CameraViewController: UIViewController {
     private var tcpClient: TCPClient?
     private var videoEncoder: VideoEncoder?
     private var needsKeyFrame = false
+    private var needsKeyFrame = false
     private var isDroppingFrames = false // Recovery State
     private var frameCount: Int = 0 
+    
+    // Manual Display Display Layer
+    private let displayLayer = AVSampleBufferDisplayLayer()
     
     // Connection State Management
     private var connectionState: ConnectionState = .disconnected {
@@ -405,16 +409,19 @@ class CameraViewController: UIViewController {
         
         videoOutput.setSampleBufferDelegate(self, queue: DispatchQueue(label: "videoQueue"))
         videoOutput.alwaysDiscardsLateVideoFrames = true
+        
+        // Force YUV420 Bi-Planar (NV12) for compatibility with our drawing code
+        videoOutput.videoSettings = [kCVPixelBufferPixelFormatTypeKey as String: kCVPixelFormatType_420YpCbCr8BiPlanarVideoRange]
+        
         if captureSession.canAddOutput(videoOutput) {
             captureSession.addOutput(videoOutput)
-            log("Camera Output Added")
+            log("Camera Output Added (YUV420)")
         }
         
-        // Add Preview Layer
-        let previewLayer = AVCaptureVideoPreviewLayer(session: captureSession)
-        previewLayer.frame = view.bounds
-        previewLayer.videoGravity = .resizeAspectFill
-        view.layer.insertSublayer(previewLayer, at: 0)
+        // Manual Display Layer Setup
+        displayLayer.frame = view.bounds
+        displayLayer.videoGravity = .resizeAspectFill
+        view.layer.insertSublayer(displayLayer, at: 0)
     }
     
     private func setupEncoder() {
@@ -543,15 +550,12 @@ class CameraViewController: UIViewController {
         let width = CVPixelBufferGetWidth(pixelBuffer)
         let height = CVPixelBufferGetHeight(pixelBuffer)
         
-        // Visual Latency Test: Moving White Square
-        // Speed: 20 pixels per frame (at 60fps = 1200px/sec)
-        // Wraps around screen width
+        // Visual Latency Test: Moving Zebra Square
+        // Speed: 20 pixels per frame
         let boxSize = 100
         let speed = 20
         let xPos = (frameCount * speed) % (width - boxSize)
         let yPos = (height / 2) - (boxSize / 2) // Center vertically
-        
-        // Draw White Box (Y=255, U=128, V=128)
         
         // Plane 0: Y (Luma)
         if let yBase = CVPixelBufferGetBaseAddressOfPlane(pixelBuffer, 0) {
@@ -562,12 +566,16 @@ class CameraViewController: UIViewController {
                 if rowIdx >= height { break }
                 
                 let rowPtr = yBase.advanced(by: rowIdx * yStride).assumingMemoryBound(to: UInt8.self)
-                // Set memory to 255 (White) starting at xPos
-                memset(rowPtr + xPos, 255, boxSize)
+                
+                // Draw Zebra Stripes (Black/White every 10 pixels)
+                let isWhiteStripe = (r / 10) % 2 == 0
+                let color: UInt8 = isWhiteStripe ? 255 : 0
+                
+                memset(rowPtr + xPos, Int32(color), boxSize)
             }
         }
         
-        // Plane 1: UV (Chroma)
+        // Plane 1: UV (Chroma) - Set to Neural Gray (128)
         if let uvBase = CVPixelBufferGetBaseAddressOfPlane(pixelBuffer, 1) {
             let uvStride = CVPixelBufferGetBytesPerRowOfPlane(pixelBuffer, 1)
             
@@ -576,9 +584,9 @@ class CameraViewController: UIViewController {
                 if rowIdx >= (height/2) { break }
                 
                 let rowPtr = uvBase.advanced(by: rowIdx * uvStride).assumingMemoryBound(to: UInt8.self)
-                let uvXStart = (xPos / 2) * 2 // Must be even for interleaved UV
+                let uvXStart = (xPos / 2) * 2 
                 
-                // Write Neutral Chroma (128)
+                // Write Neutral Chroma (128) for the length of the box
                 for c in 0..<(boxSize/2) {
                     let ptrIdx = uvXStart + (c * 2)
                     rowPtr[ptrIdx] = 128     // U
@@ -598,6 +606,9 @@ extension CameraViewController: AVCaptureVideoDataOutputSampleBufferDelegate {
         if let pixelBuffer = CMSampleBufferGetImageBuffer(sampleBuffer) {
             drawDebugPattern(on: pixelBuffer)
         }
+        
+        // Display Modified Frame on iPhone
+        displayLayer.enqueue(sampleBuffer)
 
         // Encode Frame
         let force = needsKeyFrame
