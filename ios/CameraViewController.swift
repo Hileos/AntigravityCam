@@ -5,7 +5,7 @@ import VideoToolbox
 import Network
 
 // MARK: - Connection State Enum
-// Build Trigger: Manual Request 16:40
+// Build Trigger: Manual Request - Encoder Latency Instrumentation
 enum ConnectionState {
     case disconnected
     case connecting
@@ -499,7 +499,12 @@ class VideoEncoder {
             properties = [kVTEncodeFrameOptionKey_ForceKeyFrame as String: kCFBooleanTrue!]
         }
         
-        let status = VTCompressionSessionEncodeFrame(session, imageBuffer: imageBuffer, presentationTimeStamp: pts, duration: .invalid, frameProperties: properties as CFDictionary?, sourceFrameRefcon: nil, infoFlagsOut: nil)
+        // Create timestamp for latency measurement
+        let now = CFAbsoluteTimeGetCurrent()
+        let refCon = UnsafeMutablePointer<CFAbsoluteTime>.allocate(capacity: 1)
+        refCon.initialize(to: now)
+        
+        let status = VTCompressionSessionEncodeFrame(session, imageBuffer: imageBuffer, presentationTimeStamp: pts, duration: .invalid, frameProperties: properties as CFDictionary?, sourceFrameRefcon: refCon, infoFlagsOut: nil)
         
         if status != noErr {
             errorHandler?("Encode frame failed: \(status)")
@@ -553,6 +558,21 @@ private func compressionCallback(outputCallbackRefCon: UnsafeMutableRawPointer?,
     guard let refCon = outputCallbackRefCon else { return }
     let encoder = Unmanaged<VideoEncoder>.fromOpaque(refCon).takeUnretainedValue()
     
+    // Verify sourceFrameRefCon exists
+    if let sourceRefCon = sourceFrameRefCon {
+        let startTime = sourceRefCon.assumingMemoryBound(to: CFAbsoluteTime.self).pointee
+        let now = CFAbsoluteTimeGetCurrent()
+        let latency = (now - startTime) * 1000.0
+        
+        // Log if high latency (> 15ms) to filter noise, or every 30 frames
+        // For debugging now, let's log everything but throttle slightly if needed
+        // encoder.errorHandler?("[Encoder] Latency: \(String(format: "%.1f", latency))ms")
+        // Use a lightweight logging callback if possible, or print
+        print("[Encoder] Latency: \(String(format: "%.1f", latency))ms")
+
+        sourceRefCon.deallocate()
+    }
+
     // Handle encoder errors
     if status != noErr {
         encoder.errorHandler?("Compression callback error: \(status)")

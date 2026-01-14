@@ -2,12 +2,14 @@
 #define WIN32_LEAN_AND_MEAN
 #include "../common/SharedMemory.h"
 #include <atomic>
+#include <chrono>
 #include <iostream>
 #include <mutex>
 #include <thread>
 #include <vector>
 #include <windows.h>
 #include <winsock2.h>
+#include <ws2tcpip.h>
 
 // Link against Ws2_32.lib
 #pragma comment(lib, "Ws2_32.lib")
@@ -238,7 +240,7 @@ std::vector<uint8_t> pps_cache;
 static int send_packet_err_count = 0;
 
 // Decode function taking raw NAL buf (adds start code for FFmpeg)
-void decode_frame(uint8_t *data, int size) {
+void decode_frame(SOCKET clientSocket, uint8_t *data, int size) {
   if (size <= 0)
     return;
 
@@ -424,20 +426,31 @@ void decode_frame(uint8_t *data, int size) {
       totalRenderTime += renderUs;
       frameMetricCount++;
 
-      // Log Every 60 Frames (~1 sec)
-      if (frameMetricCount >= 60) {
+      // Log Every 30 Frames (~0.5 sec)
+      if (frameMetricCount >= 30) {
         auto now = std::chrono::steady_clock::now();
         long long elapsedMs =
             std::chrono::duration_cast<std::chrono::milliseconds>(
                 now - lastMetricTime)
                 .count();
-        double fps = (frameMetricCount * 1000.0) / elapsedMs;
-        double avgDecode = (totalDecodeTime / 1000.0) / frameMetricCount;
-        double avgRender = (totalRenderTime / 1000.0) / frameMetricCount;
+        if (elapsedMs > 0) {
+          double fps = (frameMetricCount * 1000.0) / elapsedMs;
+          double avgDecode = (totalDecodeTime / 1000.0) / frameMetricCount;
+          double avgRender = (totalRenderTime / 1000.0) / frameMetricCount;
 
-        std::cout << "[Metrics] FPS: " << fps << " | Decode: " << avgDecode
-                  << "ms"
-                  << " | Render: " << avgRender << "ms\n";
+          // Check Pending Network Bytes (Latency Indicator)
+          u_long pendingBytes = 0;
+          ioctlsocket(clientSocket, FIONREAD, &pendingBytes);
+          double pendingKB = pendingBytes / 1024.0;
+
+          std::stringstream ss;
+          ss << "[Metrics] FPS: " << std::fixed << std::setprecision(1) << fps
+             << " | Decode: " << std::setprecision(3) << avgDecode << "ms"
+             << " | Render: " << std::setprecision(3) << avgRender << "ms"
+             << " | Queue: " << std::setprecision(1) << pendingKB << " KB\n";
+          log_msg(ss.str());
+          std::cout << ss.str(); // Keep console output too
+        }
 
         // Reset
         frameMetricCount = 0;
@@ -514,6 +527,15 @@ void receiver_thread_func() {
       log_msg("Low Latency Mode Enabled (TCP_NODELAY)\n");
     }
 
+    // Minimize OS Receive Buffer (Reduce Latency)
+    int bufSize = 65536; // 64KB
+    if (setsockopt(ClientSocket, SOL_SOCKET, SO_RCVBUF, (char *)&bufSize,
+                   sizeof(int)) == SOCKET_ERROR) {
+      log_msg("Warning: Could not set SO_RCVBUF\n");
+    } else {
+      log_msg("Receive Buffer limited to 64KB\n");
+    }
+
     // New Connection: Reset Stream State
     hasSeenKeyframe = false;
     isDecoderConfiguredWithHeaders = false;
@@ -554,7 +576,7 @@ void receiver_thread_func() {
         break;
       }
 
-      decode_frame(buf.data(), len);
+      decode_frame(ClientSocket, buf.data(), len);
     }
 
     std::cout << "Disconnected.\n";

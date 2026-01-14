@@ -1,0 +1,146 @@
+Frame,Time,R,G,B
+# Using H.264 software decoder
+# Decoder Configured for SOFTWARE decoding
+# [Discovery] Starting Active Discovery (Broadcasting PING on 5001)...
+# [Discovery] Device Found: # iPhone#  (# 192.168.1.8# )
+# Low Latency Mode Enabled (TCP_NODELAY)
+# Receive Buffer limited to 64KB
+# NAL: SPS (7) found
+#  [Keyframe/Header Found! Syncing Stream...] 
+# NAL: PPS (8) found
+# [FFMPEG] no frame!
+# NAL: IDR (5) found
+# Re-initializing Decoder with SPS/PPS Extradata...
+# Decoder configured with Extradata (SPS+PPS)
+# Decoder Configured for SOFTWARE decoding
+# NAL: SPS (7) found
+# NAL: PPS (8) found
+# [FFMPEG] no frame!
+# NAL: IDR (5) found
+ERROR: Error sending packet: Invalid data found when processing input
+# [Metrics] FPS: 20.4 | Decode: 0.032ms | Render: 0.632ms
+# NAL: SPS (7) found
+# NAL: PPS (8) found
+# [FFMPEG] no frame!
+# NAL: IDR (5) found
+# [Metrics] FPS: 30.0 | Decode: 0.027ms | Render: 0.584ms
+# NAL: SPS (7) found
+# NAL: PPS (8) found
+# [FFMPEG] no frame!
+# NAL: IDR (5) found
+# [Metrics] FPS: 30.1 | Decode: 0.026ms | Render: 0.590ms
+# NAL: SPS (7) found
+# NAL: PPS (8) found
+# [FFMPEG] no frame!
+# NAL: IDR (5) found
+# [Metrics] FPS: 30.0 | Decode: 0.026ms | Render: 0.554ms
+# NAL: SPS (7) found
+# NAL: PPS (8) found
+# [FFMPEG] no frame!
+# NAL: IDR (5) found
+# [Metrics] FPS: 30.1 | Decode: 0.025ms | Render: 0.529ms
+# NAL: SPS (7) found
+# NAL: PPS (8) found
+# [FFMPEG] no frame!
+# NAL: IDR (5) found
+# [Metrics] FPS: 30.0 | Decode: 0.025ms | Render: 0.533ms
+# NAL: SPS (7) found
+# NAL: PPS (8) found
+# [FFMPEG] no frame!
+# NAL: IDR (5) found
+# [Metrics] FPS: 30.0 | Decode: 0.027ms | Render: 0.515ms
+# NAL: SPS (7) found
+# NAL: PPS (8) found
+# [FFMPEG] no frame!
+# NAL: IDR (5) found
+# [Metrics] FPS: 30.0 | Decode: 0.027ms | Render: 0.512ms
+# NAL: SPS (7) found
+# NAL: PPS (8) found
+# [FFMPEG] no frame!
+# NAL: IDR (5) found
+# [Metrics] FPS: 30.0 | Decode: 0.027ms | Render: 0.502ms
+# NAL: SPS (7) found
+# NAL: PPS (8) found
+# [FFMPEG] no frame!
+# NAL: IDR (5) found
+# [Metrics] FPS: 29.9 | Decode: 0.026ms | Render: 0.526ms
+# NAL: SPS (7) found
+# NAL: PPS (8) found
+# [FFMPEG] no frame!
+# NAL: IDR (5) found
+# [Metrics] FPS: 30.1 | Decode: 0.026ms | Render: 0.500ms
+# NAL: SPS (7) found
+# NAL: PPS (8) found
+# [FFMPEG] no frame!
+# NAL: IDR (5) found
+# [Metrics] FPS: 30.0 | Decode: 0.025ms | Render: 0.504ms
+# NAL: SPS (7) found
+# NAL: PPS (8) found
+# [FFMPEG] no frame!
+# NAL: IDR (5) found
+# [Metrics] FPS: 30.0 | Decode: 0.026ms | Render: 0.529ms
+# NAL: SPS (7) found
+# NAL: PPS (8) found
+# [FFMPEG] no frame!
+# NAL: IDR (5) found
+# [Metrics] FPS: 30.0 | Decode: 0.025ms | Render: 0.502ms
+# NAL: SPS (7) found
+# NAL: PPS (8) found
+# [FFMPEG] no frame!
+# NAL: IDR (5) found
+# [Metrics] FPS: 30.2 | Decode: 0.026ms | Render: 0.498ms
+# NAL: SPS (7) found
+# NAL: PPS (8) found
+# [FFMPEG] no frame!
+# NAL: IDR (5) found
+# [Metrics] FPS: 29.9 | Decode: 0.025ms | Render: 0.520ms
+# NAL: SPS (7) found
+# NAL: PPS (8) found
+# [FFMPEG] no frame!
+# NAL: IDR (5) found
+# [Metrics] FPS: 30.1 | Decode: 0.026ms | Render: 0.505ms
+# NAL: SPS (7) found
+# NAL: PPS (8) found
+# [FFMPEG] no frame!
+# NAL: IDR (5) found
+# [Metrics] FPS: 30.0 | Decode: 0.026ms | Render: 0.515ms
+# NAL: SPS (7) found
+# NAL: PPS (8) found
+# [FFMPEG] no frame!
+# NAL: IDR (5) found
+# [Metrics] FPS: 30.0 | Decode: 0.026ms | Render: 0.523ms
+# NAL: SPS (7) found
+# NAL: PPS (8) found
+# [FFMPEG] no frame!
+# NAL: IDR (5) found
+# [Metrics] FPS: 30.0 | Decode: 0.026ms | Render: 0.496ms
+# NAL: SPS (7) found
+# NAL: PPS (8) found
+# [FFMPEG] no frame!
+# NAL: IDR (5) found
+# [Metrics] FPS: 30.1 | Decode: 0.025ms | Render: 0.515ms
+# NAL: SPS (7) found
+# NAL: PPS (8) found
+# [FFMPEG] no frame!
+# NAL: IDR (5) found
+# [Metrics] FPS: 30.0 | Decode: 0.027ms | Render: 0.533ms
+# NAL: SPS (7) found
+# NAL: PPS (8) found
+# [FFMPEG] no frame!
+# NAL: IDR (5) found
+# [Metrics] FPS: 30.0 | Decode: 0.027ms | Render: 0.518ms
+# NAL: SPS (7) found
+# NAL: PPS (8) found
+# [FFMPEG] no frame!
+# NAL: IDR (5) found
+# [Metrics] FPS: 30.1 | Decode: 0.026ms | Render: 0.563ms
+# NAL: SPS (7) found
+# NAL: PPS (8) found
+# [FFMPEG] no frame!
+# NAL: IDR (5) found
+# [Metrics] FPS: 29.9 | Decode: 0.024ms | Render: 0.514ms
+# NAL: SPS (7) found
+# NAL: PPS (8) found
+# [FFMPEG] no frame!
+# NAL: IDR (5) found
+# [Discovery] Device Lost (Timeout)
