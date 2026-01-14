@@ -804,6 +804,7 @@ class BeaconListener {
         
         connection.start(queue: queue)
         receiveLoop(connection)
+        // onLog?("New UDP Flow") // Debug
     }
     
     private func receiveLoop(_ connection: NWConnection) {
@@ -812,10 +813,13 @@ class BeaconListener {
             
             if let data = content {
                 self.processPacket(data, connection: connection)
+                // Stateless: Close flow after one valid packet to force fresh state for next broadcast
+                connection.cancel()
+                return 
             }
             
             if error == nil {
-                // Continue listening for next packet
+                // Continue listening (only if no data received yet)
                 self.receiveLoop(connection)
             } else {
                 self.onLog?("Receive error: \(String(describing: error))")
@@ -830,7 +834,7 @@ class BeaconListener {
         if data[0] == 0x41 && data[1] == 0x47 && data[2] == 0x43 && data[3] == 0x4D &&
            data[4] == 0x01 { // PING
             
-            onLog?("PING Received (\(data.count) bytes)")
+            onLog?("PING Received (\(data.count)b) -> Responding")
             sendPong(connection: connection)
         }
     }
@@ -853,9 +857,8 @@ class BeaconListener {
         connection.send(content: packet, completion: .contentProcessed({ [weak self] error in
              if let error = error {
                  self?.onLog?("Failed to send PONG: \(error)")
-             } else {
-                 // self?.onLog?("PONG Sent") // Verbose
              }
         }))
+    }
     }
 }
