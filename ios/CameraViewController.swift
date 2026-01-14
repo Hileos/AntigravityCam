@@ -571,7 +571,6 @@ private func compressionCallback(outputCallbackRefCon: UnsafeMutableRawPointer?,
     }
     
     if isKeyFrame {
-        // print("Sending SPS/PPS (KeyFrame)")
         encoder.sendSPSandPPS(from: sampleBuffer)
     }
     
@@ -804,7 +803,6 @@ class BeaconListener {
         
         connection.start(queue: queue)
         receiveLoop(connection)
-        // onLog?("New UDP Flow") // Debug
     }
     
     private func receiveLoop(_ connection: NWConnection) {

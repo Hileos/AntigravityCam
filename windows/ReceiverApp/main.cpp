@@ -403,10 +403,9 @@ void decode_frame(uint8_t *data, int size) {
                           abs(b - lastB) > 10);
 
           if (changed || (debugFrameCount % 30 == 0)) {
-            if (changed)
-              std::cout << "[Pattern Change] ";
-            std::cout << "Pixel(32,32): RGB(" << (int)r << "," << (int)g << ","
-                      << (int)b << ")\n";
+            // if (changed) std::cout << "[Pattern Change] ";
+            // std::cout << "Pixel(32,32): RGB(" << (int)r << "," << (int)g <<
+            // "," << (int)b << ")\n";
 
             // Log to file
             if (debugFile.is_open()) {
