@@ -600,6 +600,10 @@ void beacon_listener_thread_func() {
       "[Discovery] Starting Active Discovery (Broadcasting PING on 5001)...\n");
   std::cout << "Device Not Found\n";
 
+  // Track last discovery to avoid log spam
+  char lastDiscoveryName[33] = {0};
+  char lastDiscoveryIP[INET_ADDRSTRLEN] = {0};
+
   auto lastBeaconTime = std::chrono::steady_clock::now();
   auto lastPingTime = std::chrono::steady_clock::now();
   bool deviceAvailable = false;
@@ -630,11 +634,44 @@ void beacon_listener_thread_func() {
         recvfrom(udpSock, buf, sizeof(buf), 0, (sockaddr *)&sender, &senderLen);
 
     if (len > 0) {
-      if (len >= 39 && buf[0] == 0x41 && buf[1] == 0x47 && buf[2] == 0x43 &&
-          buf[3] == 0x4D && buf[4] == 0x02) {
+      // Ensure null termination for string operations if buf is treated as
+      // char* This assumes buf is large enough to hold len + 1 bytes. The
+      // original code uses `char name[33] = {0}; memcpy(name, &buf[7], 32);`
+      // which implies buf is treated as raw bytes.
+      // The new code uses strncmp and strncpy, which expect null-terminated
+      // strings. Let's ensure buf is treated as char* and null-terminated if
+      // possible. If len is 1024, buf[1024] would be out of bounds. For safety,
+      // we'll copy to a temporary buffer if needed for string ops.
 
-        char name[33] = {0};
-        memcpy(name, &buf[7], 32);
+      // PONG Format: Magic(4) + Type(1)=2 + Ver(1) + State(1) + Name(32)
+      if (len >= 39 && strncmp(buf, "AGCM", 4) == 0 && buf[4] == 0x02) {
+        char *namePtr = buf + 7;
+        char nameBuffer[33];
+        strncpy(nameBuffer, namePtr, 32);
+        nameBuffer[32] = 0; // Ensure null termination
+
+        // Extract Sender IP
+        char ipStr[INET_ADDRSTRLEN];
+        inet_ntop(AF_INET, &(sender.sin_addr), ipStr, INET_ADDRSTRLEN);
+
+        std::string deviceName(nameBuffer);
+
+        // Only print if new or changed
+        if (std::string(lastDiscoveryName) != deviceName ||
+            std::strcmp(lastDiscoveryIP, ipStr) != 0) {
+          log_msg("[Discovery] Device Found: ");
+          log_msg(deviceName.c_str());
+          log_msg(" (");
+          log_msg(ipStr);
+          log_msg(")\n");
+          std::cout << "Device Found: " << deviceName << " (" << ipStr << ")\n";
+
+          // Update last discovered info
+          strncpy(lastDiscoveryName, nameBuffer, 32);
+          lastDiscoveryName[32] = 0;
+          strncpy(lastDiscoveryIP, ipStr, INET_ADDRSTRLEN - 1);
+          lastDiscoveryIP[INET_ADDRSTRLEN - 1] = 0;
+        }
 
         lastBeaconTime = now;
         deviceAvailable = true;
@@ -642,8 +679,6 @@ void beacon_listener_thread_func() {
         // UI Update Logic (Console Only, No Window Title)
         if (!isConnected) {
           if (lastConsoleState != STATE_AVAILABLE) {
-            std::cout << "Device Found: " << name << "\n";
-            log_msg("[Discovery] Device Found: " + std::string(name) + "\n");
             lastConsoleState = STATE_AVAILABLE;
           }
         } else {

@@ -1,0 +1,5 @@
+Frame,Time,R,G,B
+# Using H.264 software decoder
+# Decoder Configured for SOFTWARE decoding
+# [Discovery] Starting Active Discovery (Broadcasting PING on 5001)...
+# [Discovery] Device Found: iPhone

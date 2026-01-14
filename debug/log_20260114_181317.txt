@@ -1,6 +1,9 @@
 Frame,Time,R,G,B
 # Using H.264 software decoder
 # Decoder Configured for SOFTWARE decoding
+# [Discovery] Starting Active Discovery (Broadcasting PING on 5001)...
+# [Discovery] Device Found: iPhone
+# Low Latency Mode Enabled (TCP_NODELAY)
 # NAL: SPS (7) found
 #  [Keyframe/Header Found! Syncing Stream...] 
 # NAL: PPS (8) found
@@ -15,15 +18,35 @@ Frame,Time,R,G,B
 # [FFMPEG] no frame!
 # NAL: IDR (5) found
 ERROR: Error sending packet: Invalid data found when processing input
-30,254,0,0
-31,3,252,4
+30,255,0,1
+31,0,252,0
 # NAL: SPS (7) found
 # NAL: PPS (8) found
 # [FFMPEG] no frame!
 # NAL: IDR (5) found
 60,0,254,0
-61,1,0,250
+61,3,0,254
 # NAL: SPS (7) found
 # NAL: PPS (8) found
 # [FFMPEG] no frame!
 # NAL: IDR (5) found
+90,1,0,252
+91,254,0,3
+# NAL: SPS (7) found
+# NAL: PPS (8) found
+# [FFMPEG] no frame!
+# NAL: IDR (5) found
+120,255,0,1
+121,3,252,4
+# NAL: SPS (7) found
+# NAL: PPS (8) found
+# [FFMPEG] no frame!
+# NAL: IDR (5) found
+150,0,255,0
+151,6,2,251
+# NAL: SPS (7) found
+# NAL: PPS (8) found
+# [FFMPEG] no frame!
+# NAL: IDR (5) found
+# [Discovery] Device Found: iPhone
+# [Discovery] Device Lost (Timeout)

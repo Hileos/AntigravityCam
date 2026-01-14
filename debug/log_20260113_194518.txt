@@ -1,3 +1,0 @@
-Frame,Time,R,G,B
-# D3D11 Device Created.
-# Decoder Configured for HARDWARE (D3D11)
