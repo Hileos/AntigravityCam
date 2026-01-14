@@ -496,7 +496,7 @@ class VideoEncoder {
         
         var properties: [String: Any]?
         if forceKeyframe {
-            properties = [kVTEncodeFrameOptionKey_ForceKeyFrame as String: kCFBooleanTrue]
+            properties = [kVTEncodeFrameOptionKey_ForceKeyFrame as String: kCFBooleanTrue!]
         }
         
         let status = VTCompressionSessionEncodeFrame(session, imageBuffer: imageBuffer, presentationTimeStamp: pts, duration: .invalid, frameProperties: properties as CFDictionary?, sourceFrameRefcon: nil, infoFlagsOut: nil)
