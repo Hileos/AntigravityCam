@@ -793,12 +793,11 @@ class BeaconListener {
         
         connection.stateUpdateHandler = { [weak self] state in
             switch state {
-            case .cancelled, .failed(let error):
-                // Remove from array to release
+            case .cancelled:
                 self?.connections.removeAll { $0 === connection }
-                if case .failed(let error) = state {
-                    self?.onLog?("Connection failed: \(error)")
-                }
+            case .failed(let error):
+                self?.connections.removeAll { $0 === connection }
+                self?.onLog?("Connection failed: \(error)")
             default: break
             }
         }
