@@ -278,6 +278,7 @@ class CameraViewController: UIViewController {
         connectionState = .connected
         hasConnectedOnce = true
         autoReconnectEnabled = true // Enable auto-reconnect after first successful connection
+        beaconSender?.setStreaming(true) // Update beacon state
         log("✓ Connected! Auto-reconnect enabled.")
         
         // Request keyframe after connection is stable
@@ -331,6 +332,7 @@ class CameraViewController: UIViewController {
         tcpClient?.disconnect()
         tcpClient = nil
         connectionState = .disconnected
+        beaconSender?.setStreaming(false) // Reset beacon state
         isDroppingFrames = true
     }
 
