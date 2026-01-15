@@ -293,7 +293,60 @@ class CameraViewController: UIViewController {
             connectButton.setTitle("Disconnect", for: .normal)
             connectButton.backgroundColor = .systemRed
             connectButton.setTitleColor(.white, for: .normal)
-            ipTextField.isEnabled = false
+        }
+    }
+    
+    // MARK: - Orientation Support
+    private func setupOrientationObserver() {
+        NotificationCenter.default.addObserver(self, selector: #selector(orientationChanged), name: UIDevice.orientationDidChangeNotification, object: nil)
+    }
+    
+    @objc private func orientationChanged() {
+        updateCameraOrientation()
+    }
+    
+    private func updateCameraOrientation() {
+        if let connection = videoOutput.connection(with: .video), connection.isVideoOrientationSupported {
+            // Priority 1: Device Orientation
+            let deviceOrientation = UIDevice.current.orientation
+            
+            // Priority 2: Interface Orientation (Fallback)
+            let interfaceOrientation = view.window?.windowScene?.interfaceOrientation ?? .unknown
+            
+            var videoOrientation: AVCaptureVideoOrientation = .landscapeRight // Default
+            
+            switch deviceOrientation {
+            case .portrait:
+                videoOrientation = .portrait
+            case .portraitUpsideDown:
+                videoOrientation = .portraitUpsideDown
+            case .landscapeLeft:
+                videoOrientation = .landscapeRight
+            case .landscapeRight:
+                videoOrientation = .landscapeLeft
+            default:
+                // Fallback if device orientation is unknown
+                switch interfaceOrientation {
+                case .portrait:
+                    videoOrientation = .portrait
+                case .portraitUpsideDown:
+                    videoOrientation = .portraitUpsideDown
+                case .landscapeLeft:
+                    videoOrientation = .landscapeLeft
+                case .landscapeRight:
+                    videoOrientation = .landscapeRight
+                default:
+                    // Final Fallback: Check Screen Dimensions
+                    if UIScreen.main.bounds.height > UIScreen.main.bounds.width {
+                        videoOrientation = .portrait
+                    } else {
+                        videoOrientation = .landscapeRight
+                    }
+                }
+            }
+            
+            connection.videoOrientation = videoOrientation
+            log("Orientation updated to \(videoOrientation.rawValue) (Dev: \(deviceOrientation.rawValue))")
         }
     }
     
