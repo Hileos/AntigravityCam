@@ -65,67 +65,89 @@ class CameraViewController: UIViewController {
     // UDP Beacon for device discovery
     private var beaconListener: BeaconListener?
     
-    // Logging Queue context
-    private let logQueue = DispatchQueue(label: "com.antigravity.logger")
+    // UI Container for easy hiding
+    private let controlsContainer = UIView()
+    private var isUIHidden = false
     
     // UI Elements
+    private let titleLabel: UILabel = {
+        let label = UILabel()
+        label.text = "Antigravity Cam"
+        label.textColor = .white
+        label.font = .systemFont(ofSize: 18, weight: .bold)
+        label.translatesAutoresizingMaskIntoConstraints = false
+        return label
+    }()
+    
     private let ipTextField: UITextField = {
         let tf = UITextField()
-        tf.placeholder = "Enter PC IP (e.g. 192.168.1.2)"
+        tf.placeholder = "PC IP (e.g. 192.168.1.2)"
         tf.borderStyle = .roundedRect
         tf.backgroundColor = .white
         tf.textColor = .black
-        tf.text = "192.168.1.2" // Default
+        tf.text = "192.168.1.2"
+        tf.translatesAutoresizingMaskIntoConstraints = false
         return tf
     }()
     
-    // Connection Status Indicator
     private let statusLabel: UILabel = {
         let label = UILabel()
         label.text = "● Disconnected"
         label.textColor = .systemRed
         label.font = .systemFont(ofSize: 14, weight: .medium)
+        label.textAlignment = .right
+        label.translatesAutoresizingMaskIntoConstraints = false
         return label
     }()
     
-    // Connect/Disconnect Button
     private let connectButton: UIButton = {
         let btn = UIButton(type: .system)
         btn.setTitle("Connect", for: .normal)
         btn.backgroundColor = .white
-        btn.layer.cornerRadius = 5
+        btn.layer.cornerRadius = 8
+        btn.translatesAutoresizingMaskIntoConstraints = false
         return btn
     }()
     
-    // Debug Console
     private let debugTextView: UITextView = {
         let tv = UITextView()
-        tv.backgroundColor = UIColor.black.withAlphaComponent(0.5)
+        tv.backgroundColor = UIColor.black.withAlphaComponent(0.6)
         tv.textColor = .green
         tv.font = .monospacedSystemFont(ofSize: 10, weight: .regular)
         tv.isEditable = false
         tv.isSelectable = false
+        tv.isHidden = true // Hidden by default
+        tv.translatesAutoresizingMaskIntoConstraints = false
         return tv
     }()
     
-    // Send Logs Button
     private let sendLogsButton: UIButton = {
         let btn = UIButton(type: .system)
-        btn.setTitle("Send Logs", for: .normal)
+        btn.setTitle("Upload Logs", for: .normal)
         btn.backgroundColor = .systemBlue
         btn.setTitleColor(.white, for: .normal)
-        btn.layer.cornerRadius = 5
-        btn.isHidden = false
+        btn.layer.cornerRadius = 8
+        btn.translatesAutoresizingMaskIntoConstraints = false
         return btn
     }()
 
-    // FPS Toggle Button
     private let fpsButton: UIButton = {
         let btn = UIButton(type: .system)
         btn.setTitle("30 FPS", for: .normal)
         btn.backgroundColor = .systemGray
         btn.setTitleColor(.white, for: .normal)
-        btn.layer.cornerRadius = 5
+        btn.layer.cornerRadius = 8
+        btn.translatesAutoresizingMaskIntoConstraints = false
+        return btn
+    }()
+    
+    private let toggleLogsButton: UIButton = {
+        let btn = UIButton(type: .system)
+        btn.setTitle("Show Logs", for: .normal)
+        btn.backgroundColor = .darkGray
+        btn.setTitleColor(.white, for: .normal)
+        btn.layer.cornerRadius = 8
+        btn.translatesAutoresizingMaskIntoConstraints = false
         return btn
     }()
     
@@ -140,140 +162,114 @@ class CameraViewController: UIViewController {
         log("App Started. Setting up camera...")
         setupCamera()
         setupEncoder()
-        setupOrientationObserver() // Start listening for rotation
+        setupOrientationObserver()
         
-        // Initial Orientation
         DispatchQueue.main.async {
             self.updateCameraOrientation()
         }
         
         startCapture()
         startBeacon()
-    }
-    
-    // MARK: - Orientation Support
-    private func setupOrientationObserver() {
-        NotificationCenter.default.addObserver(self, selector: #selector(orientationChanged), name: UIDevice.orientationDidChangeNotification, object: nil)
-    }
-    
-    @objc private func orientationChanged() {
-        updateCameraOrientation()
-    }
-    
-    private func updateCameraOrientation() {
-        guard let connection = videoOutput.connection(with: .video) else { return }
         
-        let deviceOrientation = UIDevice.current.orientation
-        var videoOrientation: AVCaptureVideoOrientation = .landscapeRight
-        
-        switch deviceOrientation {
-        case .portrait:
-            videoOrientation = .portrait
-        case .portraitUpsideDown:
-            videoOrientation = .portraitUpsideDown
-        case .landscapeLeft:
-            videoOrientation = .landscapeRight // Camera is opposite to device
-        case .landscapeRight:
-            videoOrientation = .landscapeLeft  // Camera is opposite to device
-        default:
-            // Keep current if face up/down or unknown
-            return 
-        }
-        
-        // Update Video Output (Encoding)
-        if connection.isVideoOrientationSupported {
-            connection.videoOrientation = videoOrientation
-            log("Orientation changed to \(videoOrientation.rawValue)")
-        }
-        
-
+        // Tap to Hide/Show UI
+        let tapGesture = UITapGestureRecognizer(target: self, action: #selector(toggleUI))
+        view.addGestureRecognizer(tapGesture)
     }
     
-    private func startBeacon() {
-        beaconListener = BeaconListener(port: beaconPort, deviceName: UIDevice.current.name)
-        beaconListener?.onLog = { [weak self] msg in
-            self?.log(msg)
+    @objc private func toggleUI() {
+        isUIHidden.toggle()
+        UIView.animate(withDuration: 0.3) {
+            self.controlsContainer.alpha = self.isUIHidden ? 0 : 1
         }
-        beaconListener?.start()
-        log("UDP Listener started on port \(beaconPort)")
     }
     
-    // Custom Logger
-    func log(_ msg: String) {
-        logQueue.async {
-            let timestamp = DateFormatter.localizedString(from: Date(), dateStyle: .none, timeStyle: .medium)
-            let logLine = "[\(timestamp)] \(msg)\n"
-            
-            // 1. Append to File (Thread Safe)
-            if let dir = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first {
-                let fileURL = dir.appendingPathComponent("console.log")
-                if let data = logLine.data(using: .utf8) {
-                    do {
-                        if FileManager.default.fileExists(atPath: fileURL.path) {
-                            let fileHandle = try FileHandle(forWritingTo: fileURL)
-                            fileHandle.seekToEndOfFile()
-                            fileHandle.write(data)
-                            fileHandle.closeFile()
-                        } else {
-                            try data.write(to: fileURL)
-                        }
-                    } catch {
-                        print("File Log Error: \(error)")
-                    }
-                }
-            }
-            
-            // 2. Update UI (Main Thread via async)
-            DispatchQueue.main.async { [weak self] in
-                guard let self = self else { return }
-                self.debugTextView.text = logLine + self.debugTextView.text
-                // Keep only last 50 lines
-                let lines = self.debugTextView.text.components(separatedBy: "\n")
-                if lines.count > 50 {
-                    self.debugTextView.text = lines.prefix(50).joined(separator: "\n")
-                }
-            }
-            
-            print(msg)
-        }
+    @objc private func toggleLogs() {
+        debugTextView.isHidden.toggle()
+        let isHidden = debugTextView.isHidden
+        toggleLogsButton.setTitle(isHidden ? "Show Logs" : "Hide Logs", for: .normal)
+        toggleLogsButton.backgroundColor = isHidden ? .darkGray : .systemGreen
     }
     
     private func setupUI() {
         view.backgroundColor = .black
         
-        // Simple Label
-        let label = UILabel()
-        label.text = "Antigravity Cam"
-        label.textColor = .white
-        label.frame = CGRect(x: 20, y: 50, width: 200, height: 40)
-        view.addSubview(label)
+        // Add Container
+        controlsContainer.translatesAutoresizingMaskIntoConstraints = false
+        view.addSubview(controlsContainer)
         
-        // Status Label (next to title)
-        statusLabel.frame = CGRect(x: 220, y: 50, width: 150, height: 40)
-        view.addSubview(statusLabel)
+        // Pin Container to Safe Area
+        NSLayoutConstraint.activate([
+            controlsContainer.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor),
+            controlsContainer.leadingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leadingAnchor),
+            controlsContainer.trailingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.trailingAnchor),
+            controlsContainer.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor)
+        ])
         
-        // IP Text Field
-        ipTextField.frame = CGRect(x: 20, y: 100, width: 200, height: 40)
-        view.addSubview(ipTextField)
+        // Add Elements to Container
+        controlsContainer.addSubview(titleLabel)
+        controlsContainer.addSubview(statusLabel)
+        controlsContainer.addSubview(ipTextField)
+        controlsContainer.addSubview(connectButton)
+        controlsContainer.addSubview(fpsButton)
+        controlsContainer.addSubview(sendLogsButton)
+        controlsContainer.addSubview(toggleLogsButton)
+        controlsContainer.addSubview(debugTextView)
         
-        // Connect Button
-        connectButton.frame = CGRect(x: 230, y: 100, width: 100, height: 40)
+        // Hook up actions
         connectButton.addTarget(self, action: #selector(connectTapped), for: .touchUpInside)
-        view.addSubview(connectButton)
-
-        // Send Logs Button (New Row)
-        sendLogsButton.frame = CGRect(x: 20, y: 150, width: 220, height: 40)
         sendLogsButton.addTarget(self, action: #selector(sendLogsTapped), for: .touchUpInside)
-        view.addSubview(sendLogsButton)
-
-        // FPS Button
-        fpsButton.frame = CGRect(x: 250, y: 150, width: 80, height: 40)
         fpsButton.addTarget(self, action: #selector(fpsTapped), for: .touchUpInside)
-        view.addSubview(fpsButton)
+        toggleLogsButton.addTarget(self, action: #selector(toggleLogs), for: .touchUpInside)
         
-        // Debug TextView (Shifted down)
-        debugTextView.frame = CGRect(x: 20, y: 200, width: view.bounds.width - 40, height: view.bounds.height - 220)
-        view.addSubview(debugTextView)
+        // --- Layout Constraints ---
+        
+        // Top Bar
+        NSLayoutConstraint.activate([
+            titleLabel.topAnchor.constraint(equalTo: controlsContainer.topAnchor, constant: 10),
+            titleLabel.leadingAnchor.constraint(equalTo: controlsContainer.leadingAnchor, constant: 20),
+            
+            statusLabel.centerYAnchor.constraint(equalTo: titleLabel.centerYAnchor),
+            statusLabel.trailingAnchor.constraint(equalTo: controlsContainer.trailingAnchor, constant: -20)
+        ])
+        
+        // Bottom Controls Stack
+        NSLayoutConstraint.activate([
+            // IP Field & Connect Row (Bottom - 60)
+            connectButton.bottomAnchor.constraint(equalTo: fpsButton.topAnchor, constant: -10),
+            connectButton.trailingAnchor.constraint(equalTo: controlsContainer.trailingAnchor, constant: -20),
+            connectButton.widthAnchor.constraint(equalToConstant: 100),
+            connectButton.heightAnchor.constraint(equalToConstant: 44),
+            
+            ipTextField.centerYAnchor.constraint(equalTo: connectButton.centerYAnchor),
+            ipTextField.trailingAnchor.constraint(equalTo: connectButton.leadingAnchor, constant: -10),
+            ipTextField.leadingAnchor.constraint(equalTo: controlsContainer.leadingAnchor, constant: 20),
+            ipTextField.heightAnchor.constraint(equalToConstant: 44),
+            
+            // Buttons Row (Bottom - 10)
+            fpsButton.bottomAnchor.constraint(equalTo: controlsContainer.bottomAnchor, constant: -10),
+            fpsButton.leadingAnchor.constraint(equalTo: controlsContainer.leadingAnchor, constant: 20),
+            fpsButton.widthAnchor.constraint(equalToConstant: 80),
+            fpsButton.heightAnchor.constraint(equalToConstant: 44),
+            
+            sendLogsButton.centerYAnchor.constraint(equalTo: fpsButton.centerYAnchor),
+            sendLogsButton.leadingAnchor.constraint(equalTo: fpsButton.trailingAnchor, constant: 10),
+            sendLogsButton.widthAnchor.constraint(equalToConstant: 110),
+            sendLogsButton.heightAnchor.constraint(equalToConstant: 44),
+            
+            toggleLogsButton.centerYAnchor.constraint(equalTo: fpsButton.centerYAnchor),
+            toggleLogsButton.leadingAnchor.constraint(equalTo: sendLogsButton.trailingAnchor, constant: 10),
+            toggleLogsButton.trailingAnchor.constraint(lessThanOrEqualTo: controlsContainer.trailingAnchor, constant: -20),
+            toggleLogsButton.widthAnchor.constraint(equalToConstant: 100),
+            toggleLogsButton.heightAnchor.constraint(equalToConstant: 44)
+        ])
+        
+        // Debug Console (Overlay above controls when visible)
+        NSLayoutConstraint.activate([
+            debugTextView.leadingAnchor.constraint(equalTo: controlsContainer.leadingAnchor, constant: 20),
+            debugTextView.trailingAnchor.constraint(equalTo: controlsContainer.trailingAnchor, constant: -20),
+            debugTextView.bottomAnchor.constraint(equalTo: ipTextField.topAnchor, constant: -10),
+            debugTextView.heightAnchor.constraint(equalTo: controlsContainer.heightAnchor, multiplier: 0.4)
+        ])
         
         updateConnectionUI()
     }
@@ -285,19 +281,19 @@ class CameraViewController: UIViewController {
         switch connectionState {
         case .disconnected:
             connectButton.setTitle("Connect", for: .normal)
-            connectButton.isEnabled = true
-            sendLogsButton.isEnabled = true
-            sendLogsButton.alpha = 1.0
+            connectButton.backgroundColor = .white
+            connectButton.setTitleColor(.black, for: .normal)
+            ipTextField.isEnabled = true
         case .connecting, .reconnecting:
             connectButton.setTitle("Cancel", for: .normal)
-            connectButton.isEnabled = true
-            sendLogsButton.isEnabled = false
-            sendLogsButton.alpha = 0.5
+            connectButton.backgroundColor = .systemOrange
+            connectButton.setTitleColor(.white, for: .normal)
+            ipTextField.isEnabled = false
         case .connected:
             connectButton.setTitle("Disconnect", for: .normal)
-            connectButton.isEnabled = true
-            sendLogsButton.isEnabled = false
-            sendLogsButton.alpha = 0.5
+            connectButton.backgroundColor = .systemRed
+            connectButton.setTitleColor(.white, for: .normal)
+            ipTextField.isEnabled = false
         }
     }
     
