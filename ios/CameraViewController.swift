@@ -39,6 +39,7 @@ class CameraViewController: UIViewController {
     private var needsKeyFrame = false
     private var isDroppingFrames = false // Recovery State
     // Frame count removed
+    private let logQueue = DispatchQueue(label: "com.antigravity.logger", qos: .background)
     
     // Manual Display Display Layer
     private let displayLayer = AVSampleBufferDisplayLayer()
@@ -630,6 +631,52 @@ class CameraViewController: UIViewController {
         connectionState = .disconnected
         beaconListener?.setStreaming(false) // Reset beacon state
         isDroppingFrames = true
+    }
+    // MARK: - Helpers
+    private func startBeacon() {
+        let name = UIDevice.current.name
+        beaconListener = BeaconListener(port: beaconPort, deviceName: name)
+        beaconListener?.onLog = { [weak self] msg in
+            self?.log("[Beacon] \(msg)")
+        }
+        beaconListener?.start()
+    }
+    
+    private func log(_ message: String) {
+        let formatter = DateFormatter()
+        formatter.dateFormat = "HH:mm:ss.SSS"
+        let timestamp = formatter.string(from: Date())
+        let logMessage = "[\(timestamp)] \(message)"
+        
+        DispatchQueue.main.async { [weak self] in
+            // Print to Xcode console
+            print(logMessage)
+            
+            // Append to on-screen debug view
+            self?.debugTextView.text.append(logMessage + "\n")
+            
+            // Scroll to bottom
+            let range = NSMakeRange(self?.debugTextView.text.count ?? 0 - 1, 1)
+            self?.debugTextView.scrollRangeToVisible(range)
+        }
+        
+        // Write to local file for uploading
+        logQueue.async {
+            guard let dir = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first else { return }
+            let fileURL = dir.appendingPathComponent("console.log")
+            
+            if let data = (logMessage + "\n").data(using: .utf8) {
+                if FileManager.default.fileExists(atPath: fileURL.path) {
+                    if let fileHandle = try? FileHandle(forWritingTo: fileURL) {
+                        fileHandle.seekToEndOfFile()
+                        fileHandle.write(data)
+                        fileHandle.closeFile()
+                    }
+                } else {
+                    try? data.write(to: fileURL)
+                }
+            }
+        }
     }
 
 }
