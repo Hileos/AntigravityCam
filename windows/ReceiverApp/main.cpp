@@ -252,13 +252,6 @@ void decode_frame(SOCKET clientSocket, uint8_t *data, int size,
   // Simple NAL Unit Type Check (first byte & 0x1F)
   int nalType = data[0] & 0x1F;
 
-  if (nalType == 7)
-    log_msg("NAL: SPS (7) found\n");
-  else if (nalType == 8)
-    log_msg("NAL: PPS (8) found\n");
-  else if (nalType == 5)
-    log_msg("NAL: IDR (5) found\n");
-
   // SPS (7), PPS (8), IDR (5) are critical for starting playback
   if (nalType == 7 || nalType == 8 || nalType == 5) {
     if (!hasSeenKeyframe) {
@@ -387,16 +380,29 @@ void decode_frame(SOCKET clientSocket, uint8_t *data, int size,
             cached_h != pFrame->height) {
           if (sws_ctx)
             sws_freeContext(sws_ctx);
-          sws_ctx = sws_getContext(VIDEO_WIDTH, VIDEO_HEIGHT,
-                                   (AVPixelFormat)pFrame->format, VIDEO_WIDTH,
-                                   VIDEO_HEIGHT, AV_PIX_FMT_BGRA, SWS_BILINEAR,
-                                   NULL, NULL, NULL);
+          // Destination resolution should match source resolution (no scaling)
+          sws_ctx = sws_getContext(pFrame->width, pFrame->height,
+                                   (AVPixelFormat)pFrame->format, pFrame->width,
+                                   pFrame->height, AV_PIX_FMT_BGRA,
+                                   SWS_BILINEAR, NULL, NULL, NULL);
+
+          // CRITICAL FIX: Reconfigure pFrameRGB layout for new dimensions.
+          // Since 1280x720 and 720x1280 have same total byte count, we can
+          // reuse pFrameRGBBuffer. This updates linesize so we don't overflow.
+          av_image_fill_arrays(pFrameRGB->data, pFrameRGB->linesize,
+                               pFrameRGBBuffer, AV_PIX_FMT_BGRA, pFrame->width,
+                               pFrame->height, 1);
+
           cached_format = pFrame->format;
           cached_w = pFrame->width;
           cached_h = pFrame->height;
         }
 
         if (sws_ctx) {
+          // Update pFrameRGB dimensions so UI thread knows what to draw
+          pFrameRGB->width = pFrame->width;
+          pFrameRGB->height = pFrame->height;
+
           sws_scale(sws_ctx, (uint8_t const *const *)pFrame->data,
                     pFrame->linesize, 0, codecCtx->height, pFrameRGB->data,
                     pFrameRGB->linesize);
@@ -404,6 +410,9 @@ void decode_frame(SOCKET clientSocket, uint8_t *data, int size,
 
         // Write to Shared Memory (double-buffered)
         if (pSharedMem) {
+          // Update Shared Memory Metadata with ACTUAL frame size
+          pSharedMem->width = pFrame->width;
+          pSharedMem->height = pFrame->height;
           // Write to inactive buffer
           uint32_t writeBuffer = pSharedMem->active_buffer ^ 1;
           memcpy(pSharedMem->data[writeBuffer], pFrameRGB->data[0],
@@ -932,21 +941,71 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam,
     PAINTSTRUCT ps;
     HDC hdc = BeginPaint(hwnd, &ps);
 
-    // Draw the latest frame
+    // Draw the latest frame using Double Buffering (Fixes Flicker)
     {
       std::lock_guard<std::mutex> lock(frameMutex);
       if (pFrameRGB && pFrameRGB->data[0]) {
-        BITMAPINFO bmi = {0};
-        bmi.bmiHeader.biSize = sizeof(BITMAPINFOHEADER);
-        bmi.bmiHeader.biWidth = VIDEO_WIDTH;
-        bmi.bmiHeader.biHeight = -VIDEO_HEIGHT; // Top-down
-        bmi.bmiHeader.biPlanes = 1;
-        bmi.bmiHeader.biBitCount = 32;
-        bmi.bmiHeader.biCompression = BI_RGB;
+        RECT clientRect;
+        GetClientRect(hwnd, &clientRect);
+        int winW = clientRect.right - clientRect.left;
+        int winH = clientRect.bottom - clientRect.top;
 
-        SetDIBitsToDevice(hdc, 0, 0, VIDEO_WIDTH, VIDEO_HEIGHT, 0, 0, 0,
-                          VIDEO_HEIGHT, pFrameRGB->data[0], &bmi,
-                          DIB_RGB_COLORS);
+        // Create Memory DC for Double Buffering
+        HDC memDC = CreateCompatibleDC(hdc);
+        HBITMAP memBitmap = CreateCompatibleBitmap(hdc, winW, winH);
+        HBITMAP oldBitmap = (HBITMAP)SelectObject(memDC, memBitmap);
+
+        // 1. Fill Background with Black (on Memory DC)
+        HBRUSH hBrush = CreateSolidBrush(RGB(0, 0, 0));
+        FillRect(memDC, &clientRect, hBrush);
+        DeleteObject(hBrush);
+
+        int srcW = pFrameRGB->width;
+        int srcH = pFrameRGB->height;
+
+        if (srcW > 0 && srcH > 0 && winW > 0 && winH > 0) {
+          // 2. Calculate Aspect Ratio Preserving Dimensions
+          float srcAspect = (float)srcW / (float)srcH;
+          float winAspect = (float)winW / (float)winH;
+
+          int dstW = winW;
+          int dstH = winH;
+
+          if (winAspect > srcAspect) {
+            // Window is wider than Video -> Vertical Bars (Pillarbox)
+            dstW = (int)(winH * srcAspect);
+            dstH = winH;
+          } else {
+            // Window is taller than Video -> Horizontal Bars (Letterbox)
+            dstW = winW;
+            dstH = (int)(winW / srcAspect);
+          }
+
+          // 3. Center the Image
+          int dstX = (winW - dstW) / 2;
+          int dstY = (winH - dstH) / 2;
+
+          BITMAPINFO bmi = {0};
+          bmi.bmiHeader.biSize = sizeof(BITMAPINFOHEADER);
+          bmi.bmiHeader.biWidth = srcW;
+          bmi.bmiHeader.biHeight = -srcH; // Top-down
+          bmi.bmiHeader.biPlanes = 1;
+          bmi.bmiHeader.biBitCount = 32;
+          bmi.bmiHeader.biCompression = BI_RGB;
+
+          // Use StretchDIBits for scaling onto Memory DC
+          SetStretchBltMode(memDC, HALFTONE);
+          StretchDIBits(memDC, dstX, dstY, dstW, dstH, 0, 0, srcW, srcH,
+                        pFrameRGB->data[0], &bmi, DIB_RGB_COLORS, SRCCOPY);
+        }
+
+        // 4. Blit Memory DC to Screen (Atomic Present)
+        BitBlt(hdc, 0, 0, winW, winH, memDC, 0, 0, SRCCOPY);
+
+        // Cleanup
+        SelectObject(memDC, oldBitmap);
+        DeleteObject(memBitmap);
+        DeleteDC(memDC);
       }
     }
 

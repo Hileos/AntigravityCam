@@ -38,7 +38,7 @@ class CameraViewController: UIViewController {
     private var videoEncoder: VideoEncoder?
     private var needsKeyFrame = false
     private var isDroppingFrames = false // Recovery State
-    private var frameCount: Int = 0 
+    // Frame count removed
     
     // Manual Display Display Layer
     private let displayLayer = AVSampleBufferDisplayLayer()
@@ -583,63 +583,6 @@ class CameraViewController: UIViewController {
         isDroppingFrames = true
     }
 
-    private func drawDebugPattern(on pixelBuffer: CVPixelBuffer) {
-        CVPixelBufferLockBaseAddress(pixelBuffer, [])
-        defer { CVPixelBufferUnlockBaseAddress(pixelBuffer, []) }
-        
-        guard CVPixelBufferGetPlaneCount(pixelBuffer) >= 2 else { return }
-        
-        // Increase frame count
-        frameCount += 1
-        
-        let width = CVPixelBufferGetWidth(pixelBuffer)
-        let height = CVPixelBufferGetHeight(pixelBuffer)
-        
-        // Visual Latency Test: Moving Zebra Square
-        // Speed: 20 pixels per frame
-        let boxSize = 100
-        let speed = 20
-        let xPos = (frameCount * speed) % (width - boxSize)
-        let yPos = (height / 2) - (boxSize / 2) // Center vertically
-        
-        // Plane 0: Y (Luma)
-        if let yBase = CVPixelBufferGetBaseAddressOfPlane(pixelBuffer, 0) {
-            let yStride = CVPixelBufferGetBytesPerRowOfPlane(pixelBuffer, 0)
-            
-            for r in 0..<boxSize {
-                let rowIdx = yPos + r
-                if rowIdx >= height { break }
-                
-                let rowPtr = yBase.advanced(by: rowIdx * yStride).assumingMemoryBound(to: UInt8.self)
-                
-                // Draw Zebra Stripes (Black/White every 10 pixels)
-                let isWhiteStripe = (r / 10) % 2 == 0
-                let color: UInt8 = isWhiteStripe ? 255 : 0
-                
-                memset(rowPtr + xPos, Int32(color), boxSize)
-            }
-        }
-        
-        // Plane 1: UV (Chroma) - Set to Neural Gray (128)
-        if let uvBase = CVPixelBufferGetBaseAddressOfPlane(pixelBuffer, 1) {
-            let uvStride = CVPixelBufferGetBytesPerRowOfPlane(pixelBuffer, 1)
-            
-            for r in 0..<(boxSize/2) {
-                let rowIdx = (yPos / 2) + r
-                if rowIdx >= (height/2) { break }
-                
-                let rowPtr = uvBase.advanced(by: rowIdx * uvStride).assumingMemoryBound(to: UInt8.self)
-                let uvXStart = (xPos / 2) * 2 
-                
-                // Write Neutral Chroma (128) for the length of the box
-                for c in 0..<(boxSize/2) {
-                    let ptrIdx = uvXStart + (c * 2)
-                    rowPtr[ptrIdx] = 128     // U
-                    rowPtr[ptrIdx + 1] = 128 // V
-                }
-            }
-        }
-    }
 }
 
 extension CameraViewController: AVCaptureVideoDataOutputSampleBufferDelegate {
@@ -647,11 +590,10 @@ extension CameraViewController: AVCaptureVideoDataOutputSampleBufferDelegate {
         // Only process frames if connected
         guard connectionState == .connected else { return }
         
-        // Get Pixel Buffer (Required for drawing and resolution check)
+        // Get Pixel Buffer (Required for resolution check)
         guard let pixelBuffer = CMSampleBufferGetImageBuffer(sampleBuffer) else { return }
         
-        // Draw Debug Pattern
-        drawDebugPattern(on: pixelBuffer)
+        // (Debug Pattern Removed)
         
         // Display Modified Frame on iPhone
         displayLayer.enqueue(sampleBuffer)
